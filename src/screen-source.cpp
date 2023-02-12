@@ -104,25 +104,6 @@ static void screen_destroy(void *data)
 	}
 }
 
-static void screen_video_tick(void *data, float seconds)
-{
-	screen_context *context = reinterpret_cast<screen_context *>(data);
-
-	uint64_t cur_time = os_gettime_ns();
-	struct obs_source_frame frame = {
-		.width = static_cast<uint32_t>(context->gameplay_bgra.cols),
-		.height = static_cast<uint32_t>(context->gameplay_bgra.rows),
-		.timestamp = cur_time,
-		.format = VIDEO_FORMAT_BGRA,
-	};
-	frame.data[0] = context->gameplay_bgra.data;
-	frame.linesize[0] = context->gameplay_bgra.cols * 4;
-
-	obs_source_output_video(context->source, &frame);
-
-	UNUSED_PARAMETER(seconds);
-}
-
 static bool add_all_sources_to_list(void *param, obs_source_t *source)
 {
 	obs_property_t *prop = reinterpret_cast<obs_property_t *>(param);
@@ -169,6 +150,25 @@ static void screen_defaults(obs_data_t *settings)
 	obs_data_set_default_string(settings, "timer_source", "");
 }
 
+static void screen_video_tick(void *data, float seconds)
+{
+	screen_context *context = reinterpret_cast<screen_context *>(data);
+
+	uint64_t cur_time = os_gettime_ns();
+	struct obs_source_frame frame = {
+		.width = static_cast<uint32_t>(context->gameplay_bgra.cols),
+		.height = static_cast<uint32_t>(context->gameplay_bgra.rows),
+		.timestamp = cur_time,
+		.format = VIDEO_FORMAT_BGRA,
+	};
+	frame.data[0] = context->gameplay_bgra.data;
+	frame.linesize[0] = context->gameplay_bgra.cols * 4;
+
+	obs_source_output_video(context->source, &frame);
+
+	UNUSED_PARAMETER(seconds);
+}
+
 struct obs_source_info screen_info = {
 	.id = "obs-pokemon-sv-screen-builder",
 	.type = OBS_SOURCE_TYPE_INPUT,
@@ -176,7 +176,7 @@ struct obs_source_info screen_info = {
 	.get_name = screen_get_name,
 	.create = screen_create,
 	.destroy = screen_destroy,
-	.video_tick = screen_video_tick,
 	.get_properties = screen_properties,
 	.get_defaults = screen_defaults,
+	.video_tick = screen_video_tick,
 };
