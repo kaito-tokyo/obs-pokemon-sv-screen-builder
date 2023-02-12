@@ -55,6 +55,9 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/src
 
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OBS::libobs)
 
+include(cmake/BuildMyOpenCV.cmake)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
+
 # --- End of section ---
 
 # --- Windows-specific build settings and tasks ---
