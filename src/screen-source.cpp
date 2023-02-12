@@ -9,40 +9,9 @@ struct screen_context
 	uint32_t *pixels_bgra;
 };
 
-
-static inline void fill_texture(uint32_t *pixels)
-{
-	size_t x, y;
-
-	for (y = 0; y < 1080; y++) {
-		for (x = 0; x < 1920; x++) {
-			uint32_t pixel = 0;
-			pixel |= (255 % 256);
-			pixel |= (255 % 256) << 8;
-			pixel |= (0 % 256) << 16;
-		    pixel |= 0xFF << 24;
-			pixels[y * 1920 + x] = pixel;
-		}
-	}
-}
-
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 {
-	screen_context *context = reinterpret_cast<screen_context*>(data);
-
-	fill_texture(context->pixels_bgra);
-	uint64_t cur_time = os_gettime_ns();
-	struct obs_source_frame frame = {
-		.data = {[0] = reinterpret_cast<uint8_t*>(context->pixels_bgra)},
-		.linesize = {[0] = context->width * 4},
-		.width = context->width,
-		.height = context->height,
-		.format = VIDEO_FORMAT_BGRA,
-		.timestamp = cur_time,
-	};
-
-	obs_source_output_video(context->source, &frame);
-
+	UNUSED_PARAMETER(data);
 	UNUSED_PARAMETER(cx);
 	UNUSED_PARAMETER(cy);
 }
@@ -73,11 +42,44 @@ static void screen_destroy(void *data)
 
 	if (context) {
 		obs_remove_main_render_callback(screen_main_render_callback, context);
-		if (context->pixels_bgra) {
-			bfree(context->pixels_bgra);
-		}
 		bfree(context);
 	}
+}
+
+static inline void fill_texture(uint32_t *pixels)
+{
+	size_t x, y;
+
+	for (y = 0; y < 200; y++) {
+		for (x = 0; x < 200; x++) {
+			uint32_t pixel = 0;
+			pixel |= (rand() % 256);
+			pixel |= (rand() % 256) << 8;
+			pixel |= (rand() % 256) << 16;
+		    pixel |= 0xFF << 24;
+			pixels[y * 200 + x] = pixel;
+		}
+	}
+}
+
+static void screen_video_tick(void *data, float seconds) 
+{
+	screen_context *context = reinterpret_cast<screen_context*>(data);
+
+	fill_texture(context->pixels_bgra);
+	uint64_t cur_time = os_gettime_ns();
+	struct obs_source_frame frame = {
+		.data = {[0] = reinterpret_cast<uint8_t*>(context->pixels_bgra)},
+		.linesize = {[0] = context->width * 4},
+		.width = context->width,
+		.height = context->height,
+		.format = VIDEO_FORMAT_BGRA,
+		.timestamp = cur_time,
+	};
+
+	obs_source_output_video(context->source, &frame);
+
+	UNUSED_PARAMETER(seconds);
 }
 
 struct obs_source_info screen_info = {
@@ -88,7 +90,7 @@ struct obs_source_info screen_info = {
 	.create = screen_create,
 	.destroy = screen_destroy,
 	// .video_render = screen_video_render,
-	// .video_tick = filter_video_tick,
+	.video_tick = screen_video_tick,
 	// .get_properties = filter_properties,
 	// .get_defaults = filter_defaults,
 };
