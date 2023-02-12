@@ -264,11 +264,33 @@ jobs:
       run:
         shell: pwsh
     steps:
+      - name: Support longpaths
+        run: |
+          git config --system core.longpaths true
+          New-ItemProperty -Path "HKLM:\SYSTEM\CurrentControlSet\Control\FileSystem" `
+            -Name "LongPathsEnabled" -Value 1 -PropertyType DWORD -Force
+
       - name: Checkout
         uses: actions/checkout@v3
         with:
           path: plugin
           submodules: recursive
+
+      - name: Install ccache
+        run: |
+          Invoke-WebRequest https://github.com/ccache/ccache/releases/download/v4.7.4/ccache-4.7.4-windows-x86_64.zip -OutFile ${{ github.workspace }}/ccache-4.7.4-windows-x86_64.zip
+          Expand-Archive -Path ccache-4.7.4-windows-x86_64.zip -DestinationPath ${{ github.workspace }}
+          "${{ github.workspace }}/ccache-4.7.4-windows-x86_64" >> $Env:GITHUB_PATH
+
+      - name: Setup ccache
+        run: |
+          ccache --version
+          ccache --set-config=cache_dir="${{ github.workspace }}/.ccache"
+          ccache --set-config=max_size="4096M"
+          ccache --set-config=compression=true
+          ccache -z
+
+      - uses: ilammy/msvc-dev-cmd@v1
 
       - name: Checkout obs-studio
         uses: actions/checkout@v3
