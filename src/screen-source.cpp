@@ -4,20 +4,39 @@
 struct screen_context
 {
 	obs_source_t *source;
+	uint32_t width;
+	uint32_t height;
+	uint32_t *pixels_bgra;
 };
 
+
+static inline void fill_texture(uint32_t *pixels)
+{
+	size_t x, y;
+
+	for (y = 0; y < 1080; y++) {
+		for (x = 0; x < 1920; x++) {
+			uint32_t pixel = 0;
+			pixel |= (255 % 256);
+			pixel |= (255 % 256) << 8;
+			pixel |= (0 % 256) << 16;
+		    pixel |= 0xFF << 24;
+			pixels[y * 1920 + x] = pixel;
+		}
+	}
+}
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 {
 	screen_context *context = reinterpret_cast<screen_context*>(data);
 
-	uint32_t pixels[20 * 20] = {};
+	fill_texture(context->pixels_bgra);
 	uint64_t cur_time = os_gettime_ns();
 	struct obs_source_frame frame = {
-		.data = {[0] = (uint8_t *)pixels},
-		.linesize = {[0] = 20 * 4},
-		.width = 20,
-		.height = 20,
+		.data = {[0] = reinterpret_cast<uint8_t*>(context->pixels_bgra)},
+		.linesize = {[0] = context->width * 4},
+		.width = context->width,
+		.height = context->height,
 		.format = VIDEO_FORMAT_BGRA,
 		.timestamp = cur_time,
 	};
@@ -38,6 +57,9 @@ static void *screen_create(obs_data_t *settings, obs_source_t *source)
 {
 	screen_context *context = reinterpret_cast<screen_context*>(bzalloc(sizeof(screen_context)));
 	context->source = source;
+	context->width = 1920;
+	context->height = 1080;
+	context->pixels_bgra = reinterpret_cast<uint32_t*>(bzalloc(context->width * context->height));
 
 	obs_add_main_render_callback(screen_main_render_callback, context);
 
@@ -51,6 +73,9 @@ static void screen_destroy(void *data)
 
 	if (context) {
 		obs_remove_main_render_callback(screen_main_render_callback, context);
+		if (context->pixels_bgra) {
+			bfree(context->pixels_bgra);
+		}
 		bfree(context);
 	}
 }
