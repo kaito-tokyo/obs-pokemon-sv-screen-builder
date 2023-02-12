@@ -32,7 +32,8 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 		return;
 
 	gs_texrender_reset(context->texrender);
-	if (!gs_texrender_begin(context->texrender, gameplay_width, gameplay_height))
+	if (!gs_texrender_begin(context->texrender, gameplay_width,
+				gameplay_height))
 		return;
 	gs_ortho(0.0f, gameplay_width, 0.0f, gameplay_height, -100.0f, 100.0f);
 	obs_source_video_render(gameplay_source);
@@ -42,14 +43,14 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 		gs_stagesurface_get_width(context->stagesurface);
 	uint32_t stagesurface_height =
 		gs_stagesurface_get_height(context->stagesurface);
-	if (context->stagesurface &&
-	    (stagesurface_width != gameplay_width || stagesurface_height != gameplay_height)) {
+	if (context->stagesurface && (stagesurface_width != gameplay_width ||
+				      stagesurface_height != gameplay_height)) {
 		gs_stagesurface_destroy(context->stagesurface);
 		context->stagesurface = nullptr;
 	}
 	if (!context->stagesurface) {
-		context->stagesurface =
-			gs_stagesurface_create(gameplay_width, gameplay_height, GS_BGRA);
+		context->stagesurface = gs_stagesurface_create(
+			gameplay_width, gameplay_height, GS_BGRA);
 	}
 	gs_stage_texture(context->stagesurface,
 			 gs_texrender_get_texture(context->texrender));
@@ -60,7 +61,9 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 		return;
 	if (stagesurface_data && linesize) {
 		if (gameplay_width * 4 == linesize) {
-			context->gameplay_bgra = cv::Mat(gameplay_height, gameplay_width, CV_8UC4, stagesurface_data);
+			context->gameplay_bgra =
+				cv::Mat(gameplay_height, gameplay_width,
+					CV_8UC4, stagesurface_data);
 		}
 	}
 	gs_stagesurface_unmap(context->stagesurface);
@@ -120,10 +123,9 @@ static void screen_video_tick(void *data, float seconds)
 	UNUSED_PARAMETER(seconds);
 }
 
-
 static bool add_all_sources_to_list(void *param, obs_source_t *source)
 {
-	obs_property_t *prop = reinterpret_cast<obs_property_t*>(param);
+	obs_property_t *prop = reinterpret_cast<obs_property_t *>(param);
 	const char *name = obs_source_get_name(source);
 	obs_property_list_add_string(prop, name, name);
 	return true;
@@ -131,7 +133,7 @@ static bool add_all_sources_to_list(void *param, obs_source_t *source)
 
 static bool add_text_sources_to_list(void *param, obs_source_t *source)
 {
-	obs_property_t *prop = reinterpret_cast<obs_property_t*>(param);
+	obs_property_t *prop = reinterpret_cast<obs_property_t *>(param);
 	const char *id = obs_source_get_id(source);
 	if (strcmp(id, "text_gdiplus_v2") == 0 ||
 	    strcmp(id, "text_gdiplus") == 0 ||
@@ -154,8 +156,8 @@ static obs_properties_t *screen_properties(void *data)
 	obs_enum_sources(add_all_sources_to_list, prop_gameplay_source);
 
 	obs_property_t *prop_timer = obs_properties_add_list(
-		props, "timer_source", "Timer Source",
-		OBS_COMBO_TYPE_EDITABLE, OBS_COMBO_FORMAT_STRING);
+		props, "timer_source", "Timer Source", OBS_COMBO_TYPE_EDITABLE,
+		OBS_COMBO_FORMAT_STRING);
 	obs_enum_sources(add_text_sources_to_list, prop_timer);
 
 	return props;
