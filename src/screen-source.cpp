@@ -35,7 +35,8 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 	if (!gs_texrender_begin(context->texrender, gameplay_width,
 				gameplay_height))
 		return;
-	gs_ortho(0.0f, gameplay_width, 0.0f, gameplay_height, -100.0f, 100.0f);
+	gs_ortho(0.0f, static_cast<float>(gameplay_width), 0.0f,
+		 static_cast<float>(gameplay_height), -100.0f, 100.0f);
 	obs_source_video_render(gameplay_source);
 	gs_texrender_end(context->texrender);
 
