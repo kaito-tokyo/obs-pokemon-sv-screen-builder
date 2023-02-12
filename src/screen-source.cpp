@@ -22,23 +22,31 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 	const char *gameplay_name =
 		obs_data_get_string(context->settings, "gameplay_source");
 	obs_source_t *gameplay_source = obs_get_source_by_name(gameplay_name);
-	if (!gameplay_source || !obs_source_enabled(gameplay_source))
+	if (!gameplay_source || !obs_source_enabled(gameplay_source)) {
+		obs_source_release(gameplay_source);
 		return;
+	}
 
 	const uint32_t gameplay_width = obs_source_get_width(gameplay_source);
 	const uint32_t gameplay_height = obs_source_get_height(gameplay_source);
 
-	if (gameplay_width == 0 || gameplay_height == 0)
+	if (gameplay_width == 0 || gameplay_height == 0) {
+		obs_source_release(gameplay_source);
 		return;
+	}
 
 	gs_texrender_reset(context->texrender);
 	if (!gs_texrender_begin(context->texrender, gameplay_width,
-				gameplay_height))
+				gameplay_height)) {
+		obs_source_release(gameplay_source);
 		return;
+	}
 	gs_ortho(0.0f, static_cast<float>(gameplay_width), 0.0f,
 		 static_cast<float>(gameplay_height), -100.0f, 100.0f);
 	obs_source_video_render(gameplay_source);
 	gs_texrender_end(context->texrender);
+
+	obs_source_release(gameplay_source);
 
 	uint32_t stagesurface_width =
 		gs_stagesurface_get_width(context->stagesurface);
