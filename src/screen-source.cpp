@@ -104,6 +104,12 @@ static void screen_destroy(void *data)
 	}
 }
 
+static void screen_defaults(obs_data_t *settings)
+{
+	obs_data_set_default_string(settings, "gameplay_source", "");
+	obs_data_set_default_string(settings, "timer_source", "");
+}
+
 static bool add_all_sources_to_list(void *param, obs_source_t *source)
 {
 	obs_property_t *prop = reinterpret_cast<obs_property_t *>(param);
@@ -144,12 +150,6 @@ static obs_properties_t *screen_properties(void *data)
 	return props;
 }
 
-static void screen_defaults(obs_data_t *settings)
-{
-	obs_data_set_default_string(settings, "gameplay_source", "");
-	obs_data_set_default_string(settings, "timer_source", "");
-}
-
 static void screen_video_tick(void *data, float seconds)
 {
 	screen_context *context = reinterpret_cast<screen_context *>(data);
@@ -176,7 +176,7 @@ struct obs_source_info screen_info = {
 	.get_name = screen_get_name,
 	.create = screen_create,
 	.destroy = screen_destroy,
-	.get_properties = screen_properties,
 	.get_defaults = screen_defaults,
+	.get_properties = screen_properties,
 	.video_tick = screen_video_tick,
 };
