@@ -1,8 +1,7 @@
 #include <obs-module.h>
 #include <util/platform.h>
 
-struct screen_context
-{
+struct screen_context {
 	obs_source_t *source;
 	uint32_t width;
 	uint32_t height;
@@ -24,11 +23,13 @@ static const char *screen_get_name(void *unused)
 
 static void *screen_create(obs_data_t *settings, obs_source_t *source)
 {
-	screen_context *context = reinterpret_cast<screen_context*>(bzalloc(sizeof(screen_context)));
+	screen_context *context = reinterpret_cast<screen_context *>(
+		bzalloc(sizeof(screen_context)));
 	context->source = source;
 	context->width = 1920;
 	context->height = 1080;
-	context->pixels_bgra = reinterpret_cast<uint32_t*>(bzalloc(context->width * context->height));
+	context->pixels_bgra = reinterpret_cast<uint32_t *>(
+		bzalloc(context->width * context->height));
 
 	obs_add_main_render_callback(screen_main_render_callback, context);
 
@@ -38,10 +39,11 @@ static void *screen_create(obs_data_t *settings, obs_source_t *source)
 
 static void screen_destroy(void *data)
 {
-	screen_context *context = reinterpret_cast<screen_context*>(data);
+	screen_context *context = reinterpret_cast<screen_context *>(data);
 
 	if (context) {
-		obs_remove_main_render_callback(screen_main_render_callback, context);
+		obs_remove_main_render_callback(screen_main_render_callback,
+						context);
 		bfree(context);
 	}
 }
@@ -56,20 +58,21 @@ static inline void fill_texture(uint32_t *pixels)
 			pixel |= (rand() % 256);
 			pixel |= (rand() % 256) << 8;
 			pixel |= (rand() % 256) << 16;
-		    pixel |= 0xFF << 24;
+			pixel |= 0xFF << 24;
 			pixels[y * 200 + x] = pixel;
 		}
 	}
 }
 
-static void screen_video_tick(void *data, float seconds) 
+static void screen_video_tick(void *data, float seconds)
 {
-	screen_context *context = reinterpret_cast<screen_context*>(data);
+	screen_context *context = reinterpret_cast<screen_context *>(data);
 
 	fill_texture(context->pixels_bgra);
 	uint64_t cur_time = os_gettime_ns();
 	struct obs_source_frame frame = {
-		.data = {[0] = reinterpret_cast<uint8_t*>(context->pixels_bgra)},
+		.data = {[0] = reinterpret_cast<uint8_t *>(
+				 context->pixels_bgra)},
 		.linesize = {[0] = context->width * 4},
 		.width = context->width,
 		.height = context->height,
