@@ -71,14 +71,13 @@ static void screen_video_tick(void *data, float seconds)
 	fill_texture(context->pixels_bgra);
 	uint64_t cur_time = os_gettime_ns();
 	struct obs_source_frame frame = {
-		.data = {[0] = reinterpret_cast<uint8_t *>(
-				 context->pixels_bgra)},
-		.linesize = {[0] = context->width * 4},
 		.width = context->width,
 		.height = context->height,
 		.timestamp = cur_time,
 		.format = VIDEO_FORMAT_BGRA,
 	};
+	frame.data[0] = reinterpret_cast<uint8_t *>(context->pixels_bgra);
+	frame.linesize[0] = context->width * 4;
 
 	obs_source_output_video(context->source, &frame);
 
