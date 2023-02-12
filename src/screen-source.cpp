@@ -76,8 +76,8 @@ static void screen_video_tick(void *data, float seconds)
 		.linesize = {[0] = context->width * 4},
 		.width = context->width,
 		.height = context->height,
-		.format = VIDEO_FORMAT_BGRA,
 		.timestamp = cur_time,
+		.format = VIDEO_FORMAT_BGRA,
 	};
 
 	obs_source_output_video(context->source, &frame);
