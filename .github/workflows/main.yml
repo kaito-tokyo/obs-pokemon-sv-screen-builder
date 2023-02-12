@@ -17,7 +17,7 @@ on:
       - main
 
 env:
-  PLUGIN_NAME: 'obs-plugintemplate'
+  PLUGIN_NAME: 'obs-pokemon-sv-screen-builder'
 
 jobs:
   clang_check:
@@ -47,7 +47,7 @@ jobs:
     strategy:
       fail-fast: true
       matrix:
-        arch: [x86_64, arm64, universal]
+        arch: [x86_64, arm64]
     if: always()
     needs: [clang_check]
     outputs:
@@ -147,7 +147,7 @@ jobs:
         with:
           workingDirectory: ${{ github.workspace }}/plugin
           target: ${{ matrix.arch }}
-          config: RelWithDebInfo
+          config: Release
           codesign: 'true'
           codesignIdent: ${{ env.CODESIGN_IDENT }}
 
@@ -156,7 +156,7 @@ jobs:
         with:
           workingDirectory: ${{ github.workspace }}/plugin
           target: ${{ matrix.arch }}
-          config: RelWithDebInfo
+          config: Release
           codesign: ${{ github.event_name != 'pull_request' && steps.setup.outputs.haveCodesignIdent == 'true' }}
           notarize: ${{ startsWith(github.ref, 'refs/tags/') && github.event_name != 'pull_request' && steps.setup.outputs.haveNotarizationUser == 'true' }}
           codesignIdent: ${{ env.CODESIGN_IDENT }}
@@ -233,14 +233,14 @@ jobs:
         with:
           workingDirectory: ${{ github.workspace }}/plugin
           target: ${{ matrix.arch }}
-          config: RelWithDebInfo
+          config: Release
 
       - name: Package Plugin
         uses: ./plugin/.github/actions/package-plugin
         with:
           workingDirectory: ${{ github.workspace }}/plugin
           target: ${{ matrix.arch }}
-          config: RelWithDebInfo
+          config: Release
 
       - name: Upload Build Artifact
         if: ${{ success() && (github.event_name != 'pull_request' || steps.seekingTesters.outputs.found == 'true') }}
@@ -312,7 +312,7 @@ jobs:
         with:
           workingDirectory: ${{ github.workspace }}/plugin
           target: ${{ matrix.arch }}
-          config: RelWithDebInfo
+          config: Release
           visualStudio: 'Visual Studio 17 2022'
 
       - name: Package Plugin
@@ -320,7 +320,7 @@ jobs:
         with:
           workingDirectory: ${{ github.workspace }}/plugin
           target: ${{ matrix.arch }}
-          config: RelWithDebInfo
+          config: Release
 
       - name: Upload Build Artifact
         if: ${{ success() && (github.event_name != 'pull_request' || steps.seekingTesters.outputs.found == 'true') }}
@@ -335,7 +335,7 @@ jobs:
         with:
           workingDirectory: ${{ github.workspace }}/plugin
           target: ${{ matrix.arch }}
-          config: RelWithDebInfo
+          config: Release
           createInstaller: true
 
       - name: Upload Installer Artifact
@@ -353,6 +353,8 @@ jobs:
     defaults:
       run:
         shell: bash
+    permissions:
+      contents: write
     steps:
       - name: Get Metadata
         id: metadata
