@@ -6,23 +6,24 @@
 #include "SceneDetector.h"
 
 const HistClassifier classifier_lobby_my_select = {.rangeCol = {149, 811},
-					     .rangeRow = {139, 842},
-					     .histChannel = 0,
-					     .histBins = 30,
-					     .histMaxIndex = 17,
-					     .histRatio = 0.5};
-const HistClassifier classifier_lobby_opponent_select = {.rangeCol = {1229, 1649},
-						   .rangeRow = {227, 836},
+						   .rangeRow = {139, 842},
 						   .histChannel = 0,
 						   .histBins = 30,
-						   .histMaxIndex = 0,
-						   .histRatio = 0.8};
+						   .histMaxIndex = 17,
+						   .histRatio = 0.5};
+const HistClassifier classifier_lobby_opponent_select = {.rangeCol = {1229,
+								      1649},
+							 .rangeRow = {227, 836},
+							 .histChannel = 0,
+							 .histBins = 30,
+							 .histMaxIndex = 0,
+							 .histRatio = 0.8};
 const HistClassifier classifier_black_transition = {.rangeCol = {400, 600},
-					      .rangeRow = {400, 600},
-					      .histChannel = 2,
-					      .histBins = 8,
-					      .histMaxIndex = 0,
-					      .histRatio = 0.8};
+						    .rangeRow = {400, 600},
+						    .histChannel = 2,
+						    .histBins = 8,
+						    .histMaxIndex = 0,
+						    .histRatio = 0.8};
 
 struct screen_context {
 	obs_data_t *settings;
