@@ -3,6 +3,27 @@
 #include <obs-module.h>
 #include <util/platform.h>
 
+#include "SceneDetector.h"
+
+const HistClassifier classifier_lobby_my_select = {.rangeCol = {149, 811},
+					     .rangeRow = {139, 842},
+					     .histChannel = 0,
+					     .histBins = 30,
+					     .histMaxIndex = 17,
+					     .histRatio = 0.5};
+const HistClassifier classifier_lobby_opponent_select = {.rangeCol = {1229, 1649},
+						   .rangeRow = {227, 836},
+						   .histChannel = 0,
+						   .histBins = 30,
+						   .histMaxIndex = 0,
+						   .histRatio = 0.8};
+const HistClassifier classifier_black_transition = {.rangeCol = {400, 600},
+					      .rangeRow = {400, 600},
+					      .histChannel = 2,
+					      .histBins = 8,
+					      .histMaxIndex = 0,
+					      .histRatio = 0.8};
+
 struct screen_context {
 	obs_data_t *settings;
 	obs_source_t *source;
@@ -10,6 +31,16 @@ struct screen_context {
 	gs_texrender_t *texrender;
 	gs_stagesurf_t *stagesurface;
 	cv::Mat gameplay_bgra;
+
+	uint64_t next_tick;
+	SceneDetector sceneDetector;
+
+	screen_context()
+		: sceneDetector(classifier_lobby_my_select,
+				classifier_lobby_opponent_select,
+				classifier_black_transition)
+	{
+	}
 };
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
@@ -89,8 +120,7 @@ static const char *screen_get_name(void *unused)
 
 static void *screen_create(obs_data_t *settings, obs_source_t *source)
 {
-	screen_context *context = reinterpret_cast<screen_context *>(
-		bzalloc(sizeof(screen_context)));
+	screen_context *context = new screen_context();
 	context->settings = settings;
 	context->source = source;
 
@@ -109,7 +139,7 @@ static void screen_destroy(void *data)
 	if (context) {
 		obs_remove_main_render_callback(screen_main_render_callback,
 						context);
-		bfree(context);
+		delete context;
 	}
 }
 
@@ -159,11 +189,26 @@ static obs_properties_t *screen_properties(void *data)
 	return props;
 }
 
+#include <iostream>
 static void screen_video_tick(void *data, float seconds)
 {
 	screen_context *context = reinterpret_cast<screen_context *>(data);
-
 	uint64_t cur_time = os_gettime_ns();
+
+	if (cur_time < context->next_tick + 1000 * 1000 * 100)
+		return;
+	context->next_tick = cur_time + 1000 * 1000 * 100;
+
+	if (context->gameplay_bgra.empty())
+		return;
+
+	cv::Mat gameplay_bgr, gameplay_hsv;
+	cv::cvtColor(context->gameplay_bgra, gameplay_bgr, cv::COLOR_BGRA2BGR);
+	cv::cvtColor(gameplay_bgr, gameplay_hsv, cv::COLOR_BGR2HSV);
+	SceneDetector::Scene scene =
+		context->sceneDetector.detectScene(gameplay_hsv);
+	blog(LOG_INFO, "Detected scene: %d\n", scene);
+
 	struct obs_source_frame frame = {
 		.width = static_cast<uint32_t>(context->gameplay_bgra.cols),
 		.height = static_cast<uint32_t>(context->gameplay_bgra.rows),
