@@ -39,10 +39,11 @@ bool SceneDetector::predictByHueHist(const cv::Mat &screenHSV,
 {
 	const double xScale = screenHSV.cols / 1920.0,
 		     yScale = screenHSV.rows / 1080.0;
-	const cv::Range rowRange(classifier.rangeRow[0] * yScale,
-				 classifier.rangeRow[1] * yScale),
-		colRange(classifier.rangeCol[0] * xScale,
-			 classifier.rangeCol[1] * xScale);
+	const cv::Range rowRange(
+		static_cast<int>(classifier.rangeRow[0] * yScale),
+		static_cast<int>(classifier.rangeRow[1] * yScale)),
+		colRange(static_cast<int>(classifier.rangeCol[0] * xScale),
+			 static_cast<int>(classifier.rangeCol[1] * xScale));
 
 	const cv::Mat areaHSV = screenHSV(rowRange, colRange);
 	cv::Mat hist;
