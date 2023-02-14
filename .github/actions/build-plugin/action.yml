@@ -24,6 +24,9 @@ inputs:
     description: 'Working directory for packaging'
     required: false
     default: ${{ github.workspace }}
+  token:
+    required: false
+    default: ''
 runs:
   using: 'composite'
   steps:
@@ -60,7 +63,7 @@ runs:
 
     - name: Run Windows Build
       env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_TOKEN: ${{ inputs.token }}
       if: ${{ runner.os == 'Windows' }}
       shell: pwsh
       run: |
