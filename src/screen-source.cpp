@@ -8,6 +8,7 @@
 
 #include "EntityCropper.h"
 #include "SceneDetector.h"
+#include "SelectionRecognizer.h"
 
 enum screen_state {
 	STATE_UNKNOWN,
@@ -49,8 +50,9 @@ const std::vector<std::array<int, 2>> opponent_row_range{{{228, 326},
 							  {636, 734},
 							  {738, 836}}};
 
-const int opponentPokemonPlacementX = 1820;
-const std::vector<int> opponentPokemonPlacementY{0, 100, 200, 300, 400, 500};
+const int opponentPokemonPlacementX = 1776;
+const std::vector<int> opponentPokemonPlacementY{0, 144, 288, 432, 576, 720};
+const cv::Size opponentPokemonSize{144, 144};
 
 const std::array<int, 2> myPokemonColRange{182, 711};
 const std::vector<std::array<int, 2>> myPokemonRowRange{{{147, 254},
@@ -60,9 +62,17 @@ const std::vector<std::array<int, 2>> myPokemonRowRange{{{147, 254},
 							 {612, 718},
 							 {727, 834}}};
 
-const std::vector<int> myPokemonPlacementX{0, 0, 0, 0, 0, 0};
-const std::vector<int> myPokemonPlacementY{0, 100, 200, 300, 400, 500};
-const cv::Size myPokemonSize{ 207, 53 };
+const std::vector<int> myPokemonPlacementX{0, 391, 782, 0, 0, 0};
+const int myPokemonPlacementY = 1000;
+const cv::Size myPokemonSize{391, 80};
+
+const std::array<int, 2> selectionOrderColRange{795, 827};
+const std::vector<std::array<int, 2>> selectionOrderRowRange{{{154, 186},
+							      {271, 303},
+							      {388, 420},
+							      {503, 535},
+							      {619, 651},
+							      {735, 767}}};
 
 constexpr int N_POKEMONS = 6;
 
@@ -76,6 +86,7 @@ struct screen_context {
 
 	uint64_t next_tick;
 	SceneDetector sceneDetector;
+	cv::Mat screen_bgra;
 
 	screen_state state;
 	uint64_t last_state_change_ns;
@@ -87,7 +98,8 @@ struct screen_context {
 
 	EntityCropper opponentPokemonCropper;
 	EntityCropper myPokemonCropper;
-	cv::Mat screen_bgra;
+	EntityCropper selectionOrderCropper;
+	SelectionRecognizer selectionRecognizer;
 
 	screen_context()
 		: sceneDetector(classifier_lobby_my_select,
@@ -95,7 +107,9 @@ struct screen_context {
 				classifier_black_transition),
 		  opponentPokemonCropper(opponent_col_range,
 					 opponent_row_range),
-		  myPokemonCropper(myPokemonColRange, myPokemonRowRange)
+		  myPokemonCropper(myPokemonColRange, myPokemonRowRange),
+		  selectionOrderCropper(selectionOrderColRange,
+					selectionOrderRowRange)
 	{
 	}
 };
@@ -255,26 +269,55 @@ static void drawOpponentPokemons(screen_context *context)
 		auto y = opponentPokemonPlacementY[i];
 		auto &pokemonBGRA =
 			context->opponentPokemonCropper.imagesBGRA[i];
-		pokemonBGRA.copyTo(
-			context->screen_bgra.rowRange(y, y + pokemonBGRA.rows)
-				.colRange(x, x + pokemonBGRA.cols));
-	}
-}
-
-static void drawMyPokemons(screen_context *context) {
-	context->myPokemonCropper.crop(context->gameplay_bgra);
-	for (int i = 0; i < N_POKEMONS; i++) {
-		auto x = myPokemonPlacementX[i];
-		auto y = myPokemonPlacementY[i];
-		auto pokemonBGRA =
-			context->myPokemonCropper.imagesBGRA[i];
-		pokemonBGRA.colRange(442, 529).copyTo(pokemonBGRA.colRange(327, 414));
 		cv::Mat resizedBGRA;
-		cv::resize(pokemonBGRA.colRange(0, 414), resizedBGRA, myPokemonSize);
+		cv::resize(pokemonBGRA, resizedBGRA, opponentPokemonSize);
 		resizedBGRA.copyTo(
 			context->screen_bgra.rowRange(y, y + resizedBGRA.rows)
 				.colRange(x, x + resizedBGRA.cols));
-	}}
+	}
+}
+
+static bool detectSelectionOrderChange(screen_context *context)
+{
+	context->selectionOrderCropper.crop(context->gameplay_bgra);
+
+	int orders[N_POKEMONS];
+	bool change_detected = false;
+	for (int i = 0; i < N_POKEMONS; i++) {
+		orders[i] = context->selectionRecognizer.recognizeSelection(
+			context->selectionOrderCropper.imagesBGR[i]);
+		if (orders[i] > 0 &&
+		    context->my_selection_order_map[orders[i] - 1] != i + 1) {
+			context->my_selection_order_map[orders[i] - 1] = i + 1;
+			change_detected = true;
+		}
+	}
+	if (change_detected) {
+		blog(LOG_INFO, "My order: %d %d %d %d %d %d\n", orders[0],
+		     orders[1], orders[2], orders[3], orders[4], orders[5]);
+	}
+	return change_detected;
+}
+
+static void drawMyPokemons(screen_context *context)
+{
+	context->myPokemonCropper.crop(context->gameplay_bgra);
+	for (int i = 0; i < N_POKEMONS; i++) {
+		int pokemon = context->my_selection_order_map[i];
+		if (pokemon == 0)
+			continue;
+
+		auto pokemonBGRA = context->myPokemonCropper.imagesBGRA[i];
+		cv::Mat resizedBGRA;
+		cv::resize(pokemonBGRA, resizedBGRA, myPokemonSize);
+
+		auto x = myPokemonPlacementX[i];
+		auto y = myPokemonPlacementY;
+		resizedBGRA.copyTo(
+			context->screen_bgra.rowRange(y, y + resizedBGRA.rows)
+				.colRange(x, x + resizedBGRA.cols));
+	}
+}
 
 static uint64_t update_timer_text(obs_source_t *timer_source,
 				  uint64_t time_start, uint64_t time_now,
@@ -349,9 +392,9 @@ static void screen_video_tick(void *data, float seconds)
 			     "State: ENTERING_SELECT_POKEMON to SELECT_POKEMON");
 		}
 	} else if (context->state == STATE_SELECT_POKEMON) {
-		// if (selection_order_detect_change(context)) {
-		// 	export_selection_order_image(context);
-		// }
+		if (detectSelectionOrderChange(context)) {
+			drawMyPokemons(context);
+		}
 
 		if (scene == SceneDetector::SCENE_UNDEFINED) {
 			context->last_state_change_ns = os_gettime_ns();
