@@ -1,3 +1,4 @@
+#include <array>
 #include <inttypes.h>
 
 #include <opencv2/opencv.hpp>
@@ -5,6 +6,7 @@
 #include <obs-module.h>
 #include <util/platform.h>
 
+#include "EntityCropper.h"
 #include "SceneDetector.h"
 
 enum screen_state {
@@ -39,6 +41,14 @@ const HistClassifier classifier_black_transition = {.rangeCol = {400, 600},
 						    .histMaxIndex = 0,
 						    .histRatio = 0.8};
 
+const std::array<int, 2> opponent_col_range{1239, 1337};
+const std::vector<std::array<int, 2>> opponent_row_range{{{228, 326},
+							  {330, 428},
+							  {432, 530},
+							  {534, 632},
+							  {636, 734},
+							  {738, 836}}};
+
 constexpr int N_POKEMONS = 6;
 
 struct screen_context {
@@ -60,10 +70,14 @@ struct screen_context {
 	uint64_t last_elapsed_seconds;
 	uint64_t match_end_ns;
 
+	EntityCropper opponentPokemonCropper;
+	cv::Mat screen_bgra;
+
 	screen_context()
 		: sceneDetector(classifier_lobby_my_select,
 				classifier_lobby_opponent_select,
-				classifier_black_transition)
+				classifier_black_transition),
+		  opponentPokemonCropper(opponent_col_range, opponent_row_range)
 	{
 	}
 };
@@ -255,6 +269,13 @@ static void screen_video_tick(void *data, float seconds)
 	SceneDetector::Scene scene =
 		context->sceneDetector.detectScene(gameplay_hsv);
 
+	if (context->screen_bgra.rows != context->gameplay_bgra.rows ||
+	    context->screen_bgra.cols != context->gameplay_bgra.cols) {
+		context->screen_bgra = cv::Mat(context->gameplay_bgra.rows,
+					       context->gameplay_bgra.cols,
+					       CV_8UC4, cv::Scalar(0));
+	}
+
 	if (context->state == STATE_UNKNOWN) {
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 			context->state = STATE_ENTERING_SELECT_POKEMON;
@@ -262,13 +283,36 @@ static void screen_video_tick(void *data, float seconds)
 			for (int i = 0; i < N_POKEMONS; i++) {
 				context->my_selection_order_map[i] = 0;
 			}
+			if (!context->gameplay_bgra.empty()) {
+				context->screen_bgra =
+					cv::Mat(context->gameplay_bgra.rows,
+						context->gameplay_bgra.cols,
+						CV_8UC4, cv::Scalar(0));
+			}
 			blog(LOG_INFO, "State: UNKNOWN to ENTERING_SELECT");
 		}
 	} else if (context->state == STATE_ENTERING_SELECT_POKEMON) {
 		const uint64_t now = os_gettime_ns();
 		if (now - context->last_state_change_ns > 1000000000) {
-			// pokemon_detector_sv_opponent_pokemon_crop(
-			// 	context->detector_context);
+			context->opponentPokemonCropper.crop(
+				context->gameplay_bgra);
+			context->opponentPokemonCropper.generateMask();
+			int opponentPokemonPlacementX = 1820;
+			std::vector<int> opponentPokemonPlacementY{
+				0, 100, 200, 300, 400, 500};
+			for (int i = 0; i < N_POKEMONS; i++) {
+				auto x = opponentPokemonPlacementX;
+				auto y = opponentPokemonPlacementY[i];
+				auto &pokemonBGRA =
+					context->opponentPokemonCropper
+						.imagesBGRA[i];
+				pokemonBGRA.copyTo(
+					context->screen_bgra
+						.rowRange(y,
+							  y + pokemonBGRA.rows)
+						.colRange(x,
+							  x + pokemonBGRA.cols));
+			}
 			context->state = STATE_SELECT_POKEMON;
 			blog(LOG_INFO,
 			     "State: ENTERING_SELECT_POKEMON to SELECT_POKEMON");
@@ -283,8 +327,7 @@ static void screen_video_tick(void *data, float seconds)
 			context->state = STATE_ENTERING_CONFIRM_POKEMON;
 			blog(LOG_INFO,
 			     "State: SELECT_POKEMON to ENTERING_CONFIRM_POKEMON");
-		} else if (scene ==
-			   SceneDetector::SCENE_BLACK_TRANSITION) {
+		} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 			context->state = STATE_ENTERING_MATCH;
 			blog(LOG_INFO,
 			     "State: SELECT_POKEMON to ENTERING_MATCH");
@@ -295,8 +338,7 @@ static void screen_video_tick(void *data, float seconds)
 			context->state = STATE_CONFIRM_POKEMON;
 			blog(LOG_INFO,
 			     "State: ENTERING_CONFIRM_POKEMON to CONFIRM_POKEMON");
-		} else if (scene ==
-			   SceneDetector::SCENE_BLACK_TRANSITION) {
+		} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 			context->state = STATE_ENTERING_MATCH;
 			blog(LOG_INFO,
 			     "State: LEAVE_SELECT_POKEMON to ENTERING_MATCH");
@@ -309,8 +351,7 @@ static void screen_video_tick(void *data, float seconds)
 			}
 			blog(LOG_INFO,
 			     "State: CONFIRM_POKEMON to SELECT_POKEMON");
-		} else if (scene ==
-			   SceneDetector::SCENE_BLACK_TRANSITION) {
+		} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 			context->state = STATE_ENTERING_MATCH;
 			blog(LOG_INFO,
 			     "State: CONFIRM_POKEMON to ENTERING_MATCH");
@@ -350,8 +391,7 @@ static void screen_video_tick(void *data, float seconds)
 			     "State: MATCH to ENTERING_SELECT_POKEMON");
 		} else if (context->prev_scene !=
 				   SceneDetector::SCENE_BLACK_TRANSITION &&
-			   scene ==
-				   SceneDetector::SCENE_BLACK_TRANSITION) {
+			   scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 			context->match_end_ns = os_gettime_ns();
 			context->state = STATE_RESULT;
 			blog(LOG_INFO, "MATCH to RESULT");
@@ -371,16 +411,20 @@ static void screen_video_tick(void *data, float seconds)
 	}
 	context->prev_scene = scene;
 
-	struct obs_source_frame frame = {
-		.width = static_cast<uint32_t>(context->gameplay_bgra.cols),
-		.height = static_cast<uint32_t>(context->gameplay_bgra.rows),
-		.timestamp = cur_time,
-		.format = VIDEO_FORMAT_BGRA,
-	};
-	frame.data[0] = context->gameplay_bgra.data;
-	frame.linesize[0] = context->gameplay_bgra.cols * 4;
+	if (!context->screen_bgra.empty()) {
+		struct obs_source_frame frame = {
+			.width = static_cast<uint32_t>(
+				context->screen_bgra.cols),
+			.height = static_cast<uint32_t>(
+				context->screen_bgra.rows),
+			.timestamp = cur_time,
+			.format = VIDEO_FORMAT_BGRA,
+		};
+		frame.data[0] = context->screen_bgra.data;
+		frame.linesize[0] = context->screen_bgra.cols * 4;
 
-	obs_source_output_video(context->source, &frame);
+		obs_source_output_video(context->source, &frame);
+	}
 
 	UNUSED_PARAMETER(seconds);
 }
