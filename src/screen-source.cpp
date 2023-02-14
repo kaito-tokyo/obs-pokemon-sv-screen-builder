@@ -1,3 +1,5 @@
+#include <inttypes.h>
+
 #include <opencv2/opencv.hpp>
 
 #include <obs-module.h>
@@ -212,7 +214,29 @@ static obs_properties_t *screen_properties(void *data)
 	return props;
 }
 
-#include <iostream>
+static uint64_t update_timer_text(obs_source_t *timer_source,
+				  uint64_t time_start, uint64_t time_now,
+				  uint64_t last_elapsed_seconds)
+{
+	uint64_t elapsed_seconds = (time_now - time_start) / 1000000000;
+	if (elapsed_seconds == last_elapsed_seconds)
+		return elapsed_seconds;
+	uint64_t remaining_seconds = 20 * 60 - elapsed_seconds;
+	uint64_t minutes = remaining_seconds / 60;
+	uint64_t seconds = remaining_seconds % 60;
+
+	char time_str[512];
+	snprintf(time_str, sizeof(time_str), "%02" PRIu64 ":%02" PRIu64,
+		 minutes, seconds);
+
+	obs_data_t *settings = obs_data_create();
+	obs_data_set_string(settings, "text", time_str);
+	obs_source_update(timer_source, settings);
+	obs_data_release(settings);
+
+	return elapsed_seconds;
+}
+
 static void screen_video_tick(void *data, float seconds)
 {
 	screen_context *context = reinterpret_cast<screen_context *>(data);
@@ -310,10 +334,10 @@ static void screen_video_tick(void *data, float seconds)
 		const char *timer_name =
 			obs_data_get_string(context->settings, "timer_source");
 		obs_source_t *timer_source = obs_get_source_by_name(timer_name);
-		if (timer_source != NULL) {
-			// context->last_elapsed_seconds = update_timer_text(
-			// 	timer_source, context->match_start_ns,
-			// 	os_gettime_ns(), context->last_elapsed_seconds);
+		if (timer_source) {
+			context->last_elapsed_seconds = update_timer_text(
+				timer_source, context->match_start_ns,
+				os_gettime_ns(), context->last_elapsed_seconds);
 			obs_source_release(timer_source);
 		}
 
