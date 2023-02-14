@@ -67,6 +67,13 @@ function Setup-Host {
                     ErrorAction = 'Stop'
                 }
 
+                if ($Env:GITHUB_TOKEN -ne $null) {
+                    $_Headers = @{
+                        Authorization = "token ${Env:GITHUB_TOKEN}"
+                    }
+                    $Params.Add("Headers", $_Headers)
+                }
+
                 Invoke-WebRequest @Params
                 Log-Status "Downloaded ${_Label} for ${script:Target}."
             } else {
