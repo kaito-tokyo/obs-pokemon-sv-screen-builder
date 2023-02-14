@@ -68,10 +68,9 @@ function Setup-Host {
                 }
 
                 if ($Env:GITHUB_TOKEN -ne $null) {
-                    $_Headers = @{
+                    $Params["Headers"] = @{
                         Authorization = "token ${Env:GITHUB_TOKEN}"
                     }
-                    $Params.Add("Headers", $_Headers)
                 }
 
                 Invoke-WebRequest @Params
