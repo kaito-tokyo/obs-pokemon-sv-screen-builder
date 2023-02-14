@@ -5,6 +5,18 @@
 
 #include "SceneDetector.h"
 
+enum screen_state {
+	STATE_UNKNOWN,
+	STATE_ENTERING_SELECT_POKEMON,
+	STATE_SELECT_POKEMON,
+	STATE_ENTERING_CONFIRM_POKEMON,
+	STATE_CONFIRM_POKEMON,
+	STATE_ENTERING_MATCH,
+	STATE_MATCH,
+	STATE_ENTERING_RESULT,
+	STATE_RESULT,
+};
+
 const HistClassifier classifier_lobby_my_select = {.rangeCol = {149, 811},
 						   .rangeRow = {139, 842},
 						   .histChannel = 0,
@@ -25,6 +37,8 @@ const HistClassifier classifier_black_transition = {.rangeCol = {400, 600},
 						    .histMaxIndex = 0,
 						    .histRatio = 0.8};
 
+constexpr int N_POKEMONS = 6;
+
 struct screen_context {
 	obs_data_t *settings;
 	obs_source_t *source;
@@ -35,6 +49,14 @@ struct screen_context {
 
 	uint64_t next_tick;
 	SceneDetector sceneDetector;
+
+	screen_state state;
+	uint64_t last_state_change_ns;
+	int my_selection_order_map[N_POKEMONS];
+	SceneDetector::Scene prev_scene;
+	uint64_t match_start_ns;
+	uint64_t last_elapsed_seconds;
+	uint64_t match_end_ns;
 
 	screen_context()
 		: sceneDetector(classifier_lobby_my_select,
@@ -208,7 +230,122 @@ static void screen_video_tick(void *data, float seconds)
 	cv::cvtColor(gameplay_bgr, gameplay_hsv, cv::COLOR_BGR2HSV);
 	SceneDetector::Scene scene =
 		context->sceneDetector.detectScene(gameplay_hsv);
-	blog(LOG_INFO, "Detected scene: %d\n", scene);
+
+	if (context->state == STATE_UNKNOWN) {
+		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+			context->state = STATE_ENTERING_SELECT_POKEMON;
+			context->last_state_change_ns = os_gettime_ns();
+			for (int i = 0; i < N_POKEMONS; i++) {
+				context->my_selection_order_map[i] = 0;
+			}
+			blog(LOG_INFO, "State: UNKNOWN to ENTERING_SELECT");
+		}
+	} else if (context->state == STATE_ENTERING_SELECT_POKEMON) {
+		const uint64_t now = os_gettime_ns();
+		if (now - context->last_state_change_ns > 1000000000) {
+			// pokemon_detector_sv_opponent_pokemon_crop(
+			// 	context->detector_context);
+			context->state = STATE_SELECT_POKEMON;
+			blog(LOG_INFO,
+			     "State: ENTERING_SELECT_POKEMON to SELECT_POKEMON");
+		}
+	} else if (context->state == STATE_SELECT_POKEMON) {
+		// if (selection_order_detect_change(context)) {
+		// 	export_selection_order_image(context);
+		// }
+
+		if (scene == SceneDetector::SCENE_UNDEFINED) {
+			context->last_state_change_ns = os_gettime_ns();
+			context->state = STATE_ENTERING_CONFIRM_POKEMON;
+			blog(LOG_INFO,
+			     "State: SELECT_POKEMON to ENTERING_CONFIRM_POKEMON");
+		} else if (scene ==
+			   SceneDetector::SCENE_BLACK_TRANSITION) {
+			context->state = STATE_ENTERING_MATCH;
+			blog(LOG_INFO,
+			     "State: SELECT_POKEMON to ENTERING_MATCH");
+		}
+	} else if (context->state == STATE_ENTERING_CONFIRM_POKEMON) {
+		uint64_t now = os_gettime_ns();
+		if (now - context->last_state_change_ns > 500000000) {
+			context->state = STATE_CONFIRM_POKEMON;
+			blog(LOG_INFO,
+			     "State: ENTERING_CONFIRM_POKEMON to CONFIRM_POKEMON");
+		} else if (scene ==
+			   SceneDetector::SCENE_BLACK_TRANSITION) {
+			context->state = STATE_ENTERING_MATCH;
+			blog(LOG_INFO,
+			     "State: LEAVE_SELECT_POKEMON to ENTERING_MATCH");
+		}
+	} else if (context->state == STATE_CONFIRM_POKEMON) {
+		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+			context->state = STATE_SELECT_POKEMON;
+			for (int i = 0; i < N_POKEMONS; i++) {
+				context->my_selection_order_map[i] = 0;
+			}
+			blog(LOG_INFO,
+			     "State: CONFIRM_POKEMON to SELECT_POKEMON");
+		} else if (scene ==
+			   SceneDetector::SCENE_BLACK_TRANSITION) {
+			context->state = STATE_ENTERING_MATCH;
+			blog(LOG_INFO,
+			     "State: CONFIRM_POKEMON to ENTERING_MATCH");
+		}
+	} else if (context->state == STATE_ENTERING_MATCH) {
+		if (context->prev_scene !=
+			    SceneDetector::SCENE_BLACK_TRANSITION &&
+		    scene == SceneDetector::SCENE_BLACK_TRANSITION) {
+			context->state = STATE_MATCH;
+			context->match_start_ns = os_gettime_ns();
+			blog(LOG_INFO, "State: ENTERING_MATCH to MATCH");
+		} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+			context->state = STATE_SELECT_POKEMON;
+			for (int i = 0; i < N_POKEMONS; i++) {
+				context->my_selection_order_map[i] = 0;
+			}
+			blog(LOG_INFO,
+			     "State: ENTERING_MATCH to SELECT_POKEMON");
+		}
+	} else if (context->state == STATE_MATCH) {
+		const char *timer_name =
+			obs_data_get_string(context->settings, "timer_source");
+		obs_source_t *timer_source = obs_get_source_by_name(timer_name);
+		if (timer_source != NULL) {
+			// context->last_elapsed_seconds = update_timer_text(
+			// 	timer_source, context->match_start_ns,
+			// 	os_gettime_ns(), context->last_elapsed_seconds);
+			obs_source_release(timer_source);
+		}
+
+		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+			context->state = STATE_ENTERING_SELECT_POKEMON;
+			for (int i = 0; i < N_POKEMONS; i++) {
+				context->my_selection_order_map[i] = 0;
+			}
+			blog(LOG_INFO,
+			     "State: MATCH to ENTERING_SELECT_POKEMON");
+		} else if (context->prev_scene !=
+				   SceneDetector::SCENE_BLACK_TRANSITION &&
+			   scene ==
+				   SceneDetector::SCENE_BLACK_TRANSITION) {
+			context->match_end_ns = os_gettime_ns();
+			context->state = STATE_RESULT;
+			blog(LOG_INFO, "MATCH to RESULT");
+		}
+	} else if (context->state == STATE_RESULT) {
+		uint64_t now = os_gettime_ns();
+		if (now - context->match_end_ns > 2000000000) {
+			context->state = STATE_UNKNOWN;
+			blog(LOG_INFO, "RESULT to UNKNOWN");
+		} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+			for (int i = 0; i < N_POKEMONS; i++) {
+				context->my_selection_order_map[i] = 0;
+			}
+			context->state = STATE_ENTERING_SELECT_POKEMON;
+			blog(LOG_INFO, "MATCH to ENTERING_SELECT_POKEMON");
+		}
+	}
+	context->prev_scene = scene;
 
 	struct obs_source_frame frame = {
 		.width = static_cast<uint32_t>(context->gameplay_bgra.cols),
