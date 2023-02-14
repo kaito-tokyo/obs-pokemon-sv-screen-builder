@@ -59,6 +59,8 @@ runs:
         ${{ inputs.workingDirectory }}/.github/scripts/build-linux.sh "${build_args[@]}"
 
     - name: Run Windows Build
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       if: ${{ runner.os == 'Windows' }}
       shell: pwsh
       run: |
