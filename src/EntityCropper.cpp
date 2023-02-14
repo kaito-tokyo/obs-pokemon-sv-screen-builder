@@ -7,10 +7,11 @@ void EntityCropper::crop(const cv::Mat &screenBGRA)
 	double xScale = screenBGRA.cols / 1920.0,
 	       yScale = screenBGRA.rows / 1080.0;
 	for (size_t i = 0; i < rangesRow.size(); i++) {
-		const cv::Range colRange(rangeCol[0] * xScale,
-					 rangeCol[1] * xScale),
-			rowRange(rangesRow[i][0] * yScale,
-				 rangesRow[i][1] * yScale);
+		const cv::Range colRange(
+			static_cast<int>(rangeCol[0] * xScale),
+			static_cast<int>(rangeCol[1] * xScale)),
+			rowRange(static_cast<int>(rangesRow[i][0] * yScale),
+				 static_cast<int>(rangesRow[i][1] * yScale));
 		imagesBGRA[i] = screenBGRA(rowRange, colRange);
 		cv::cvtColor(imagesBGRA[i], imagesBGR[i], cv::COLOR_BGRA2BGR);
 	}
