@@ -49,6 +49,21 @@ const std::vector<std::array<int, 2>> opponent_row_range{{{228, 326},
 							  {636, 734},
 							  {738, 836}}};
 
+const int opponentPokemonPlacementX = 1820;
+const std::vector<int> opponentPokemonPlacementY{0, 100, 200, 300, 400, 500};
+
+const std::array<int, 2> myPokemonColRange{182, 711};
+const std::vector<std::array<int, 2>> myPokemonRowRange{{{147, 254},
+							 {263, 371},
+							 {379, 486},
+							 {496, 602},
+							 {612, 718},
+							 {727, 834}}};
+
+const std::vector<int> myPokemonPlacementX{0, 0, 0, 0, 0, 0};
+const std::vector<int> myPokemonPlacementY{0, 100, 200, 300, 400, 500};
+const cv::Size myPokemonSize{ 207, 53 };
+
 constexpr int N_POKEMONS = 6;
 
 struct screen_context {
@@ -71,13 +86,16 @@ struct screen_context {
 	uint64_t match_end_ns;
 
 	EntityCropper opponentPokemonCropper;
+	EntityCropper myPokemonCropper;
 	cv::Mat screen_bgra;
 
 	screen_context()
 		: sceneDetector(classifier_lobby_my_select,
 				classifier_lobby_opponent_select,
 				classifier_black_transition),
-		  opponentPokemonCropper(opponent_col_range, opponent_row_range)
+		  opponentPokemonCropper(opponent_col_range,
+					 opponent_row_range),
+		  myPokemonCropper(myPokemonColRange, myPokemonRowRange)
 	{
 	}
 };
@@ -228,6 +246,36 @@ static obs_properties_t *screen_properties(void *data)
 	return props;
 }
 
+static void drawOpponentPokemons(screen_context *context)
+{
+	context->opponentPokemonCropper.crop(context->gameplay_bgra);
+	context->opponentPokemonCropper.generateMask();
+	for (int i = 0; i < N_POKEMONS; i++) {
+		auto x = opponentPokemonPlacementX;
+		auto y = opponentPokemonPlacementY[i];
+		auto &pokemonBGRA =
+			context->opponentPokemonCropper.imagesBGRA[i];
+		pokemonBGRA.copyTo(
+			context->screen_bgra.rowRange(y, y + pokemonBGRA.rows)
+				.colRange(x, x + pokemonBGRA.cols));
+	}
+}
+
+static void drawMyPokemons(screen_context *context) {
+	context->myPokemonCropper.crop(context->gameplay_bgra);
+	for (int i = 0; i < N_POKEMONS; i++) {
+		auto x = myPokemonPlacementX[i];
+		auto y = myPokemonPlacementY[i];
+		auto pokemonBGRA =
+			context->myPokemonCropper.imagesBGRA[i];
+		pokemonBGRA.colRange(442, 529).copyTo(pokemonBGRA.colRange(327, 414));
+		cv::Mat resizedBGRA;
+		cv::resize(pokemonBGRA.colRange(0, 414), resizedBGRA, myPokemonSize);
+		resizedBGRA.copyTo(
+			context->screen_bgra.rowRange(y, y + resizedBGRA.rows)
+				.colRange(x, x + resizedBGRA.cols));
+	}}
+
 static uint64_t update_timer_text(obs_source_t *timer_source,
 				  uint64_t time_start, uint64_t time_now,
 				  uint64_t last_elapsed_seconds)
@@ -294,25 +342,8 @@ static void screen_video_tick(void *data, float seconds)
 	} else if (context->state == STATE_ENTERING_SELECT_POKEMON) {
 		const uint64_t now = os_gettime_ns();
 		if (now - context->last_state_change_ns > 1000000000) {
-			context->opponentPokemonCropper.crop(
-				context->gameplay_bgra);
-			context->opponentPokemonCropper.generateMask();
-			int opponentPokemonPlacementX = 1820;
-			std::vector<int> opponentPokemonPlacementY{
-				0, 100, 200, 300, 400, 500};
-			for (int i = 0; i < N_POKEMONS; i++) {
-				auto x = opponentPokemonPlacementX;
-				auto y = opponentPokemonPlacementY[i];
-				auto &pokemonBGRA =
-					context->opponentPokemonCropper
-						.imagesBGRA[i];
-				pokemonBGRA.copyTo(
-					context->screen_bgra
-						.rowRange(y,
-							  y + pokemonBGRA.rows)
-						.colRange(x,
-							  x + pokemonBGRA.cols));
-			}
+			drawOpponentPokemons(context);
+			drawMyPokemons(context);
 			context->state = STATE_SELECT_POKEMON;
 			blog(LOG_INFO,
 			     "State: ENTERING_SELECT_POKEMON to SELECT_POKEMON");
