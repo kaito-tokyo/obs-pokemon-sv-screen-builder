@@ -26,6 +26,8 @@ https://github.com/umireon/obs-pokemon-sv-screen-builder/releases/latest
 
 ## 設定方法
 
+あらかじめ、Switchの画面を映している映像キャプチャデバイスのソースと試合時間を表示するための空のテキストソースを準備しておく必要があります。
+
 OBSポケモンSVスクリーンビルダーをインストールすると、「ポケモンSVスクリーンビルダー」というソースがOBSのシーンに追加できるようになります。
 
 <img width="600" src="https://user-images.githubusercontent.com/1067855/218970534-de84022c-5013-4b3b-a22d-50ec1b3f7328.png">
