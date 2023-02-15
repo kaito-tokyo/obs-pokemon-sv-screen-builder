@@ -186,7 +186,7 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 static const char *screen_get_name(void *unused)
 {
 	UNUSED_PARAMETER(unused);
-	return "Pokemon SV Screen Builder";
+	return obs_module_text("PokemonSVScreenBuilder");
 }
 
 static void *screen_create(obs_data_t *settings, obs_source_t *source)
@@ -248,12 +248,12 @@ static obs_properties_t *screen_properties(void *data)
 	obs_properties_t *props = obs_properties_create();
 
 	obs_property_t *prop_gameplay_source = obs_properties_add_list(
-		props, "gameplay_source", "Game Play Source",
+		props, "gameplay_source", obs_module_text("GamePlaySource"),
 		OBS_COMBO_TYPE_EDITABLE, OBS_COMBO_FORMAT_STRING);
 	obs_enum_sources(add_all_sources_to_list, prop_gameplay_source);
 
 	obs_property_t *prop_timer = obs_properties_add_list(
-		props, "timer_source", "Timer Source", OBS_COMBO_TYPE_EDITABLE,
+		props, "timer_source", obs_module_text("TimerSource"), OBS_COMBO_TYPE_EDITABLE,
 		OBS_COMBO_FORMAT_STRING);
 	obs_enum_sources(add_text_sources_to_list, prop_timer);
 
