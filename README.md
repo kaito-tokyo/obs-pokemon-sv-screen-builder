@@ -44,6 +44,6 @@ Macでインストールする際には、インストーラーに対して少�
 
 この画面になったら「インストール先を変更...」をクリックします。
 
-<img width="735" src="https://user-images.githubusercontent.com/1067855/218972292-231bc8d1-5dc5-4e13-b70c-95fdd5ed7886.png">
+<img width="600" src="https://user-images.githubusercontent.com/1067855/218972292-231bc8d1-5dc5-4e13-b70c-95fdd5ed7886.png">
 
 このまま次へを押して、セットアップを完了させればOBSポケモンSVスクリーンビルダーが利用できるようになります。
