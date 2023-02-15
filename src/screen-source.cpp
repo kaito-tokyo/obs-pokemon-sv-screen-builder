@@ -253,8 +253,8 @@ static obs_properties_t *screen_properties(void *data)
 	obs_enum_sources(add_all_sources_to_list, prop_gameplay_source);
 
 	obs_property_t *prop_timer = obs_properties_add_list(
-		props, "timer_source", obs_module_text("TimerSource"), OBS_COMBO_TYPE_EDITABLE,
-		OBS_COMBO_FORMAT_STRING);
+		props, "timer_source", obs_module_text("TimerSource"),
+		OBS_COMBO_TYPE_EDITABLE, OBS_COMBO_FORMAT_STRING);
 	obs_enum_sources(add_text_sources_to_list, prop_timer);
 
 	return props;
