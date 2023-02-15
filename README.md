@@ -1,55 +1,31 @@
-# OBS Plugin Template
+# OBSポケモンSVスクリーンビルダー
 
-## Introduction
+## 概要
 
-This plugin is meant to make it easy to quickstart development of new OBS plugins. It includes:
+「OBSポケモンSVスクリーンビルダー」はポケモンSVの配信をイイ感じにするためのOBSのプラグインです。以下のような特徴があります：
 
-- The CMake project file
-- Boilerplate plugin source code
-- GitHub Actions workflows and repository actions
-- Build scripts for Windows, macOS, and Linux
+- 導入がインストーラーを起動するだけで、設定も数クリックするだけなので簡単！
+- プレイヤーが何の操作もしなくても全自動でパーティー情報が更新されます！
+- 負荷が少ないので60FPSで配信しても配信がカクカクしません！
 
-## Configuring
+## 画面の例
 
-Open `buildspec.json` and change the name and version of the plugin accordingly. This is also where the obs-studio version as well as the pre-built dependencies for Windows and macOS are defined. Use a release version (with associated checksums) from a recent [obs-deps release](https://github.com/obsproject/obs-deps/releases).
+<img src="https://user-images.githubusercontent.com/1067855/218967358-68312e37-166b-4120-890a-8cd8d1df7d49.png" width="600">
 
-Next, open `CMakeLists.txt` and edit the following lines at the beginning:
+左下に自分の選出が選出した順に並びます。右端に相手のポケモンが並びます。タイマーは自分で好きな位置に配置できます。
 
-```cmake
-project(obs-plugintemplate VERSION 1.0.0)
+## ダウンロード
 
-set(PLUGIN_AUTHOR "Your Name Here")
+https://github.com/umireon/obs-pokemon-sv-screen-builder/releases/latest
 
-set(LINUX_MAINTAINER_EMAIL "me@contoso.com")
-```
+- Windowsの方はobs-pokemon-sv-screen-builder-x.x.x-windows-x64-Installer.exeをダウンロードして実行します。
+- Macの方はobs-pokemon-sv-screen-builder-x.x.x-macos-universal.pkgをダウンロードして下の方に記載してある手順に従ってインストールします。
+- Linuxの方はobs-pokemon-sv-screen-builder-x.x.x-linux-x86_64.debをダウンロードしてインストールします。
 
-The build scripts (contained in the `.github/scripts` directory) will update the `project` line automatically based on values from the `buildspec.json` file. If the scripts are not used, these changes need to be done manually.
+## 設定方法
 
-## GitHub Actions & CI
+OBSポケモンSVスクリーンビルダーをインストールすると、「ポケモンSVスクリーンビルダー」というソースがOBSのシーンに追加できるようになります。
+<img width="600" src="https://user-images.githubusercontent.com/1067855/218970534-de84022c-5013-4b3b-a22d-50ec1b3f7328.png">
 
-The scripts contained in `github/scripts` can be used to build and package the plugin and take care of setting up obs-studio as well as its own dependencies. A default workflow for GitHub Actions is also provided and will use these scripts.
 
-### Retrieving build artifacts
-
-Each build produces installers and packages that you can use for testing and releases. These artifacts can be found on the action result page via the "Actions" tab in your GitHub repository.
-
-#### Building a Release
-
-Simply create and push a tag and GitHub Actions will run the pipeline in Release Mode. This mode uses the tag as its version number instead of the git ref in normal mode.
-
-### Signing and Notarizing on macOS
-
-On macOS, Release Mode builds can be signed and sent to Apple for notarization if the necessary codesigning credentials are added as secrets to your repository. **You'll need a paid Apple Developer Account for this.**
-
-- On your Apple Developer dashboard, go to "Certificates, IDs & Profiles" and create two signing certificates:
-    - One of the "Developer ID Application" type. It will be used to sign the plugin's binaries
-    - One of the "Developer ID Installer" type. It will be used to sign the plugin's installer
-- Using the Keychain app on macOS, export these two certificates and keys into a .p12 file **protected with a strong password**
-- Encode the .p12 file into its base64 representation by running `base64 YOUR_P12_FILE`
-- Add the following secrets in your Github repository settings:
-    - `MACOS_SIGNING_APPLICATION_IDENTITY`: Name of the "Developer ID Application" signing certificate generated earlier
-    - `MACOS_SIGNING_INSTALLER_IDENTITY`: Name of "Developer ID Installer" signing certificate generated earlier
-    - `MACOS_SIGNING_CERT`: Base64-encoded string generated above
-    - `MACOS_SIGNING_CERT_PASSWORD`: Password used to generate the .p12 certificate
-    - `MACOS_NOTARIZATION_USERNAME`: Your Apple Developer account's username
-    - `MACOS_NOTARIZATION_PASSWORD`: Your Apple Developer account's password (use a generated "app password" for this)
+## Macのインストールの手順
