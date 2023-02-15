@@ -414,9 +414,14 @@ static const std::vector<std::vector<uchar>> DATA = {
 	},
 };
 const std::vector<cv::Mat> SelectionRecognizer::SELECTION_TEMPLATES = {
-	cv::Mat(DATA[0].size() / 32, 32, CV_8U, (void *)DATA[0].data()),
-	cv::Mat(DATA[1].size() / 32, 32, CV_8U, (void *)DATA[1].data()),
-	cv::Mat(DATA[2].size() / 32, 32, CV_8U, (void *)DATA[2].data()),
-	cv::Mat(DATA[3].size() / 32, 32, CV_8U, (void *)DATA[3].data()),
-	cv::Mat(DATA[4].size() / 32, 32, CV_8U, (void *)DATA[4].data()),
+	cv::Mat(static_cast<int>(DATA[0].size()) / 32, 32, CV_8U,
+		(void *)DATA[0].data()),
+	cv::Mat(static_cast<int>(DATA[1].size()) / 32, 32, CV_8U,
+		(void *)DATA[1].data()),
+	cv::Mat(static_cast<int>(DATA[2].size()) / 32, 32, CV_8U,
+		(void *)DATA[2].data()),
+	cv::Mat(static_cast<int>(DATA[3].size()) / 32, 32, CV_8U,
+		(void *)DATA[3].data()),
+	cv::Mat(static_cast<int>(DATA[4].size()) / 32, 32, CV_8U,
+		(void *)DATA[4].data()),
 };
