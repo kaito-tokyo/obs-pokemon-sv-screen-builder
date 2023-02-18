@@ -371,9 +371,6 @@ static void screen_video_tick(void *data, float seconds)
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 			context->state = STATE_ENTERING_SELECT_POKEMON;
 			context->last_state_change_ns = os_gettime_ns();
-			for (int i = 0; i < N_POKEMONS; i++) {
-				context->my_selection_order_map[i] = 0;
-			}
 			if (!context->gameplay_bgra.empty()) {
 				context->screen_bgra =
 					cv::Mat(context->gameplay_bgra.rows,
@@ -386,7 +383,9 @@ static void screen_video_tick(void *data, float seconds)
 		const uint64_t now = os_gettime_ns();
 		if (now - context->last_state_change_ns > 1000000000) {
 			drawOpponentPokemons(context);
-			drawMyPokemons(context);
+			for (int i = 0; i < N_POKEMONS; i++) {
+				context->my_selection_order_map[i] = 0;
+			}
 			context->state = STATE_SELECT_POKEMON;
 			blog(LOG_INFO,
 			     "State: ENTERING_SELECT_POKEMON to SELECT_POKEMON");
