@@ -307,7 +307,8 @@ static void drawMyPokemons(screen_context *context)
 		if (pokemon == 0)
 			continue;
 
-		auto pokemonBGRA = context->myPokemonCropper.imagesBGRA[pokemon - 1];
+		auto pokemonBGRA =
+			context->myPokemonCropper.imagesBGRA[pokemon - 1];
 		cv::Mat resizedBGRA;
 		cv::resize(pokemonBGRA, resizedBGRA, myPokemonSize);
 
