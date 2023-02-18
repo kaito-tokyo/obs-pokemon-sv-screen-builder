@@ -307,7 +307,7 @@ static void drawMyPokemons(screen_context *context)
 		if (pokemon == 0)
 			continue;
 
-		auto pokemonBGRA = context->myPokemonCropper.imagesBGRA[i];
+		auto pokemonBGRA = context->myPokemonCropper.imagesBGRA[pokemon - 1];
 		cv::Mat resizedBGRA;
 		cv::resize(pokemonBGRA, resizedBGRA, myPokemonSize);
 
@@ -418,12 +418,9 @@ static void screen_video_tick(void *data, float seconds)
 		}
 	} else if (context->state == STATE_CONFIRM_POKEMON) {
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			context->state = STATE_SELECT_POKEMON;
-			for (int i = 0; i < N_POKEMONS; i++) {
-				context->my_selection_order_map[i] = 0;
-			}
+			context->state = STATE_ENTERING_SELECT_POKEMON;
 			blog(LOG_INFO,
-			     "State: CONFIRM_POKEMON to SELECT_POKEMON");
+			     "State: CONFIRM_POKEMON to STATE_ENTERING_SELECT_POKEMON");
 		} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 			context->state = STATE_ENTERING_MATCH;
 			blog(LOG_INFO,
@@ -437,10 +434,7 @@ static void screen_video_tick(void *data, float seconds)
 			context->match_start_ns = os_gettime_ns();
 			blog(LOG_INFO, "State: ENTERING_MATCH to MATCH");
 		} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			context->state = STATE_SELECT_POKEMON;
-			for (int i = 0; i < N_POKEMONS; i++) {
-				context->my_selection_order_map[i] = 0;
-			}
+			context->state = STATE_ENTERING_SELECT_POKEMON;
 			blog(LOG_INFO,
 			     "State: ENTERING_MATCH to SELECT_POKEMON");
 		}
@@ -457,9 +451,6 @@ static void screen_video_tick(void *data, float seconds)
 
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 			context->state = STATE_ENTERING_SELECT_POKEMON;
-			for (int i = 0; i < N_POKEMONS; i++) {
-				context->my_selection_order_map[i] = 0;
-			}
 			blog(LOG_INFO,
 			     "State: MATCH to ENTERING_SELECT_POKEMON");
 		} else if (context->prev_scene !=
