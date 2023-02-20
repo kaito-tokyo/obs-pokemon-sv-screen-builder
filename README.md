@@ -4,7 +4,7 @@
 
 「OBSポケモンSVスクリーンビルダー」はポケモンSVの配信をイイ感じにするためのOBSのプラグインです。以下のような特徴があります：
 
-- 導入がインストーラーを起動するだけで、設定も数クリックするだけなので簡単！
+- 導入がファイルをコピペするだけで、設定も数クリックするだけなので簡単！
 - プレイヤーが何の操作もしなくても全自動でパーティー情報が更新されます！
 - 負荷が少ないので60FPSで配信しても配信がカクカクしません！
 
@@ -20,7 +20,7 @@ OBSのバージョン28以上が必要です。Windows、macOS、Linuxの全て�
 
 https://github.com/umireon/obs-pokemon-sv-screen-builder/releases/latest
 
-- Windowsの方はobs-pokemon-sv-screen-builder-x.x.x-windows-x64-Installer.exeをダウンロードして実行します。
+- Windowsの方はobs-pokemon-sv-screen-builder-x.x.x-windows-x64.zipをダウンロードして展開し、中にあるdataとobs-pluginsフォルダをC:\Program Files\obs-studio以下にペーストします。
 - Macの方はobs-pokemon-sv-screen-builder-x.x.x-macos-universal.pkgをダウンロードして下の方に記載してある手順に従ってインストールします。
 - Linuxの方はobs-pokemon-sv-screen-builder-x.x.x-linux-x86_64.debをダウンロードしてインストールします。
 
