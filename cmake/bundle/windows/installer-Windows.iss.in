@@ -3,9 +3,6 @@
 #define MyAppPublisher "@PLUGIN_AUTHOR@"
 #define MyAppURL "https://obs-pokemon-sv-screen-builder.kaito.tokyo"
 
-#define public Dependency_NoExampleSetup
-#include "CodeDependencies.iss"
-
 [Setup]
 ; NOTE: The value of AppId uniquely identifies this application.
 ; Do not use the same AppId value in installers for other applications.
@@ -49,13 +46,6 @@ begin
     'Press Page Down to see the rest of the agreement. Once you are aware of your rights, click Next to continue.',
     String(GPLText)
   );
-end;
-
-function InitializeSetup: Boolean;
-begin
-  Dependency_AddVC2015To2022;
-
-  Result := True;
 end;
 
 // credit where it's due :
