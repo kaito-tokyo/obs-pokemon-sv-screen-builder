@@ -570,6 +570,5 @@ jobs:
           body_path: ${{ github.workspace }}/CHECKSUMS.txt
           files: |
             ${{ github.workspace }}/**/*.zip
-            ${{ github.workspace }}/**/*.exe
             ${{ github.workspace }}/**/*.deb
             ${{ github.workspace }}/**/*.pkg
