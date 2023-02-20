@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 
 # Change obs-plugintemplate to your plugin's name in a machine-readable format (e.g.:
 # obs-myawesomeplugin) and set
-project(obs-pokemon-sv-screen-builder VERSION 0.1.8)
+project(obs-pokemon-sv-screen-builder VERSION 0.1.9)
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
 # Replace `Your Name Here` with the name (yours or your organization's) you want to see as the
@@ -67,8 +67,6 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
 if(OS_WINDOWS)
   configure_file(cmake/bundle/windows/installer-Windows.iss.in
                  ${CMAKE_BINARY_DIR}/installer-Windows.generated.iss)
-  configure_file(cmake/bundle/windows/CodeDependencies.iss.in
-                 ${CMAKE_BINARY_DIR}/CodeDependencies.iss)
 
   configure_file(cmake/bundle/windows/resource.rc.in ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.rc)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_BINARY_DIR}/${CMAKE_PROJECT_NAME}.rc)
