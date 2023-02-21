@@ -124,7 +124,10 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 	const char *gameplay_name =
 		obs_data_get_string(context->settings, "gameplay_source");
 	obs_source_t *gameplay_source = obs_get_source_by_name(gameplay_name);
-	if (!gameplay_source || !obs_source_enabled(gameplay_source)) {
+	if (!gameplay_source) {
+		return;
+	}
+	if (!obs_source_enabled(gameplay_source)) {
 		obs_source_release(gameplay_source);
 		return;
 	}
