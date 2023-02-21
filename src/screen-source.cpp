@@ -183,9 +183,9 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 				gameplay_height, gameplay_width, CV_8UC4);
 			for (uint32_t i = 0; i < gameplay_height; i++) {
 				memcpy(context->gameplay_bgra.data +
-					       gameplay_height * 4 * i,
+					       gameplay_width * 4 * i,
 				       stagesurface_data + linesize * i,
-				       gameplay_width);
+				       gameplay_width * 4);
 			}
 		}
 	}
