@@ -12,7 +12,7 @@ bool obs_module_load(void)
 	obs_register_source(&screen_info);
 
 	obs_log(LOG_INFO, "plugin loaded successfully (version %s)",
-	     PLUGIN_VERSION);
+		PLUGIN_VERSION);
 	return true;
 }
 
