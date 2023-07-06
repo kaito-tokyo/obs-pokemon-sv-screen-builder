@@ -128,6 +128,7 @@ jobs:
           package: ${{ fromJSON(needs.check-event.outputs.package) }}
           codesign: ${{ fromJSON(needs.check-event.outputs.codesign) && fromJSON(steps.codesign.outputs.haveCodesignIdent) }}
           codesignIdent: ${{ steps.codesign.outputs.codesignIdent }}
+          codesignTeam: ${{ steps.codesign.outputs.codesignTeam }}
           installerIdent: ${{ steps.codesign.outputs.installerIdent }}
           notarize: ${{ fromJSON(needs.check-event.outputs.notarize) && fromJSON(steps.codesign.outputs.haveNotarizationUser) }}
           codesignUser: ${{ secrets.MACOS_NOTARIZATION_USERNAME }}

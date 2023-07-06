@@ -20,6 +20,10 @@ inputs:
     description: 'Developer ID for application codesigning (macOS only)'
     required: false
     default: '-'
+  codesignTeam:
+    description: 'Developer team for application codesigning (macOS only)'
+    required: false
+    default: ''
   installerIdent:
     description: 'Developer ID for installer package codesigning (macOS only)'
     required: false
@@ -49,6 +53,7 @@ runs:
       working-directory: ${{ inputs.workingDirectory }}
       env:
         CODESIGN_IDENT: ${{ inputs.codesignIdent }}
+        CODESIGN_TEAM: ${{ inputs.codesignTeam }}
         CODESIGN_IDENT_INSTALLER: ${{ inputs.installerIdent }}
         CODESIGN_IDENT_USER: ${{ inputs.codesignUser }}
         CODESIGN_IDENT_PASS: ${{ inputs.codesignPass }}
