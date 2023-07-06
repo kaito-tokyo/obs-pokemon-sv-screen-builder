@@ -1,19 +1,22 @@
 include(ExternalProject)
 
+set(OPENCV_URL
+    https://github.com/opencv/opencv/archive/refs/tags/4.7.0.tar.gz
+    CACHE STRING "URL of an OpenCV tarball")
+
+set(OPENCV_MD5
+    13e13244cb0cc6ec4f01eacd38d05d17
+    CACHE STRING "MD5 Hash of an OpenCV tarball")
+
 string(REPLACE ";" "$<SEMICOLON>" CMAKE_OSX_ARCHITECTURES_ "${CMAKE_OSX_ARCHITECTURES}")
 
 if(MSVC)
-  find_program(OpenCV_CCACHE_EXE ccache)
   if(${CMAKE_GENERATOR_PLATFORM} STREQUAL x64
      AND ${MSVC_VERSION} GREATER_EQUAL 1910
      AND ${MSVC_VERSION} LESS_EQUAL 1939)
     set(OpenCV_LIB_PATH x64/vc17/staticlib)
     set(OpenCV_LIB_PATH_3RD x64/vc17/staticlib)
     set(OpenCV_LIB_SUFFIX 470)
-    set(OpenCV_INSTALL_CCACHE ${CMAKE_COMMAND} -E copy ${OpenCV_CCACHE_EXE} <BINARY_DIR>/cl.exe)
-    set(OpenCV_PLATFORM_CMAKE_ARGS
-        -DCMAKE_VS_GLOBALS=CLToolExe=cl.exe$<SEMICOLON>CLToolPath=<BINARY_DIR>$<SEMICOLON>TrackFileAccess=false$<SEMICOLON>UseMultiToolTask=true$<SEMICOLON>DebugInformationFormat=OldStyle
-    )
   else()
     message(FATAL_ERROR "Unsupported MSVC!")
   endif()
@@ -22,7 +25,11 @@ else()
   set(OpenCV_LIB_PATH_3RD lib/opencv4/3rdparty)
   set(OpenCV_LIB_SUFFIX "")
   set(OpenCV_INSTALL_CCACHE ":")
-  set(OpenCV_PLATFORM_CMAKE_ARGS "")
+  set(OpenCV_PLATFORM_CMAKE_ARGS -DOPENCV_LIB_INSTALL_PATH=lib -DOPENCV_PYTHON_SKIP_DETECTION=ON)
+endif()
+
+if(OS_MACOS)
+  set(OpenCV_PLATFORM_CMAKE_ARGS ${OpenCV_PLATFORM_CMAKE_ARGS} -DCMAKE_OSX_ARCHITECTURES=x86_64$<SEMICOLON>arm64)
 endif()
 
 if(${CMAKE_BUILD_TYPE} STREQUAL Release OR ${CMAKE_BUILD_TYPE} STREQUAL RelWithDebInfo)
@@ -33,13 +40,13 @@ endif()
 
 ExternalProject_Add(
   OpenCV_Build
-  URL https://github.com/opencv/opencv/archive/refs/tags/4.7.0.tar.gz
+  DOWNLOAD_EXTRACT_TIMESTAMP true
+  URL ${OPENCV_URL}
+  URL_HASH MD5=${OPENCV_MD5}
   PATCH_COMMAND ${OpenCV_INSTALL_CCACHE}
   BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${OpenCV_BUILD_TYPE}
   BUILD_BYPRODUCTS
     <INSTALL_DIR>/${OpenCV_LIB_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}opencv_core${OpenCV_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    <INSTALL_DIR>/${OpenCV_LIB_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}opencv_features2d${OpenCV_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
-    <INSTALL_DIR>/${OpenCV_LIB_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}opencv_imgcodecs${OpenCV_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
     <INSTALL_DIR>/${OpenCV_LIB_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}opencv_imgproc${OpenCV_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
     <INSTALL_DIR>/${OpenCV_LIB_PATH_3RD}/${CMAKE_STATIC_LIBRARY_PREFIX}libpng${CMAKE_STATIC_LIBRARY_SUFFIX}
     <INSTALL_DIR>/${OpenCV_LIB_PATH_3RD}/${CMAKE_STATIC_LIBRARY_PREFIX}zlib${CMAKE_STATIC_LIBRARY_SUFFIX}
@@ -145,16 +152,13 @@ set_target_properties(
 add_library(OpenCV::Zlib STATIC IMPORTED)
 set_target_properties(
   OpenCV::Zlib
-  PROPERTIES
-    IMPORTED_LOCATION
-    ${INSTALL_DIR}/${OpenCV_LIB_PATH_3RD}/${CMAKE_STATIC_LIBRARY_PREFIX}zlib${CMAKE_STATIC_LIBRARY_SUFFIX}
-)
+  PROPERTIES IMPORTED_LOCATION
+             ${INSTALL_DIR}/${OpenCV_LIB_PATH_3RD}/${CMAKE_STATIC_LIBRARY_PREFIX}zlib${CMAKE_STATIC_LIBRARY_SUFFIX})
 
 add_library(OpenCV INTERFACE)
 add_dependencies(OpenCV OpenCV_Build)
 target_link_libraries(OpenCV INTERFACE OpenCV::Imgproc OpenCV::Core OpenCV::Zlib)
-set_target_properties(OpenCV::Imgproc OpenCV::Core OpenCV::Zlib
-                      PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${OpenCV_INCLUDE_PATH})
+set_target_properties(OpenCV::Core OpenCV::Imgproc PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${OpenCV_INCLUDE_PATH})
 if(APPLE)
   target_link_libraries(OpenCV INTERFACE "-framework Accelerate")
 endif(APPLE)

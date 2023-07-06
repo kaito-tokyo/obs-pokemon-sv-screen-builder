@@ -23,12 +23,12 @@ public:
 	const HistClassifier &classifierLobbyOpponentSelect;
 	const HistClassifier &classifierBlackTransition;
 
-	SceneDetector(const HistClassifier &classifierLobbyMySelect,
-		      const HistClassifier &classifierLobbyOpponentSelect,
-		      const HistClassifier &classifierBlackTransition)
-		: classifierLobbyMySelect(classifierLobbyMySelect),
-		  classifierLobbyOpponentSelect(classifierLobbyOpponentSelect),
-		  classifierBlackTransition(classifierBlackTransition)
+	SceneDetector(const HistClassifier &classifierLobbyMySelect_,
+		      const HistClassifier &classifierLobbyOpponentSelect_,
+		      const HistClassifier &classifierBlackTransition_)
+		: classifierLobbyMySelect(classifierLobbyMySelect_),
+		  classifierLobbyOpponentSelect(classifierLobbyOpponentSelect_),
+		  classifierBlackTransition(classifierBlackTransition_)
 	{
 	}
 
