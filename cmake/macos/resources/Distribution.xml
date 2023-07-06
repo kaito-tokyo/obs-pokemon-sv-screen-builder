@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="1">
+    <pkg-ref id="com.github.umireon.obs-pokemon-sv-screen-builder"/>
+    <options customize="never" require-scripts="false" hostArchitectures="x86_64,arm64"/>
+    <choices-outline>
+        <line choice="default">
+            <line choice="com.github.umireon.obs-pokemon-sv-screen-builder"/>
+        </line>
+    </choices-outline>
+    <choice id="default"/>
+    <choice id="com.github.umireon.obs-pokemon-sv-screen-builder" visible="false">
+        <pkg-ref id="com.github.umireon.obs-pokemon-sv-screen-builder"/>
+    </choice>
+    <pkg-ref id="com.github.umireon.obs-pokemon-sv-screen-builder" version="1.0.0" onConclusion="none">obs-backgroundremoval-flat.pkg</pkg-ref>
+    <domains enable_anywhere="false" enable_currentUserHome="true" enable_localSystem="false"/>
+    <title>OBSポケモンSVスクリーンビルダー</title>
+</installer-gui-script>
