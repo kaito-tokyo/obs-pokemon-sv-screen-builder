@@ -1,6 +1,6 @@
 #include <obs-module.h>
 
-#include "plugin-macros.generated.h"
+#include <plugin-support.h>
 
 extern struct obs_source_info screen_info;
 
@@ -11,12 +11,12 @@ bool obs_module_load(void)
 {
 	obs_register_source(&screen_info);
 
-	blog(LOG_INFO, "plugin loaded successfully (version %s)",
+	obs_log(LOG_INFO, "plugin loaded successfully (version %s)",
 	     PLUGIN_VERSION);
 	return true;
 }
 
 void obs_module_unload()
 {
-	blog(LOG_INFO, "plugin unloaded");
+	obs_log(LOG_INFO, "plugin unloaded");
 }
