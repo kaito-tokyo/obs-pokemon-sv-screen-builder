@@ -52,6 +52,7 @@ bool SceneDetector::predictByHueHist(const cv::Mat &screenHSV,
 	double maxVal;
 	cv::Point maxIdx;
 	cv::minMaxLoc(hist, nullptr, &maxVal, nullptr, &maxIdx);
-	return maxVal > areaHSV.total() * classifier.histRatio &&
+	return maxVal > static_cast<double>(areaHSV.total()) *
+				classifier.histRatio &&
 	       maxIdx.y == classifier.histMaxIndex;
 }
