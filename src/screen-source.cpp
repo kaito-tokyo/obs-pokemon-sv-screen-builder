@@ -273,7 +273,9 @@ static const char *screen_opponent_team_get_name(void *unused)
 
 static void *screen_create(obs_data_t *settings, obs_source_t *source)
 {
-	screen_context *context = new screen_context(defaultScreenConfig);
+	void *rawContext = bmalloc(sizeof(screen_context));
+	screen_context *context = new (rawContext)
+		screen_context(defaultScreenConfig);
 	context->settings = settings;
 	context->source = source;
 
@@ -288,7 +290,9 @@ static void *screen_create(obs_data_t *settings, obs_source_t *source)
 static void *screen_my_selection_create(obs_data_t *settings,
 					obs_source_t *source)
 {
-	screen_context *context = new screen_context(mySelectionScreenConfig);
+	void *rawContext = bmalloc(sizeof(screen_context));
+	screen_context *context = new (rawContext)
+		screen_context(mySelectionScreenConfig);
 	context->settings = settings;
 	context->source = source;
 
@@ -303,7 +307,9 @@ static void *screen_my_selection_create(obs_data_t *settings,
 static void *screen_opponent_team_create(obs_data_t *settings,
 					 obs_source_t *source)
 {
-	screen_context *context = new screen_context(opponentTeamScreenConfig);
+	void *rawContext = bmalloc(sizeof(screen_context));
+	screen_context *context = new (rawContext)
+		screen_context(opponentTeamScreenConfig);
 	context->settings = settings;
 	context->source = source;
 
