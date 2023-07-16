@@ -135,6 +135,7 @@ struct screen_context {
 	obs_source_t *source;
 
 	gs_texrender_t *texrender;
+	gs_stagesurf_t *stagesurface;
 	cv::Mat gameplay_bgra;
 
 	uint64_t next_tick;
@@ -209,13 +210,27 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 
 	obs_source_release(gameplay_source);
 
-	auto stagesurface = gs_stagesurface_create(gameplay_width,
-						   gameplay_height, GS_BGRA);
-	gs_stage_texture(stagesurface,
+	if (context->stagesurface) {
+		uint32_t stagesurface_width =
+			gs_stagesurface_get_width(context->stagesurface);
+		uint32_t stagesurface_height =
+			gs_stagesurface_get_height(context->stagesurface);
+		if (stagesurface_width != gameplay_width ||
+		    stagesurface_height != gameplay_height) {
+			gs_stagesurface_destroy(context->stagesurface);
+			context->stagesurface = nullptr;
+		}
+	}
+	if (!context->stagesurface) {
+		context->stagesurface = gs_stagesurface_create(
+			gameplay_width, gameplay_height, GS_BGRA);
+	}
+	gs_stage_texture(context->stagesurface,
 			 gs_texrender_get_texture(context->texrender));
 	uint8_t *stagesurface_data;
 	uint32_t linesize;
-	if (!gs_stagesurface_map(stagesurface, &stagesurface_data, &linesize))
+	if (!gs_stagesurface_map(context->stagesurface, &stagesurface_data,
+				 &linesize))
 		return;
 	if (stagesurface_data && linesize) {
 		if (gameplay_width * 4 == linesize) {
@@ -233,8 +248,7 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 			}
 		}
 	}
-	gs_stagesurface_unmap(stagesurface);
-	gs_stagesurface_destroy(stagesurface);
+	gs_stagesurface_unmap(context->stagesurface);
 
 	UNUSED_PARAMETER(cx);
 	UNUSED_PARAMETER(cy);
