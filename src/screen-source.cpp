@@ -156,7 +156,7 @@ struct screen_context {
 
 	screen_config config;
 
-	screen_context(screen_config &_config)
+	screen_context(const screen_config &_config)
 		: sceneDetector(classifier_lobby_my_select,
 				classifier_lobby_opponent_select,
 				classifier_black_transition),
