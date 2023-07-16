@@ -130,24 +130,24 @@ const screen_config opponentTeamScreenConfig{
 };
 
 struct screen_context {
-	obs_data_t *settings;
-	obs_source_t *source;
+	obs_data_t *settings = nullptr;
+	obs_source_t *source = nullptr;
 
-	gs_texrender_t *texrender;
-	gs_stagesurf_t *stagesurface;
+	gs_texrender_t *texrender = nullptr;
+	gs_stagesurf_t *stagesurface = nullptr;
 	cv::Mat gameplay_bgra;
 
-	uint64_t next_tick;
+	uint64_t next_tick = 0;
 	SceneDetector sceneDetector;
 	cv::Mat screen_bgra;
 
 	screen_state state;
-	uint64_t last_state_change_ns;
-	int my_selection_order_map[N_POKEMONS];
+	uint64_t last_state_change_ns = 0;
+	int my_selection_order_map[N_POKEMONS]{};
 	SceneDetector::Scene prev_scene;
-	uint64_t match_start_ns;
-	uint64_t last_elapsed_seconds;
-	uint64_t match_end_ns;
+	uint64_t match_start_ns = 0;
+	uint64_t last_elapsed_seconds = 0;
+	uint64_t match_end_ns = 0;
 
 	EntityCropper opponentPokemonCropper;
 	EntityCropper myPokemonCropper;
