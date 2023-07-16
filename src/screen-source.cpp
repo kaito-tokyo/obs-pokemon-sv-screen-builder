@@ -141,7 +141,7 @@ struct screen_context {
 	SceneDetector sceneDetector;
 	cv::Mat screen_bgra;
 
-	screen_state state;
+	screen_state state = STATE_UNKNOWN;
 	uint64_t last_state_change_ns = 0;
 	int my_selection_order_map[N_POKEMONS]{};
 	SceneDetector::Scene prev_scene;
