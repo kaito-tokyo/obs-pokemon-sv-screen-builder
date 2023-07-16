@@ -328,7 +328,7 @@ static void screen_destroy(void *data)
 	if (context) {
 		obs_remove_main_render_callback(screen_main_render_callback,
 						context);
-		delete context;
+		bfree(context);
 	}
 }
 
@@ -495,8 +495,8 @@ static void screen_video_tick(void *data, float seconds)
 
 	if (context->screen_bgra.rows != context->gameplay_bgra.rows ||
 	    context->screen_bgra.cols != context->gameplay_bgra.cols) {
-		context->screen_bgra = cv::Mat(context->gameplay_bgra.rows,
-					       context->gameplay_bgra.cols,
+		context->screen_bgra = cv::Mat(context->config.width,
+					       context->config.height,
 					       CV_8UC4, cv::Scalar(0));
 	}
 
