@@ -210,6 +210,10 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 
 	obs_source_release(gameplay_source);
 
+	if (!context->stagesurface) {
+		context->stagesurface = gs_stagesurface_create(
+			gameplay_width, gameplay_height, GS_BGRA);
+	}
 	uint32_t stagesurface_width =
 		gs_stagesurface_get_width(context->stagesurface);
 	uint32_t stagesurface_height =
