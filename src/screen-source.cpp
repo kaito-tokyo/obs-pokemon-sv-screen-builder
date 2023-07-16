@@ -85,10 +85,9 @@ struct screen_config {
 	const cv::Size myPokemonSize;
 
 	const bool skipOpponentTeam;
-	const int opponentPokemonPlacementX = 1776;
-	const std::vector<int> opponentPokemonPlacementY{0,   144, 288,
-							 432, 576, 720};
-	const cv::Size opponentPokemonSize{144, 144};
+	const int opponentPokemonPlacementX;
+	const std::vector<int> opponentPokemonPlacementY;
+	const cv::Size opponentPokemonSize;
 };
 
 const screen_config defaultScreenConfig{
