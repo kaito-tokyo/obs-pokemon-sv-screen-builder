@@ -216,7 +216,7 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 		uint32_t stagesurface_height =
 			gs_stagesurface_get_height(context->stagesurface);
 		if (stagesurface_width != gameplay_width ||
-		    stagesurface_height != gameplay_heights) {
+		    stagesurface_height != gameplay_height) {
 			gs_stagesurface_destroy(context->stagesurface);
 			context->stagesurface = nullptr;
 		}
