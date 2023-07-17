@@ -68,7 +68,9 @@ cv::Mat SceneDetector::generateTextBinaryScreen(const cv::Mat &screenBGRA)
 bool SceneDetector::isOpponentRankShown(const cv::Mat &screenTextBinary)
 {
 	cv::Range colRange{542, 661}, rowRange{894, 931};
-	if (colRange.end > screenTextBinary.cols || rowRange.end > screenTextBinary.rows) return false;
+	if (colRange.end > screenTextBinary.cols ||
+	    rowRange.end > screenTextBinary.rows)
+		return false;
 	cv::Mat image = screenTextBinary(rowRange, colRange);
 	for (size_t i = 0; i < TEXT_TEMPLATES.size(); i++) {
 		const cv::Mat &resultImage = image ^ TEXT_TEMPLATES[i];

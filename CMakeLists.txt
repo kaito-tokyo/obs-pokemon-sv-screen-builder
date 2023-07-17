@@ -42,7 +42,9 @@ target_sources(
           src/SceneDetectorTextRecognizerGenerated.cpp
           src/EntityCropper.cpp
           src/SelectionRecognizer.cpp
-          src/SelectionRecognizerGenerated.cpp)
+          src/SelectionRecognizerGenerated.cpp
+          src/OpponentRankExtractor.cpp
+          src/OpponentRankExtractorGenerated.cpp)
 
 include(cmake/BuildMyOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
