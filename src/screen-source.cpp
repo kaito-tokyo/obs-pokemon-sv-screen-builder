@@ -523,7 +523,7 @@ static void screen_video_tick(void *data, float seconds)
 		if (context->sceneDetector.isOpponentRankShown(
 			    screenTextBinary)) {
 			context->opponentRankExtractor.extract(
-				screenTextBinary);
+				screenTextBinary, context->gameplay_bgra);
 			blog(LOG_INFO, "Rank shown!");
 		};
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
