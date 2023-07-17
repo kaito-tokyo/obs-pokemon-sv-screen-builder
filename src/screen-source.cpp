@@ -170,8 +170,6 @@ struct screen_context {
 
 	cv::Mat myPokemonsBGRA[N_POKEMONS];
 
-	cv::Mat myPokemonsBGRA[N_POKEMONS];
-
 	screen_config config;
 
 	screen_context(const screen_config &_config)
