@@ -436,8 +436,10 @@ static void drawMyPokemons(screen_context *context)
 {
 	context->myPokemonCropper.crop(context->gameplay_bgra);
 	for (int i = 0; i < N_POKEMONS; i++) {
+		cv::Vec4b &pixel = context->myPokemonCropper.imagesBGRA[i].at<cv::Vec4b>(0, 0);
+		if (pixel[1] > 150 && pixel[2] > 150) continue;
 		context->myPokemonsBGRA[i] =
-			context->myPokemonCropper.imagesBGRA[i];
+			context->myPokemonCropper.imagesBGRA[i].clone();
 	}
 
 	for (int i = 0; i < N_POKEMONS; i++) {
