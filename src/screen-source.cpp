@@ -514,6 +514,14 @@ static void screen_video_tick(void *data, float seconds)
 	}
 
 	if (context->state == STATE_UNKNOWN) {
+		cv::Mat screenTextBinary =
+			context->sceneDetector.generateTextBinaryScreen(
+				context->gameplay_bgra);
+
+		if (context->sceneDetector.isOpponentRankShown(
+			    screenTextBinary)) {
+			blog(LOG_INFO, "Rank shown!");
+		};
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 			context->state = STATE_ENTERING_SELECT_POKEMON;
 			context->last_state_change_ns = os_gettime_ns();
@@ -523,13 +531,6 @@ static void screen_video_tick(void *data, float seconds)
 						context->gameplay_bgra.cols,
 						CV_8UC4, cv::Scalar(0));
 			}
-			cv::Mat screenTextBinary =
-				context->sceneDetector.generateTextBinaryScreen(
-					context->screen_bgra);
-			if (context->sceneDetector.isOpponentRankShown(
-				    screenTextBinary)) {
-				blog(LOG_INFO, "Rank shown!");
-			};
 			blog(LOG_INFO, "State: UNKNOWN to ENTERING_SELECT");
 		}
 	} else if (context->state == STATE_ENTERING_SELECT_POKEMON) {

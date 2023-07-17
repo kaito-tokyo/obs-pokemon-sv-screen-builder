@@ -1,4 +1,5 @@
 #include "SceneDetector.h"
+#include <obs.h>
 
 SceneDetector::Scene SceneDetector::detectScene(const cv::Mat &screenHSV)
 {
@@ -60,22 +61,21 @@ cv::Mat SceneDetector::generateTextBinaryScreen(const cv::Mat &screenBGRA)
 {
 	cv::Mat screenTextBinary;
 	cv::cvtColor(screenBGRA, screenTextBinary, cv::COLOR_BGRA2GRAY);
-	cv::threshold(screenTextBinary, screenTextBinary, 128, 255,
-		      cv::THRESH_BINARY);
 	return screenTextBinary;
 }
 
+#include <iostream>
 bool SceneDetector::isOpponentRankShown(const cv::Mat &screenTextBinary)
 {
-
 	cv::Range colRange{542, 661}, rowRange{894, 931};
+	if (colRange.end > screenTextBinary.cols || rowRange.end > screenTextBinary.rows) return false;
 	cv::Mat image = screenTextBinary(rowRange, colRange);
-	std::vector<double> results;
 	for (size_t i = 0; i < TEXT_TEMPLATES.size(); i++) {
-		const cv::Mat &resultImage = image & TEXT_TEMPLATES[i];
-		const auto target = cv::sum(TEXT_TEMPLATES[i] / 255);
+		const cv::Mat &resultImage = image ^ TEXT_TEMPLATES[i];
+		const auto expected = cv::sum(TEXT_TEMPLATES[i] / 255);
 		const auto actual = cv::sum(resultImage / 255);
-		if (cv::abs(actual[0] - target[0]) < target[0] * 0.2) {
+		blog(LOG_INFO, "isOp %f:%f", actual[0], expected[0]);
+		if (actual[0] < 50) {
 			return true;
 		}
 	}

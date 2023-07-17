@@ -92,7 +92,7 @@ ExternalProject_Add(
              -DBUILD_opencv_flann=OFF
              -DBUILD_opencv_gapi=OFF
              -DBUILD_opencv_highgui=OFF
-             -DBUILD_opencv_imgcodecs=OFF
+             -DBUILD_opencv_imgcodecs=ON
              -DBUILD_opencv_imgproc=ON
              -DBUILD_opencv_ml=OFF
              -DBUILD_opencv_objdetect=OFF
@@ -100,7 +100,7 @@ ExternalProject_Add(
              -DBUILD_opencv_stitching=OFF
              -DBUILD_opencv_video=OFF
              -DBUILD_opencv_videoio=OFF
-             -DWITH_PNG=OFF
+             -DWITH_PNG=ON
              -DWITH_JPEG=OFF
              -DWITH_TIFF=OFF
              -DWITH_WEBP=OFF
@@ -133,6 +133,14 @@ else()
   set(OpenCV_INCLUDE_PATH ${INSTALL_DIR}/include/opencv4)
 endif(MSVC)
 
+add_library(OpenCV::Imgcodecs STATIC IMPORTED)
+set_target_properties(
+  OpenCV::Imgcodecs
+  PROPERTIES
+    IMPORTED_LOCATION
+    ${INSTALL_DIR}/${OpenCV_LIB_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}opencv_imgcodecs${OpenCV_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
+)
+
 add_library(OpenCV::Imgproc STATIC IMPORTED)
 set_target_properties(
   OpenCV::Imgproc
@@ -149,6 +157,12 @@ set_target_properties(
     ${INSTALL_DIR}/${OpenCV_LIB_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}opencv_core${OpenCV_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
 )
 
+add_library(OpenCV::Libpng STATIC IMPORTED)
+set_target_properties(
+  OpenCV::Libpng
+  PROPERTIES IMPORTED_LOCATION
+             ${INSTALL_DIR}/${OpenCV_LIB_PATH_3RD}/${CMAKE_STATIC_LIBRARY_PREFIX}libpng${CMAKE_STATIC_LIBRARY_SUFFIX})
+
 add_library(OpenCV::Zlib STATIC IMPORTED)
 set_target_properties(
   OpenCV::Zlib
@@ -157,7 +171,7 @@ set_target_properties(
 
 add_library(OpenCV INTERFACE)
 add_dependencies(OpenCV OpenCV_Build)
-target_link_libraries(OpenCV INTERFACE OpenCV::Imgproc OpenCV::Core OpenCV::Zlib)
+target_link_libraries(OpenCV INTERFACE OpenCV::Imgcodecs OpenCV::Imgproc OpenCV::Core OpenCV::Libpng OpenCV::Zlib)
 set_target_properties(OpenCV::Core OpenCV::Imgproc PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${OpenCV_INCLUDE_PATH})
 if(APPLE)
   target_link_libraries(OpenCV INTERFACE "-framework Accelerate")

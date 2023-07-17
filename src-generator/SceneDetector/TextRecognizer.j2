@@ -10,8 +10,8 @@ static std::vector<std::vector<uchar>> TEXT_DATA = {
     {% endfor %}
 };
 
-static const std::vector<int> TEXT_ROWS = {
-    {% for r in rows %}
+static const std::vector<int> TEXT_COLS = {
+    {% for r in cols %}
         {{ r }},
     {% endfor %}
 };
@@ -19,8 +19,8 @@ static const std::vector<int> TEXT_ROWS = {
 const std::vector<cv::Mat> SceneDetector::TEXT_TEMPLATES = {
     {% for d in data %}
         cv::Mat(
-            static_cast<int>(TEXT_DATA[{{ loop.index0 }}].size()) / TEXT_ROWS[{{ loop.index0 }}],
-            TEXT_ROWS[{{ loop.index0 }}],
+            static_cast<int>(TEXT_DATA[{{ loop.index0 }}].size()) / TEXT_COLS[{{ loop.index0 }}],
+            TEXT_COLS[{{ loop.index0 }}],
             CV_8U,
             TEXT_DATA[{{ loop.index0 }}].data()),
     {% endfor %}

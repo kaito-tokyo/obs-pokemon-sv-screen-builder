@@ -6,7 +6,7 @@ from os import path
 import sys
 
 data = []
-rows = []
+cols = []
 for file in glob('./assets/screenshots/SceneDetector/*.png'):
     name = path.basename(file)
     srcImg = cv2.imread(file)
@@ -16,12 +16,12 @@ for file in glob('./assets/screenshots/SceneDetector/*.png'):
     cv2.imwrite("./assets/SceneDetector/" + name, destImg)
 
     data.append("{" + ",".join(str(x) for x in np.ravel(destImg).tolist()) + "}")
-    rows.append(str(destImg.shape[0]))
+    cols.append(str(destImg.shape[1]))
 
 env = Environment(
     loader=FileSystemLoader('src-generator/SceneDetector')
 )
 template = env.get_template('TextRecognizer.j2')
-result = template.render(data=data, rows=rows)
+result = template.render(data=data, cols=cols)
 with open('src/SceneDetectorTextRecognizerGenerated.cpp', 'w') as fp:
     fp.write(result)
