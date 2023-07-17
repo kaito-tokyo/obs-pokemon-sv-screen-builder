@@ -108,6 +108,8 @@ struct screen_context {
 	EntityCropper selectionOrderCropper;
 	SelectionRecognizer selectionRecognizer;
 
+	cv::Mat myPokemonsBGRA[N_POKEMONS];
+
 	screen_context()
 		: sceneDetector(classifier_lobby_my_select,
 				classifier_lobby_opponent_select,
@@ -322,12 +324,16 @@ static void drawMyPokemons(screen_context *context)
 {
 	context->myPokemonCropper.crop(context->gameplay_bgra);
 	for (int i = 0; i < N_POKEMONS; i++) {
+		context->myPokemonsBGRA[i] =
+			context->myPokemonCropper.imagesBGRA[i];
+	}
+
+	for (int i = 0; i < N_POKEMONS; i++) {
 		int pokemon = context->my_selection_order_map[i];
 		if (pokemon == 0)
 			continue;
 
-		auto pokemonBGRA =
-			context->myPokemonCropper.imagesBGRA[pokemon - 1];
+		auto pokemonBGRA = context->myPokemonsBGRA[pokemon - 1];
 		cv::Mat resizedBGRA;
 		cv::resize(pokemonBGRA, resizedBGRA, myPokemonSize);
 
