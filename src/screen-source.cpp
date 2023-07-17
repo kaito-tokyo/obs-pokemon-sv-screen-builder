@@ -154,6 +154,8 @@ struct screen_context {
 	EntityCropper selectionOrderCropper;
 	SelectionRecognizer selectionRecognizer;
 
+	cv::Mat myPokemonsBGRA[N_POKEMONS];
+
 	screen_config config;
 
 	screen_context(const screen_config &_config)
@@ -434,12 +436,23 @@ static void drawMyPokemons(screen_context *context)
 {
 	context->myPokemonCropper.crop(context->gameplay_bgra);
 	for (int i = 0; i < N_POKEMONS; i++) {
+		cv::Vec4b &pixel =
+			context->myPokemonCropper.imagesBGRA[i].at<cv::Vec4b>(
+				0, 0);
+		if (pixel[1] > 150 && pixel[2] > 150)
+			continue;
+		context->myPokemonsBGRA[i] =
+			context->myPokemonCropper.imagesBGRA[i].clone();
+	}
+
+	for (int i = 0; i < N_POKEMONS; i++) {
 		int pokemon = context->my_selection_order_map[i];
 		if (pokemon == 0)
 			continue;
 
-		auto pokemonBGRA =
-			context->myPokemonCropper.imagesBGRA[pokemon - 1];
+		auto pokemonBGRA = context->myPokemonsBGRA[pokemon - 1];
+		if (pokemonBGRA.empty())
+			continue;
 		cv::Mat resizedBGRA;
 		cv::resize(pokemonBGRA, resizedBGRA,
 			   context->config.myPokemonSize);
