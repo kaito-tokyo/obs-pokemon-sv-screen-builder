@@ -40,6 +40,9 @@ public:
 	bool predictByHueHist(const cv::Mat &screenHSV,
 			      const HistClassifier &classifier);
 
+	cv::Mat generateTextBinaryScreen(const cv::Mat &screenBGRA);
+	bool isOpponentRankShown(const cv::Mat &screenTextBinary);
+
 private:
 	static const int TEXT_THRESHOLD;
 	static const std::vector<cv::Mat> TEXT_TEMPLATES;
