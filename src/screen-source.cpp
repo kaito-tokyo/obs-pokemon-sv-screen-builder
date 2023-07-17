@@ -89,6 +89,8 @@ struct screen_config {
 	const int opponentPokemonPlacementX;
 	const std::vector<int> opponentPokemonPlacementY;
 	const cv::Size opponentPokemonSize;
+
+	const bool skipOpponentRank;
 };
 
 const screen_config defaultScreenConfig{
@@ -115,6 +117,7 @@ const screen_config mySelectionScreenConfig{
 	.opponentPokemonPlacementX = 0,
 	.opponentPokemonPlacementY = {0, 144, 288, 432, 576, 720},
 	.opponentPokemonSize = {144, 144},
+	.skipOpponentRank = true,
 };
 
 const screen_config opponentTeamScreenConfig{
@@ -128,6 +131,15 @@ const screen_config opponentTeamScreenConfig{
 	.opponentPokemonPlacementX = 0,
 	.opponentPokemonPlacementY = {0, 144, 288, 432, 576, 720},
 	.opponentPokemonSize = {144, 144},
+	.skipOpponentRank = true,
+};
+
+const screen_config opponentRankScreenConfig{
+	.width = 250,
+	.height = 36,
+	.skipMySelection = true,
+	.skipOpponentTeam = true,
+	.skipOpponentRank = false,
 };
 
 struct screen_context {
@@ -275,6 +287,12 @@ static const char *screen_opponent_team_get_name(void *unused)
 	return obs_module_text("PokemonSVScreenBuilderOpponentTeam");
 }
 
+static const char *screen_opponent_rank_get_name(void *unused)
+{
+	UNUSED_PARAMETER(unused);
+	return obs_module_text("PokemonSVScreenBuilderOpponentRank");
+}
+
 static void *screen_create(obs_data_t *settings, obs_source_t *source)
 {
 	void *rawContext = bmalloc(sizeof(screen_context));
@@ -314,6 +332,23 @@ static void *screen_opponent_team_create(obs_data_t *settings,
 	void *rawContext = bmalloc(sizeof(screen_context));
 	screen_context *context = new (rawContext)
 		screen_context(opponentTeamScreenConfig);
+	context->settings = settings;
+	context->source = source;
+
+	context->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
+
+	obs_add_main_render_callback(screen_main_render_callback, context);
+
+	UNUSED_PARAMETER(settings);
+	return context;
+}
+
+static void *screen_opponent_rank_create(obs_data_t *settings,
+					 obs_source_t *source)
+{
+	void *rawContext = bmalloc(sizeof(screen_context));
+	screen_context *context = new (rawContext)
+		screen_context(opponentRankScreenConfig);
 	context->settings = settings;
 	context->source = source;
 
@@ -508,10 +543,9 @@ static void screen_video_tick(void *data, float seconds)
 	SceneDetector::Scene scene =
 		context->sceneDetector.detectScene(gameplay_hsv);
 
-	if (context->screen_bgra.rows != context->gameplay_bgra.rows ||
-	    context->screen_bgra.cols != context->gameplay_bgra.cols) {
-		context->screen_bgra = cv::Mat(context->config.width,
-					       context->config.height, CV_8UC4,
+	if (context->screen_bgra.empty()) {
+		context->screen_bgra = cv::Mat(context->config.height,
+					       context->config.width, CV_8UC4,
 					       cv::Scalar(0));
 	}
 
@@ -522,19 +556,29 @@ static void screen_video_tick(void *data, float seconds)
 
 		if (context->sceneDetector.isOpponentRankShown(
 			    screenTextBinary)) {
-			context->opponentRankExtractor.extract(
-				screenTextBinary, context->gameplay_bgra);
-			blog(LOG_INFO, "Rank shown!");
-		};
+
+			context->screen_bgra = cv::Mat(context->config.height,
+						       context->config.width,
+						       CV_8UC4, cv::Scalar(0));
+
+			if (!context->config.skipOpponentRank) {
+				context->opponentRankExtractor.extract(
+					screenTextBinary,
+					context->gameplay_bgra);
+				blog(LOG_INFO, "Rank shown!");
+				cv::Mat &opponentRank =
+					context->opponentRankExtractor.imageBGRA;
+				opponentRank.copyTo(
+					context->screen_bgra
+						.rowRange(0, opponentRank.rows)
+						.colRange(0,
+							  opponentRank.cols));
+			}
+		}
+
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 			context->state = STATE_ENTERING_SELECT_POKEMON;
 			context->last_state_change_ns = os_gettime_ns();
-			if (!context->gameplay_bgra.empty()) {
-				context->screen_bgra =
-					cv::Mat(context->gameplay_bgra.rows,
-						context->gameplay_bgra.cols,
-						CV_8UC4, cv::Scalar(0));
-			}
 			blog(LOG_INFO, "State: UNKNOWN to ENTERING_SELECT");
 		}
 	} else if (context->state == STATE_ENTERING_SELECT_POKEMON) {
@@ -688,6 +732,20 @@ struct obs_source_info screen_opponent_team_info = {
 	.output_flags = OBS_SOURCE_ASYNC_VIDEO,
 	.get_name = screen_opponent_team_get_name,
 	.create = screen_opponent_team_create,
+	.destroy = screen_destroy,
+	.get_width = screen_get_width,
+	.get_height = screen_get_height,
+	.get_defaults = screen_defaults,
+	.get_properties = screen_properties,
+	.video_tick = screen_video_tick,
+};
+
+struct obs_source_info screen_opponent_rank_info = {
+	.id = "obs-pokemon-sv-screen-builder-opponent-rank",
+	.type = OBS_SOURCE_TYPE_INPUT,
+	.output_flags = OBS_SOURCE_ASYNC_VIDEO,
+	.get_name = screen_opponent_rank_get_name,
+	.create = screen_opponent_rank_create,
 	.destroy = screen_destroy,
 	.get_width = screen_get_width,
 	.get_height = screen_get_height,

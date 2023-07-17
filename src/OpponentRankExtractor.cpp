@@ -32,9 +32,9 @@ void OpponentRankExtractor::extract(const cv::Mat &screenTextBinary,
 					int rankEnd = x1;
 					cv::Mat lineBGRA =
 						screenBGRA(rowRange, colRange);
-					imageBGRA = lineBGRA(
-						cv::Range(0, lineBGRA.rows),
-						cv::Range(rankStart, rankEnd));
+					imageBGRA = lineBGRA.colRange(rankStart,
+								      rankEnd)
+							    .clone();
 				}
 			}
 		}
