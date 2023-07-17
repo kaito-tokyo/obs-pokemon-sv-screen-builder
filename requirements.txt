@@ -1,1 +1,3 @@
+cmakelang
+jinja2
 opencv-python
