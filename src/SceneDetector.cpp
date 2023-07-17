@@ -61,6 +61,8 @@ cv::Mat SceneDetector::generateTextBinaryScreen(const cv::Mat &screenBGRA)
 {
 	cv::Mat screenTextBinary;
 	cv::cvtColor(screenBGRA, screenTextBinary, cv::COLOR_BGRA2GRAY);
+	cv::threshold(screenTextBinary, screenTextBinary, 128, 255,
+		      cv::THRESH_BINARY);
 	return screenTextBinary;
 }
 
