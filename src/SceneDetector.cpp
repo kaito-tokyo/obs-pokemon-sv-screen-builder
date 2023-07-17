@@ -76,9 +76,7 @@ bool SceneDetector::isOpponentRankShown(const cv::Mat &screenTextBinary)
 	cv::Mat image = screenTextBinary(rowRange, colRange);
 	for (size_t i = 0; i < TEXT_TEMPLATES.size(); i++) {
 		const cv::Mat &resultImage = image ^ TEXT_TEMPLATES[i];
-		const auto expected = cv::sum(TEXT_TEMPLATES[i] / 255);
 		const auto actual = cv::sum(resultImage / 255);
-		blog(LOG_INFO, "isOp %f:%f", actual[0], expected[0]);
 		if (actual[0] < 50) {
 			return true;
 		}

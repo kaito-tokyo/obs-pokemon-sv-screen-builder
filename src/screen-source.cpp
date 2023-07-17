@@ -8,6 +8,7 @@
 #include "EntityCropper.h"
 #include "SceneDetector.h"
 #include "SelectionRecognizer.h"
+#include "OpponentRankExtractor.h"
 
 #ifdef _MSC_VER
 #define EXPORT __declspec(dllexport)
@@ -153,6 +154,7 @@ struct screen_context {
 	EntityCropper myPokemonCropper;
 	EntityCropper selectionOrderCropper;
 	SelectionRecognizer selectionRecognizer;
+	OpponentRankExtractor opponentRankExtractor;
 
 	cv::Mat myPokemonsBGRA[N_POKEMONS];
 
@@ -520,6 +522,8 @@ static void screen_video_tick(void *data, float seconds)
 
 		if (context->sceneDetector.isOpponentRankShown(
 			    screenTextBinary)) {
+			context->opponentRankExtractor.extract(
+				screenTextBinary);
 			blog(LOG_INFO, "Rank shown!");
 		};
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {

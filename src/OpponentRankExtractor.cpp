@@ -9,7 +9,7 @@ void OpponentRankExtractor::extract(const cv::Mat &screenTextBinary)
 	const int parenEndIndex = PAREN_MAP.at(std::string("ja")).second;
 	cv::Mat parenStart = PAREN_TEMPLATES[parenStartIndex];
 	cv::Mat parenEnd = PAREN_TEMPLATES[parenEndIndex];
-	for (int x = lineBinary.cols - parenStart.cols; x = > 0; x--) {
+	for (int x = lineBinary.cols - parenStart.cols; x >= 0; x--) {
 		cv::Range lineColRange{x, x + parenStart.cols},
 			lineRowRange{0, parenStart.rows};
 		cv::Mat resultImage = lineBinary(lineColRange, lineRowRange) ^

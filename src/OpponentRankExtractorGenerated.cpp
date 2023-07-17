@@ -87,9 +87,10 @@ static const std::vector<int> TEXT_COLS = {
 
 };
 
-const std::map<std::string, std::pair<int, int>> PAREN_MAP = {
+const std::map<std::string, std::pair<int, int>>
+	OpponentRankExtractor::PAREN_MAP = {
 
-	{"ja", {3, 2}},
+		{"ja", {3, 2}},
 
 };
 
