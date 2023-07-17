@@ -448,6 +448,7 @@ static void drawMyPokemons(screen_context *context)
 			continue;
 
 		auto pokemonBGRA = context->myPokemonsBGRA[pokemon - 1];
+		if (pokemonBGRA.empty()) continue;
 		cv::Mat resizedBGRA;
 		cv::resize(pokemonBGRA, resizedBGRA,
 			   context->config.myPokemonSize);
