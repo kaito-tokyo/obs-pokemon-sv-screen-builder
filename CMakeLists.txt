@@ -47,7 +47,6 @@ target_sources(
           src/modules/OpponentRankExtractorGenerated.cpp)
 
 if(APPLE)
-  enable_language(OBJCXX)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/macos/VisionTextRecognizer.mm)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-framework Vision")
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-framework CoreVideo")
