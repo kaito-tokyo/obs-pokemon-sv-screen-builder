@@ -1,14 +1,15 @@
 #pragma once
 
 #include <string>
+#include <vector>
 
 namespace Base64 {
 std::string encode(const std::vector<unsigned char> input)
 {
-	const unsigned char table[] =
+	const char table[] =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-	char encoded[(input.size() + 2) / 3 * 4 + 1];
+    std::vector<char> encoded((input.size() + 2) / 3 * 4 + 1);
 
 	size_t i = 0, j = 0;
 	for (; j < input.size() - 2; i += 4, j += 3) {
@@ -38,6 +39,6 @@ std::string encode(const std::vector<unsigned char> input)
 		encoded[i + 4] = '\0';
 	}
 
-	return encoded;
+	return std::string(encoded.begin(), encoded.end());
 }
 }

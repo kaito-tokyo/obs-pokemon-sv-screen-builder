@@ -1,11 +1,11 @@
 include(ExternalProject)
 
 set(OPENCV_URL
-    https://github.com/opencv/opencv/archive/refs/tags/4.7.0.tar.gz
+    https://github.com/umireon/opencv/archive/refs/tags/4.7.1.tar.gz
     CACHE STRING "URL of an OpenCV tarball")
 
 set(OPENCV_MD5
-    13e13244cb0cc6ec4f01eacd38d05d17
+    eef7d771cdfb15913d57954c83e365a3
     CACHE STRING "MD5 Hash of an OpenCV tarball")
 
 string(REPLACE ";" "$<SEMICOLON>" CMAKE_OSX_ARCHITECTURES_ "${CMAKE_OSX_ARCHITECTURES}")
