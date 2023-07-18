@@ -65,3 +65,10 @@ handleEnteringShowRank(OpponentRankExtractor &opponentRankExtractor,
 				     jsonString.c_str());
 	return ScreenState::SHOW_RANK;
 }
+
+static ScreenState handleShowRank(SceneDetector::Scene scene)
+{
+    if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+        return ScreenState::ENTERING_SELECT_POKEMON;
+    }
+}

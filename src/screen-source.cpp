@@ -401,11 +401,13 @@ static void screen_video_tick(void *data, float seconds)
 			context->state = nextState;
 		}
 	} else if (context->state == ScreenState::SHOW_RANK) {
-		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			context->state = ScreenState::ENTERING_SELECT_POKEMON;
+		const ScreenState nextState = handleShowRank(scene);
+		if (nextState != context->state) {
 			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO,
-			     "State: SHOW_RANK to ENTERING_SELECT_POKEMON");
+			blog(LOG_INFO, "State: %s to %s",
+			     ScreenStateNames.at(context->state),
+			     ScreenStateNames.at(nextState));
+			context->state = nextState;
 		}
 	} else if (context->state == ScreenState::ENTERING_SELECT_POKEMON) {
 		const uint64_t now = os_gettime_ns();
