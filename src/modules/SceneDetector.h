@@ -16,7 +16,8 @@ public:
 	enum Scene {
 		SCENE_UNDEFINED,
 		SCENE_SELECT_POKEMON,
-		SCENE_BLACK_TRANSITION
+		SCENE_BLACK_TRANSITION,
+		SCENE_SHOW_RANK,
 	};
 
 	const HistClassifier &classifierLobbyMySelect;
@@ -32,16 +33,17 @@ public:
 	{
 	}
 
-	Scene detectScene(const cv::Mat &screenHSV);
-	bool isSelectPokemonScreen(const cv::Mat &screenHSV);
-	bool isBlackTransition(const cv::Mat &screenHSV);
+	Scene detectScene(const cv::Mat &screenHSV,
+			  const cv::Mat &screenBinary) const;
+	bool isSelectPokemonScreen(const cv::Mat &screenHSV) const;
+	bool isBlackTransition(const cv::Mat &screenHSV) const;
 	void calcHistHue(const cv::Mat &areaHSV, cv::Mat &hist, int channel,
-			 int nBins);
+			 int nBins) const;
 	bool predictByHueHist(const cv::Mat &screenHSV,
-			      const HistClassifier &classifier);
+			      const HistClassifier &classifier) const;
 
 	cv::Mat generateTextBinaryScreen(const cv::Mat &screenBGRA);
-	bool isOpponentRankShown(const cv::Mat &screenTextBinary);
+	bool isOpponentRankShown(const cv::Mat &screenTextBinary) const;
 
 private:
 	static const int TEXT_THRESHOLD;

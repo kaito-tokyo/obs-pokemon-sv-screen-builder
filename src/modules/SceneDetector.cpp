@@ -1,30 +1,34 @@
 #include "SceneDetector.h"
 #include <obs.h>
 
-SceneDetector::Scene SceneDetector::detectScene(const cv::Mat &screenHSV)
+SceneDetector::Scene
+SceneDetector::detectScene(const cv::Mat &screenHSV,
+			   const cv::Mat &screenBinary) const
 {
 	if (isSelectPokemonScreen(screenHSV)) {
 		return SCENE_SELECT_POKEMON;
 	} else if (isBlackTransition(screenHSV)) {
 		return SCENE_BLACK_TRANSITION;
+	} else if (isOpponentRankShown(screenBinary)) {
+		return SCENE_SHOW_RANK;
 	} else {
 		return SCENE_UNDEFINED;
 	}
 }
 
-bool SceneDetector::isSelectPokemonScreen(const cv::Mat &screenHSV)
+bool SceneDetector::isSelectPokemonScreen(const cv::Mat &screenHSV) const
 {
 	return predictByHueHist(screenHSV, classifierLobbyMySelect) &&
 	       predictByHueHist(screenHSV, classifierLobbyOpponentSelect);
 }
 
-bool SceneDetector::isBlackTransition(const cv::Mat &screenHSV)
+bool SceneDetector::isBlackTransition(const cv::Mat &screenHSV) const
 {
 	return predictByHueHist(screenHSV, classifierBlackTransition);
 }
 
 void SceneDetector::calcHistHue(const cv::Mat &areaHSV, cv::Mat &hist,
-				int channel, int nBins)
+				int channel, int nBins) const
 {
 	const int channels[]{channel};
 	const int histSize[]{nBins};
@@ -35,7 +39,7 @@ void SceneDetector::calcHistHue(const cv::Mat &areaHSV, cv::Mat &hist,
 }
 
 bool SceneDetector::predictByHueHist(const cv::Mat &screenHSV,
-				     const HistClassifier &classifier)
+				     const HistClassifier &classifier) const
 {
 	const double xScale = screenHSV.cols / 1920.0,
 		     yScale = screenHSV.rows / 1080.0;
@@ -66,8 +70,7 @@ cv::Mat SceneDetector::generateTextBinaryScreen(const cv::Mat &screenBGRA)
 	return screenTextBinary;
 }
 
-#include <iostream>
-bool SceneDetector::isOpponentRankShown(const cv::Mat &screenTextBinary)
+bool SceneDetector::isOpponentRankShown(const cv::Mat &screenTextBinary) const
 {
 	cv::Range colRange{542, 661}, rowRange{894, 931};
 	if (colRange.end > screenTextBinary.cols ||
