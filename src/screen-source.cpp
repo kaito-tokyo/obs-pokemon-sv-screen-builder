@@ -9,6 +9,7 @@
 #include "SceneDetector.h"
 #include "SelectionRecognizer.h"
 #include "OpponentRankExtractor.h"
+#include "TextRecognizer.h"
 
 #ifdef _MSC_VER
 #define EXPORT __declspec(dllexport)
