@@ -539,10 +539,9 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 					   "browser/MySelection.html", 1587,
 					   108, 0, 972, 1, 1);
 
-	addBrowserSourceToSceneIfNotExists(scene,
-					   obs_module_text("OpponentRankSource"),
-					   "browser/OpponentRank.html", 600,
-					   100, 0, 864, 1, 1);
+	addBrowserSourceToSceneIfNotExists(
+		scene, obs_module_text("OpponentRankSource"),
+		"browser/OpponentRank.html", 600, 100, 0, 864, 1, 1);
 
 	obs_scene_release(scene);
 	return true;
@@ -752,7 +751,7 @@ static void screen_video_tick(void *data, float seconds)
 
 		if (context->sceneDetector.isOpponentRankShown(
 			    screenTextBinary)) {
-				blog(LOG_INFO, "Rank shown!");
+			blog(LOG_INFO, "Rank shown!");
 
 			context->screen_bgra = cv::Mat(context->config.height,
 						       context->config.width,
@@ -787,14 +786,12 @@ static void screen_video_tick(void *data, float seconds)
 					obs_source_release(
 						opponent_rank_source);
 				}
-				nlohmann::json json{
-					{ "text", result }	
-				};
-				const char *eventName = "obsPokemonSvScreenBuilderOpponentRankShown";
+				nlohmann::json json{{"text", result}};
+				const char *eventName =
+					"obsPokemonSvScreenBuilderOpponentRankShown";
 				std::string jsonString = json.dump();
 				sendEventToAllBrowserSources(
-					eventName,
-					jsonString.c_str());
+					eventName, jsonString.c_str());
 			}
 
 			if (!context->config.skipMyRank) {
