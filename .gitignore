@@ -9,6 +9,7 @@
 !/src
 !/src-generator
 !/browser
+!/vendor
 !.clang-format
 !.cmake-format.json
 !.gitignore
