@@ -8,14 +8,10 @@
 #include <obs-module.h>
 #include <obs-frontend-api.h>
 
-#include "obs-platform-util.h"
-#include "EntityCropper.h"
-#include "SceneDetector.h"
-#include "SelectionRecognizer.h"
-#include "OpponentRankExtractor.h"
-#include "TextRecognizer.h"
-#include "Base64.hpp"
+#include "modules/Base64.hpp"
+#include "modules/TextRecognizer.h"
 #include "obs-browser-api.h"
+#include "obs-platform-util.h"
 
 #include "screen-source.h"
 

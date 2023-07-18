@@ -2,9 +2,13 @@
 
 #include <array>
 #include <vector>
+
 #include <obs.h>
 
-#include "SceneDetector.h"
+#include "modules/EntityCropper.h"
+#include "modules/OpponentRankExtractor.h"
+#include "modules/SceneDetector.h"
+#include "modules/SelectionRecognizer.h"
 
 enum screen_state {
 	STATE_UNKNOWN,
