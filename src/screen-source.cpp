@@ -567,6 +567,8 @@ static void screen_video_tick(void *data, float seconds)
 					screenTextBinary,
 					context->gameplay_bgra);
 				blog(LOG_INFO, "Rank shown!");
+				std::string result = recognizeText(context->opponentRankExtractor.imageBGRA);
+				blog(LOG_INFO, "Rank %s!", result.c_str());
 				cv::Mat &opponentRank =
 					context->opponentRankExtractor.imageBGRA;
 				opponentRank.copyTo(
