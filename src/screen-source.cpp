@@ -212,6 +212,10 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 					   "browser/MySelection.html", 1587,
 					   108, 0, 972, 1, 1);
 
+	addBrowserSourceToSceneIfNotExists(
+		scene, obs_module_text("OpponentRankSource"),
+		"browser/OpponentRank.html", 600, 100, 0, 864, 1, 1);
+
 	obs_scene_release(scene);
 	return true;
 }
