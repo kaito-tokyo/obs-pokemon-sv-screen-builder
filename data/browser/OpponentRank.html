@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Opponent Rank</title>
+    <style>
+        body {
+            color: white;
+            font-size: 100px;
+            line-height: 100px;
+            font-family: "Hiragino Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+    </style>
+    <script>
+        window.addEventListener("obsPokemonSvScreenBuilderOpponentRankShown", ({ detail: { text } }) => {
+            document.body.textContent = text;
+        });
+    </script>
+</head>
+<body></body>
+</html>
