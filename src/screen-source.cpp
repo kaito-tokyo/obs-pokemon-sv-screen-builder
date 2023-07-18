@@ -428,10 +428,14 @@ static obs_properties_t *screen_properties(void *data)
 	obs_enum_sources(add_text_sources_to_list, prop_timer);
 
 	if (!context->config.skipOpponentRank) {
-		obs_property_t *prop_opponent_rank_source = obs_properties_add_list(
-			props, "opponent_rank_source", obs_module_text("OpponentRankSource"),
-			OBS_COMBO_TYPE_EDITABLE, OBS_COMBO_FORMAT_STRING);
-		obs_enum_sources(add_text_sources_to_list, prop_opponent_rank_source);
+		obs_property_t *prop_opponent_rank_source =
+			obs_properties_add_list(
+				props, "opponent_rank_source",
+				obs_module_text("OpponentRankSource"),
+				OBS_COMBO_TYPE_EDITABLE,
+				OBS_COMBO_FORMAT_STRING);
+		obs_enum_sources(add_text_sources_to_list,
+				 prop_opponent_rank_source);
 	}
 
 	return props;
@@ -583,7 +587,9 @@ static void screen_video_tick(void *data, float seconds)
 					screenTextBinary,
 					context->gameplay_bgra);
 				blog(LOG_INFO, "Rank shown!");
-				std::string result = recognizeText(context->opponentRankExtractor.imageBGRA);
+				std::string result = recognizeText(
+					context->opponentRankExtractor
+						.imageBGRA);
 				blog(LOG_INFO, "Rank %s!", result.c_str());
 				cv::Mat &opponentRank =
 					context->opponentRankExtractor.imageBGRA;
@@ -593,11 +599,17 @@ static void screen_video_tick(void *data, float seconds)
 						.colRange(0,
 							  opponentRank.cols));
 				const char *opponent_rank_name =
-					obs_data_get_string(context->settings, "opponent_rank_source");
-				obs_source_t *opponent_rank_source = obs_get_source_by_name(opponent_rank_name);
+					obs_data_get_string(
+						context->settings,
+						"opponent_rank_source");
+				obs_source_t *opponent_rank_source =
+					obs_get_source_by_name(
+						opponent_rank_name);
 				if (opponent_rank_source) {
-					update_text(opponent_rank_source, result);
-					obs_source_release(opponent_rank_source);
+					update_text(opponent_rank_source,
+						    result);
+					obs_source_release(
+						opponent_rank_source);
 				}
 			}
 		}
