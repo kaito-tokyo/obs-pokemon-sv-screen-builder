@@ -1,4 +1,5 @@
 #include "SceneDetector.h"
+#include <obs.h>
 
 SceneDetector::Scene SceneDetector::detectScene(const cv::Mat &screenHSV)
 {
@@ -33,7 +34,6 @@ void SceneDetector::calcHistHue(const cv::Mat &areaHSV, cv::Mat &hist,
 		     ranges);
 }
 
-#include <iostream>
 bool SceneDetector::predictByHueHist(const cv::Mat &screenHSV,
 				     const HistClassifier &classifier)
 {
@@ -55,4 +55,31 @@ bool SceneDetector::predictByHueHist(const cv::Mat &screenHSV,
 	return maxVal > static_cast<double>(areaHSV.total()) *
 				classifier.histRatio &&
 	       maxIdx.y == classifier.histMaxIndex;
+}
+
+cv::Mat SceneDetector::generateTextBinaryScreen(const cv::Mat &screenBGRA)
+{
+	cv::Mat screenTextBinary;
+	cv::cvtColor(screenBGRA, screenTextBinary, cv::COLOR_BGRA2GRAY);
+	cv::threshold(screenTextBinary, screenTextBinary, 128, 255,
+		      cv::THRESH_BINARY);
+	return screenTextBinary;
+}
+
+#include <iostream>
+bool SceneDetector::isOpponentRankShown(const cv::Mat &screenTextBinary)
+{
+	cv::Range colRange{542, 661}, rowRange{894, 931};
+	if (colRange.end > screenTextBinary.cols ||
+	    rowRange.end > screenTextBinary.rows)
+		return false;
+	cv::Mat image = screenTextBinary(rowRange, colRange);
+	for (size_t i = 0; i < TEXT_TEMPLATES.size(); i++) {
+		const cv::Mat &resultImage = image ^ TEXT_TEMPLATES[i];
+		const auto actual = cv::sum(resultImage / 255);
+		if (actual[0] < 50) {
+			return true;
+		}
+	}
+	return false;
 }

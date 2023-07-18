@@ -35,8 +35,16 @@ if(ENABLE_QT)
 endif()
 
 target_sources(
-  ${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.cpp src/screen-source.cpp src/SceneDetector.cpp src/EntityCropper.cpp
-                                src/SelectionRecognizer.cpp src/SelectionRecognizerGenerated.cpp)
+  ${CMAKE_PROJECT_NAME}
+  PRIVATE src/plugin-main.cpp
+          src/screen-source.cpp
+          src/SceneDetector.cpp
+          src/SceneDetectorTextRecognizerGenerated.cpp
+          src/EntityCropper.cpp
+          src/SelectionRecognizer.cpp
+          src/SelectionRecognizerGenerated.cpp
+          src/OpponentRankExtractor.cpp
+          src/OpponentRankExtractorGenerated.cpp)
 
 include(cmake/BuildMyOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)

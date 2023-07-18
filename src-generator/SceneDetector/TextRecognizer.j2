@@ -1,0 +1,28 @@
+#include <vector>
+#include <opencv2/opencv.hpp>
+#include "SceneDetector.h"
+
+const int SceneDetector::TEXT_THRESHOLD = 128;
+
+static std::vector<std::vector<uchar>> TEXT_DATA = {
+    {% for d in data %}
+        {{ d }},
+    {% endfor %}
+};
+
+static const std::vector<int> TEXT_COLS = {
+    {% for r in cols %}
+        {{ r }},
+    {% endfor %}
+};
+
+const std::vector<cv::Mat> SceneDetector::TEXT_TEMPLATES = {
+    {% for d in data %}
+        cv::Mat(
+            static_cast<int>(TEXT_DATA[{{ loop.index0 }}].size()) / TEXT_COLS[{{ loop.index0 }}],
+            TEXT_COLS[{{ loop.index0 }}],
+            CV_8U,
+            TEXT_DATA[{{ loop.index0 }}].data()),
+    {% endfor %}
+};
+
