@@ -9,20 +9,7 @@
 #include "modules/OpponentRankExtractor.h"
 #include "modules/SceneDetector.h"
 #include "modules/SelectionRecognizer.h"
-
-enum screen_state {
-	STATE_UNKNOWN,
-	STATE_ENTERING_SHOW_RANK,
-	STATE_SHOW_RANK,
-	STATE_ENTERING_SELECT_POKEMON,
-	STATE_SELECT_POKEMON,
-	STATE_ENTERING_CONFIRM_POKEMON,
-	STATE_CONFIRM_POKEMON,
-	STATE_ENTERING_MATCH,
-	STATE_MATCH,
-	STATE_ENTERING_RESULT,
-	STATE_RESULT,
-};
+#include "state-machine.h"
 
 const HistClassifier classifier_lobby_my_select = {.rangeCol = {149, 811},
 						   .rangeRow = {139, 842},
@@ -84,7 +71,7 @@ struct screen_context {
 	uint64_t next_tick = 0;
 	SceneDetector sceneDetector;
 
-	screen_state state = STATE_UNKNOWN;
+	ScreenState state = ScreenState::UNKNOWN;
 	uint64_t last_state_change_ns = 0;
 	int my_selection_order_map[N_POKEMONS]{};
 	SceneDetector::Scene prev_scene;

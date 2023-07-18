@@ -384,18 +384,14 @@ static void screen_video_tick(void *data, float seconds)
 	SceneDetector::Scene scene = context->sceneDetector.detectScene(
 		gameplay_hsv, gameplay_binary);
 
-	if (context->state == STATE_UNKNOWN) {
-		if (scene == SceneDetector::SCENE_SHOW_RANK) {
-			context->state = STATE_ENTERING_SHOW_RANK;
+	if (context->state == ScreenState::UNKNOWN) {
+		const ScreenState nextState = handleUnknown(scene);
+		if (nextState != context->state) {
 			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO, "State: UNKNOWN to ENTERING_SHOW_RANK");
-		} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			context->state = STATE_ENTERING_SELECT_POKEMON;
-			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO,
-			     "State: UNKNOWN to ENTERING_SELECT_POKEMON");
+	        blog(LOG_INFO, "State: %s to %s", ScreenStateNames.at(context->state), ScreenStateNames.at(nextState));
+			context->state = nextState;
 		}
-	} else if (context->state == STATE_ENTERING_SHOW_RANK) {
+	} else if (context->state == ScreenState::ENTERING_SHOW_RANK) {
 		context->opponentRankExtractor.extract(gameplay_binary,
 						       context->gameplay_bgra);
 		std::string result =
@@ -407,76 +403,76 @@ static void screen_video_tick(void *data, float seconds)
 		sendEventToAllBrowserSources(EVENT_NAME_OPPONENT_RANK_SHOWN,
 					     jsonString.c_str());
 
-		context->state = STATE_SHOW_RANK;
+		context->state = ScreenState::SHOW_RANK;
 		context->last_state_change_ns = os_gettime_ns();
 		blog(LOG_INFO, "State: ENTERING_SHOW_RANK to SHOW_RANK");
-	} else if (context->state == STATE_SHOW_RANK) {
+	} else if (context->state == ScreenState::SHOW_RANK) {
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			context->state = STATE_ENTERING_SELECT_POKEMON;
+			context->state = ScreenState::ENTERING_SELECT_POKEMON;
 			context->last_state_change_ns = os_gettime_ns();
 			blog(LOG_INFO,
 			     "State: SHOW_RANK to ENTERING_SELECT_POKEMON");
 		}
-	} else if (context->state == STATE_ENTERING_SELECT_POKEMON) {
+	} else if (context->state == ScreenState::ENTERING_SELECT_POKEMON) {
 		const uint64_t now = os_gettime_ns();
 		if (now - context->last_state_change_ns > 1000000000) {
 			drawOpponentPokemons(context);
 			for (int i = 0; i < N_POKEMONS; i++) {
 				context->my_selection_order_map[i] = 0;
 			}
-			context->state = STATE_SELECT_POKEMON;
+			context->state = ScreenState::SELECT_POKEMON;
 			blog(LOG_INFO,
 			     "State: ENTERING_SELECT_POKEMON to SELECT_POKEMON");
 		}
-	} else if (context->state == STATE_SELECT_POKEMON) {
+	} else if (context->state == ScreenState::SELECT_POKEMON) {
 		if (detectSelectionOrderChange(context)) {
 			drawMyPokemons(context);
 		}
 
 		if (scene == SceneDetector::SCENE_UNDEFINED) {
 			context->last_state_change_ns = os_gettime_ns();
-			context->state = STATE_ENTERING_CONFIRM_POKEMON;
+			context->state = ScreenState::ENTERING_CONFIRM_POKEMON;
 			blog(LOG_INFO,
 			     "State: SELECT_POKEMON to ENTERING_CONFIRM_POKEMON");
 		} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
-			context->state = STATE_ENTERING_MATCH;
+			context->state = ScreenState::ENTERING_MATCH;
 			blog(LOG_INFO,
 			     "State: SELECT_POKEMON to ENTERING_MATCH");
 		}
-	} else if (context->state == STATE_ENTERING_CONFIRM_POKEMON) {
+	} else if (context->state == ScreenState::ENTERING_CONFIRM_POKEMON) {
 		uint64_t now = os_gettime_ns();
 		if (now - context->last_state_change_ns > 500000000) {
-			context->state = STATE_CONFIRM_POKEMON;
+			context->state = ScreenState::CONFIRM_POKEMON;
 			blog(LOG_INFO,
 			     "State: ENTERING_CONFIRM_POKEMON to CONFIRM_POKEMON");
 		} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
-			context->state = STATE_ENTERING_MATCH;
+			context->state = ScreenState::ENTERING_MATCH;
 			blog(LOG_INFO,
 			     "State: LEAVE_SELECT_POKEMON to ENTERING_MATCH");
 		}
-	} else if (context->state == STATE_CONFIRM_POKEMON) {
+	} else if (context->state == ScreenState::CONFIRM_POKEMON) {
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			context->state = STATE_ENTERING_SELECT_POKEMON;
+			context->state = ScreenState::ENTERING_SELECT_POKEMON;
 			blog(LOG_INFO,
-			     "State: CONFIRM_POKEMON to STATE_ENTERING_SELECT_POKEMON");
+			     "State: CONFIRM_POKEMON to ScreenState::ENTERING_SELECT_POKEMON");
 		} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
-			context->state = STATE_ENTERING_MATCH;
+			context->state = ScreenState::ENTERING_MATCH;
 			blog(LOG_INFO,
 			     "State: CONFIRM_POKEMON to ENTERING_MATCH");
 		}
-	} else if (context->state == STATE_ENTERING_MATCH) {
+	} else if (context->state == ScreenState::ENTERING_MATCH) {
 		if (context->prev_scene !=
 			    SceneDetector::SCENE_BLACK_TRANSITION &&
 		    scene == SceneDetector::SCENE_BLACK_TRANSITION) {
-			context->state = STATE_MATCH;
+			context->state = ScreenState::MATCH;
 			context->match_start_ns = os_gettime_ns();
 			blog(LOG_INFO, "State: ENTERING_MATCH to MATCH");
 		} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			context->state = STATE_ENTERING_SELECT_POKEMON;
+			context->state = ScreenState::ENTERING_SELECT_POKEMON;
 			blog(LOG_INFO,
 			     "State: ENTERING_MATCH to SELECT_POKEMON");
 		}
-	} else if (context->state == STATE_MATCH) {
+	} else if (context->state == ScreenState::MATCH) {
 		const char *timer_name =
 			obs_data_get_string(context->settings, "timer_source");
 		obs_source_t *timer_source = obs_get_source_by_name(timer_name);
@@ -488,26 +484,26 @@ static void screen_video_tick(void *data, float seconds)
 		}
 
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			context->state = STATE_ENTERING_SELECT_POKEMON;
+			context->state = ScreenState::ENTERING_SELECT_POKEMON;
 			blog(LOG_INFO,
 			     "State: MATCH to ENTERING_SELECT_POKEMON");
 		} else if (context->prev_scene !=
 				   SceneDetector::SCENE_BLACK_TRANSITION &&
 			   scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 			context->match_end_ns = os_gettime_ns();
-			context->state = STATE_RESULT;
+			context->state = ScreenState::RESULT;
 			blog(LOG_INFO, "MATCH to RESULT");
 		}
-	} else if (context->state == STATE_RESULT) {
+	} else if (context->state == ScreenState::RESULT) {
 		uint64_t now = os_gettime_ns();
 		if (now - context->match_end_ns > 2000000000) {
-			context->state = STATE_UNKNOWN;
+			context->state = ScreenState::UNKNOWN;
 			blog(LOG_INFO, "RESULT to UNKNOWN");
 		} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 			for (int i = 0; i < N_POKEMONS; i++) {
 				context->my_selection_order_map[i] = 0;
 			}
-			context->state = STATE_ENTERING_SELECT_POKEMON;
+			context->state = ScreenState::ENTERING_SELECT_POKEMON;
 			blog(LOG_INFO, "MATCH to ENTERING_SELECT_POKEMON");
 		}
 	}
