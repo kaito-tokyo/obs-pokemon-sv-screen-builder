@@ -554,7 +554,7 @@ static void sendEventToAllBrowserSources(const char *eventName,
 	struct Param {
 		const char *eventName;
 		const char *jsonString;
-	} param{
+	} callParam{
 		.eventName = eventName,
 		.jsonString = jsonString,
 	};
@@ -575,7 +575,7 @@ static void sendEventToAllBrowserSources(const char *eventName,
 			}
 			return true;
 		},
-		&param);
+		&callParam);
 }
 
 static void screen_video_tick(void *data, float seconds)
