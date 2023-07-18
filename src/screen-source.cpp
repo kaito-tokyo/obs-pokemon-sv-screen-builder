@@ -171,8 +171,6 @@ struct screen_context {
 
 	cv::Mat myPokemonsBGRA[N_POKEMONS];
 
-	cv::Mat myPokemonsBGRA[N_POKEMONS];
-
 	screen_config config;
 
 	screen_context(const screen_config &_config)
@@ -569,6 +567,8 @@ static void screen_video_tick(void *data, float seconds)
 					screenTextBinary,
 					context->gameplay_bgra);
 				blog(LOG_INFO, "Rank shown!");
+				std::string result = recognizeText(context->opponentRankExtractor.imageBGRA);
+				blog(LOG_INFO, "Rank %s!", result.c_str());
 				cv::Mat &opponentRank =
 					context->opponentRankExtractor.imageBGRA;
 				opponentRank.copyTo(
