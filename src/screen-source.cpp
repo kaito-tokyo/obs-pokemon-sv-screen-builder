@@ -485,6 +485,41 @@ static bool add_text_sources_to_list(void *param, obs_source_t *source)
 	return true;
 }
 
+static void addBrowserSourceToSceneIfNotExists(obs_scene_t *scene,
+					       const char *sourceName,
+					       const char *moduleFileName,
+					       int width, int height,
+					       float posX, float posY,
+					       float scaleX, float scaleY)
+{
+	obs_source_t *origSource = obs_get_source_by_name(sourceName);
+
+	if (origSource) {
+		obs_source_release(origSource);
+		return;
+	}
+
+	obs_data_t *settings = obs_data_create();
+	char *localFile = obs_module_file(moduleFileName);
+	obs_data_set_string(settings, "local_file", localFile);
+	obs_data_set_int(settings, "width", width);
+	obs_data_set_int(settings, "height", height);
+	obs_data_set_bool(settings, "is_local_file", true);
+	obs_source_t *source = obs_source_create("browser_source", sourceName,
+						 settings, nullptr);
+	obs_scene_add(scene, source);
+	obs_data_release(settings);
+	bfree(localFile);
+
+	obs_sceneitem_t *sceneItem =
+		obs_scene_sceneitem_from_source(scene, source);
+	vec2 pos{posX, posY};
+	obs_sceneitem_set_pos(sceneItem, &pos);
+	vec2 scale{scaleX, scaleY};
+	obs_sceneitem_set_scale(sceneItem, &scale);
+	obs_sceneitem_release(sceneItem);
+}
+
 static bool handleClickAddDefaultLayout(obs_properties_t *props,
 					obs_property_t *property, void *data)
 {
@@ -495,27 +530,14 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 	obs_source_t *scene_source = obs_frontend_get_current_scene();
 	obs_scene_t *scene = obs_scene_from_source(scene_source);
 
-	const char *opponentTeamSourceName =
-		obs_module_text("OpponentTeamSource");
-	obs_source_t *origOpponentTeamSource =
-		obs_get_source_by_name(opponentTeamSourceName);
-	if (origOpponentTeamSource) {
-		obs_source_release(origOpponentTeamSource);
-	} else {
-		obs_data_t *opponentTeamSettings = obs_data_create();
-		char *path = obs_module_file("browser/opponent-team.html");
-		obs_data_set_string(opponentTeamSettings, "local_file", path);
-		obs_data_set_int(opponentTeamSettings, "width", 104);
-		obs_data_set_int(opponentTeamSettings, "height", 664);
-		obs_data_set_bool(opponentTeamSettings, "is_local_file", true);
-		obs_source_t *opponentTeamSource = obs_source_create(
-			"browser_source", opponentTeamSourceName,
-			opponentTeamSettings, nullptr);
-		obs_scene_add(scene, opponentTeamSource);
-		obs_data_release(opponentTeamSettings);
-		obs_source_release(opponentTeamSource);
-		bfree(path);
-	}
+	addBrowserSourceToSceneIfNotExists(
+		scene, obs_module_text("OpponentTeamSource"),
+		"browser/opponent-team.html", 104, 664, 1751, 0, 1.625, 1.625);
+
+	addBrowserSourceToSceneIfNotExists(scene,
+					   obs_module_text("MySelectionSource"),
+					   "browser/MySelection.html", 1587,
+					   108, 0, 972, 1, 1);
 
 	obs_scene_release(scene);
 	return true;
@@ -610,6 +632,7 @@ static bool detectSelectionOrderChange(screen_context *context)
 
 static void drawMyPokemons(screen_context *context)
 {
+	std::vector<std::string> imageUrls(N_POKEMONS);
 	context->myPokemonCropper.crop(context->gameplay_bgra);
 	for (int i = 0; i < N_POKEMONS; i++) {
 		cv::Vec4b &pixel =
@@ -619,6 +642,18 @@ static void drawMyPokemons(screen_context *context)
 			continue;
 		context->myPokemonsBGRA[i] =
 			context->myPokemonCropper.imagesBGRA[i].clone();
+	}
+
+	for (int i = 0; i < N_POKEMONS; i++) {
+		if (context->myPokemonsBGRA[i].empty()) {
+			imageUrls[i] = "";
+		} else {
+			std::vector<uchar> pngImage;
+			cv::imencode(".png", context->myPokemonsBGRA[i],
+				     pngImage);
+			imageUrls[i] = "data:image/png;base64," +
+				       Base64::encode(pngImage);
+		}
 	}
 
 	for (int i = 0; i < N_POKEMONS; i++) {
@@ -639,6 +674,14 @@ static void drawMyPokemons(screen_context *context)
 			context->screen_bgra.rowRange(y, y + resizedBGRA.rows)
 				.colRange(x, x + resizedBGRA.cols));
 	}
+
+	nlohmann::json json{
+		{"imageUrls", imageUrls},
+		{"mySelectionOrderMap", context->my_selection_order_map},
+	};
+	const char eventName[] = "obsPokemonSvScreenBuilderMySelectionChanged";
+	std::string jsonString = json.dump();
+	sendEventToAllBrowserSources(eventName, jsonString.c_str());
 }
 
 static uint64_t update_timer_text(obs_source_t *timer_source,
