@@ -5,6 +5,7 @@
 #else
 std::string recognizeText(const cv::Mat &imageBGRA)
 {
-	return std::string("bbbb");
+	UNUSED_PARAMETER(imageBGRA);
+	return std::string("N/A");
 }
 #endif
