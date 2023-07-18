@@ -12,6 +12,8 @@
 
 enum screen_state {
 	STATE_UNKNOWN,
+	STATE_ENTERING_SHOW_RANK,
+	STATE_SHOW_RANK,
 	STATE_ENTERING_SELECT_POKEMON,
 	STATE_SELECT_POKEMON,
 	STATE_ENTERING_CONFIRM_POKEMON,
@@ -75,6 +77,9 @@ struct screen_context {
 	gs_texrender_t *texrender = nullptr;
 	gs_stagesurf_t *stagesurface = nullptr;
 	cv::Mat gameplay_bgra;
+	cv::Mat gameplayHsv;
+	cv::Mat gameplayGray;
+	cv::Mat gameplayBinary;
 
 	uint64_t next_tick = 0;
 	SceneDetector sceneDetector;
