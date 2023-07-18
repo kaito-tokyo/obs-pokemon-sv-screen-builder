@@ -4,14 +4,17 @@
 #include <iomanip>
 
 #include <opencv2/opencv.hpp>
+#include <nlohmann/json.hpp>
 
 #include <obs-module.h>
+#include <obs-frontend-api.h>
 
 #include "EntityCropper.h"
 #include "SceneDetector.h"
 #include "SelectionRecognizer.h"
 #include "OpponentRankExtractor.h"
 #include "TextRecognizer.h"
+#include "Base64.hpp"
 
 #ifdef _MSC_VER
 #define EXPORT __declspec(dllexport)
@@ -204,6 +207,36 @@ struct screen_context {
 	{
 	}
 };
+
+static void sendEventToAllBrowserSources(const char *eventName,
+					 const char *jsonString)
+{
+	struct Param {
+		const char *eventName;
+		const char *jsonString;
+	} callParam{
+		.eventName = eventName,
+		.jsonString = jsonString,
+	};
+	obs_enum_sources(
+		[](void *_param, obs_source_t *source) -> bool {
+			Param *param = static_cast<Param *>(_param);
+			std::string id(obs_source_get_id(source));
+			if (id == "browser_source") {
+				proc_handler_t *ph =
+					obs_source_get_proc_handler(source);
+				calldata_t cd;
+				calldata_init(&cd);
+				calldata_set_string(&cd, "eventName",
+						    param->eventName);
+				calldata_set_string(&cd, "jsonString",
+						    param->jsonString);
+				proc_handler_call(ph, "javascript_event", &cd);
+			}
+			return true;
+		},
+		&callParam);
+}
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 {
@@ -452,6 +485,42 @@ static bool add_text_sources_to_list(void *param, obs_source_t *source)
 	return true;
 }
 
+static bool handleClickAddDefaultLayout(obs_properties_t *props,
+					obs_property_t *property, void *data)
+{
+	UNUSED_PARAMETER(props);
+	UNUSED_PARAMETER(property);
+	UNUSED_PARAMETER(data);
+
+	obs_source_t *scene_source = obs_frontend_get_current_scene();
+	obs_scene_t *scene = obs_scene_from_source(scene_source);
+
+	const char *opponentTeamSourceName =
+		obs_module_text("OpponentTeamSource");
+	obs_source_t *origOpponentTeamSource =
+		obs_get_source_by_name(opponentTeamSourceName);
+	if (origOpponentTeamSource) {
+		obs_source_release(origOpponentTeamSource);
+	} else {
+		obs_data_t *opponentTeamSettings = obs_data_create();
+		char *path = obs_module_file("browser/opponent-team.html");
+		obs_data_set_string(opponentTeamSettings, "local_file", path);
+		obs_data_set_int(opponentTeamSettings, "width", 104);
+		obs_data_set_int(opponentTeamSettings, "height", 664);
+		obs_data_set_bool(opponentTeamSettings, "is_local_file", true);
+		obs_source_t *opponentTeamSource = obs_source_create(
+			"browser_source", opponentTeamSourceName,
+			opponentTeamSettings, nullptr);
+		obs_scene_add(scene, opponentTeamSource);
+		obs_data_release(opponentTeamSettings);
+		obs_source_release(opponentTeamSource);
+		bfree(path);
+	}
+
+	obs_scene_release(scene);
+	return true;
+}
+
 static obs_properties_t *screen_properties(void *data)
 {
 	screen_context *context = reinterpret_cast<screen_context *>(data);
@@ -478,6 +547,11 @@ static obs_properties_t *screen_properties(void *data)
 				 prop_opponent_rank_source);
 	}
 
+	obs_properties_add_button(
+		props, "add_default_layout_button",
+		obs_module_text("AddDefaultLayoutDescription"),
+		&handleClickAddDefaultLayout);
+
 	return props;
 }
 
@@ -485,6 +559,7 @@ static void drawOpponentPokemons(screen_context *context)
 {
 	context->opponentPokemonCropper.crop(context->gameplay_bgra);
 	context->opponentPokemonCropper.generateMask();
+	std::vector<std::string> imageUrls(N_POKEMONS);
 	for (int i = 0; i < N_POKEMONS; i++) {
 		auto x = context->config.opponentPokemonPlacementX;
 		auto y = context->config.opponentPokemonPlacementY[i];
@@ -496,7 +571,19 @@ static void drawOpponentPokemons(screen_context *context)
 		resizedBGRA.copyTo(
 			context->screen_bgra.rowRange(y, y + resizedBGRA.rows)
 				.colRange(x, x + resizedBGRA.cols));
+
+		std::vector<uchar> pngImage;
+		cv::imencode(".png", resizedBGRA, pngImage);
+		imageUrls[i] =
+			"data:image/png;base64," + Base64::encode(pngImage);
 	}
+
+	nlohmann::json json{
+		{"imageUrls", imageUrls},
+	};
+	const char eventName[] = "obsPokemonSvScreenBuilderOpponentTeamShown";
+	std::string jsonString = json.dump();
+	sendEventToAllBrowserSources(eventName, jsonString.c_str());
 }
 
 static bool detectSelectionOrderChange(screen_context *context)
@@ -584,36 +671,6 @@ static std::string update_text(obs_source_t *source, std::string rank)
 	obs_source_update(source, settings);
 	obs_data_release(settings);
 	return rank;
-}
-
-static void sendEventToAllBrowserSources(const char *eventName,
-					 const char *jsonString)
-{
-	struct Param {
-		const char *eventName;
-		const char *jsonString;
-	} callParam{
-		.eventName = eventName,
-		.jsonString = jsonString,
-	};
-	obs_enum_sources(
-		[](void *_param, obs_source_t *source) -> bool {
-			Param *param = static_cast<Param *>(_param);
-			std::string id(obs_source_get_id(source));
-			if (id == "browser_source") {
-				proc_handler_t *ph =
-					obs_source_get_proc_handler(source);
-				calldata_t cd;
-				calldata_init(&cd);
-				calldata_set_string(&cd, "eventName",
-						    param->eventName);
-				calldata_set_string(&cd, "jsonString",
-						    param->jsonString);
-				proc_handler_call(ph, "javascript_event", &cd);
-			}
-			return true;
-		},
-		&callParam);
 }
 
 static void screen_video_tick(void *data, float seconds)

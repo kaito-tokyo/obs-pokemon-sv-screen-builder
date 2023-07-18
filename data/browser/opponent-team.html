@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Opponent Team</title>
+    <style>
+        .container {
+            display: grid;
+            grid-template-columns: 100px;
+        }
+        .pokemon-img {
+            margin: -20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <img class="pokemon-img" id="pokemon-0">
+        <img class="pokemon-img" id="pokemon-1">
+        <img class="pokemon-img" id="pokemon-2">
+        <img class="pokemon-img" id="pokemon-3">
+        <img class="pokemon-img" id="pokemon-4">
+        <img class="pokemon-img" id="pokemon-5">
+    </div>
+    <script>
+        const imgs = [
+            document.querySelector("#pokemon-0"),
+            document.querySelector("#pokemon-1"),
+            document.querySelector("#pokemon-2"),
+            document.querySelector("#pokemon-3"),
+            document.querySelector("#pokemon-4"),
+            document.querySelector("#pokemon-5"),
+        ]
+        window.addEventListener("obsPokemonSvScreenBuilderOpponentTeamShown", ({ detail: { imageUrls } }) => {
+            for (let i = 0; i < 6; i++) {
+                imgs[i].src = imageUrls[i];
+            }
+        });
+    </script>
+</body>
+</html>
