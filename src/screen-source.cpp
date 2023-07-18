@@ -571,6 +571,19 @@ static void screen_video_tick(void *data, float seconds)
 	}
 
 	if (context->state == STATE_UNKNOWN) {
+		obs_enum_sources([](void *param, obs_source_t *source){
+			UNUSED_PARAMETER(param);
+			std::string id(obs_source_get_id(source));
+			if (id == "browser_source") {
+				proc_handler_t *ph = obs_source_get_proc_handler(source);
+				calldata_t cd;
+				calldata_init(&cd);
+				calldata_set_string(&cd, "eventName", "aaa");
+				blog(LOG_INFO, "%d", proc_handler_call(ph, "javascript_event", &cd));
+			}
+			// obs_source_release(source);
+			return true;
+		}, nullptr);
 		cv::Mat screenTextBinary =
 			context->sceneDetector.generateTextBinaryScreen(
 				context->gameplay_bgra);
