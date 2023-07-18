@@ -489,8 +489,8 @@ static void addBrowserSourceToSceneIfNotExists(obs_scene_t *scene,
 					       const char *sourceName,
 					       const char *moduleFileName,
 					       int width, int height,
-						   float posX, float posY,
-						   float scaleX, float scaleY)
+					       float posX, float posY,
+					       float scaleX, float scaleY)
 {
 	obs_source_t *origSource = obs_get_source_by_name(sourceName);
 
@@ -511,7 +511,8 @@ static void addBrowserSourceToSceneIfNotExists(obs_scene_t *scene,
 	obs_data_release(settings);
 	bfree(localFile);
 
-	obs_sceneitem_t *sceneItem = obs_scene_sceneitem_from_source(scene, source);
+	obs_sceneitem_t *sceneItem =
+		obs_scene_sceneitem_from_source(scene, source);
 	vec2 pos{posX, posY};
 	obs_sceneitem_set_pos(sceneItem, &pos);
 	vec2 scale{scaleX, scaleY};
@@ -533,9 +534,10 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 		scene, obs_module_text("OpponentTeamSource"),
 		"browser/opponent-team.html", 104, 664, 1751, 0, 1.625, 1.625);
 
-	addBrowserSourceToSceneIfNotExists(
-		scene, obs_module_text("MySelectionSource"),
-		"browser/MySelection.html", 1587, 108, 0, 972, 1, 1);
+	addBrowserSourceToSceneIfNotExists(scene,
+					   obs_module_text("MySelectionSource"),
+					   "browser/MySelection.html", 1587,
+					   108, 0, 972, 1, 1);
 
 	obs_scene_release(scene);
 	return true;
@@ -647,9 +649,10 @@ static void drawMyPokemons(screen_context *context)
 			imageUrls[i] = "";
 		} else {
 			std::vector<uchar> pngImage;
-			cv::imencode(".png", context->myPokemonsBGRA[i], pngImage);
-			imageUrls[i] =
-				"data:image/png;base64," + Base64::encode(pngImage);
+			cv::imencode(".png", context->myPokemonsBGRA[i],
+				     pngImage);
+			imageUrls[i] = "data:image/png;base64," +
+				       Base64::encode(pngImage);
 		}
 	}
 
