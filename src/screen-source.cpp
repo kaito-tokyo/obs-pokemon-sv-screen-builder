@@ -673,36 +673,6 @@ static std::string update_text(obs_source_t *source, std::string rank)
 	return rank;
 }
 
-static void sendEventToAllBrowserSources(const char *eventName,
-					 const char *jsonString)
-{
-	struct Param {
-		const char *eventName;
-		const char *jsonString;
-	} callParam{
-		.eventName = eventName,
-		.jsonString = jsonString,
-	};
-	obs_enum_sources(
-		[](void *_param, obs_source_t *source) -> bool {
-			Param *param = static_cast<Param *>(_param);
-			std::string id(obs_source_get_id(source));
-			if (id == "browser_source") {
-				proc_handler_t *ph =
-					obs_source_get_proc_handler(source);
-				calldata_t cd;
-				calldata_init(&cd);
-				calldata_set_string(&cd, "eventName",
-						    param->eventName);
-				calldata_set_string(&cd, "jsonString",
-						    param->jsonString);
-				proc_handler_call(ph, "javascript_event", &cd);
-			}
-			return true;
-		},
-		&callParam);
-}
-
 static void screen_video_tick(void *data, float seconds)
 {
 	screen_context *context = reinterpret_cast<screen_context *>(data);

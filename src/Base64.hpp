@@ -20,7 +20,7 @@ std::string encode(const std::vector<unsigned char> input)
 		encoded[i + 3] = table[input[j + 2] & 0x3F];
 	}
 
-	int pad = input.size() % 3ULL;
+	size_t pad = input.size() % 3;
 	if (pad == 0) {
 		encoded[i] = '\0';
 	} else if (pad == 1) {
