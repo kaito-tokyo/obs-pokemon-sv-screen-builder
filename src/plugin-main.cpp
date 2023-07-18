@@ -14,10 +14,6 @@ OBS_MODULE_USE_DEFAULT_LOCALE(PLUGIN_NAME, "en-US")
 bool obs_module_load(void)
 {
 	obs_register_source(&screen_info);
-	obs_register_source(&screen_my_selection_info);
-	obs_register_source(&screen_opponent_team_info);
-	obs_register_source(&screen_opponent_rank_info);
-	obs_register_source(&screen_my_rank_info);
 
 	obs_log(LOG_INFO, "plugin loaded successfully (version %s)",
 		PLUGIN_VERSION);

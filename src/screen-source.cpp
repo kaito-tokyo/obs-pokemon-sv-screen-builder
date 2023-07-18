@@ -1,4 +1,3 @@
-#include <array>
 #include <inttypes.h>
 #include <sstream>
 #include <iomanip>
@@ -9,234 +8,12 @@
 #include <obs-module.h>
 #include <obs-frontend-api.h>
 
-#include "EntityCropper.h"
-#include "SceneDetector.h"
-#include "SelectionRecognizer.h"
-#include "OpponentRankExtractor.h"
-#include "TextRecognizer.h"
-#include "Base64.hpp"
+#include "modules/Base64.hpp"
+#include "modules/TextRecognizer.h"
+#include "obs-browser-api.h"
+#include "obs-platform-util.h"
 
-#ifdef _MSC_VER
-#define EXPORT __declspec(dllexport)
-#else
-#define EXPORT __attribute__((visibility("default")))
-#endif
-
-extern "C" EXPORT uint64_t os_gettime_ns(void);
-
-enum screen_state {
-	STATE_UNKNOWN,
-	STATE_ENTERING_SELECT_POKEMON,
-	STATE_SELECT_POKEMON,
-	STATE_ENTERING_CONFIRM_POKEMON,
-	STATE_CONFIRM_POKEMON,
-	STATE_ENTERING_MATCH,
-	STATE_MATCH,
-	STATE_ENTERING_RESULT,
-	STATE_RESULT,
-};
-
-const HistClassifier classifier_lobby_my_select = {.rangeCol = {149, 811},
-						   .rangeRow = {139, 842},
-						   .histChannel = 0,
-						   .histBins = 30,
-						   .histMaxIndex = 17,
-						   .histRatio = 0.5};
-const HistClassifier classifier_lobby_opponent_select = {.rangeCol = {1229,
-								      1649},
-							 .rangeRow = {227, 836},
-							 .histChannel = 0,
-							 .histBins = 30,
-							 .histMaxIndex = 0,
-							 .histRatio = 0.8};
-const HistClassifier classifier_black_transition = {.rangeCol = {400, 600},
-						    .rangeRow = {400, 600},
-						    .histChannel = 2,
-						    .histBins = 8,
-						    .histMaxIndex = 0,
-						    .histRatio = 0.8};
-
-const std::array<int, 2> opponent_col_range{1239, 1337};
-const std::vector<std::array<int, 2>> opponent_row_range{{{228, 326},
-							  {330, 428},
-							  {432, 530},
-							  {534, 632},
-							  {636, 734},
-							  {738, 836}}};
-
-const std::array<int, 2> myPokemonColRange{182, 711};
-const std::vector<std::array<int, 2>> myPokemonRowRange{{{147, 254},
-							 {263, 371},
-							 {379, 486},
-							 {496, 602},
-							 {612, 718},
-							 {727, 834}}};
-
-const std::array<int, 2> selectionOrderColRange{795, 827};
-const std::vector<std::array<int, 2>> selectionOrderRowRange{{{154, 186},
-							      {271, 303},
-							      {388, 420},
-							      {503, 535},
-							      {619, 651},
-							      {735, 767}}};
-
-constexpr int N_POKEMONS = 6;
-
-struct screen_config {
-	uint32_t width;
-	uint32_t height;
-
-	const bool skipMySelection;
-	const std::vector<int> myPokemonPlacementX;
-	const int myPokemonPlacementY;
-	const cv::Size myPokemonSize;
-
-	const bool skipOpponentTeam;
-	const int opponentPokemonPlacementX;
-	const std::vector<int> opponentPokemonPlacementY;
-	const cv::Size opponentPokemonSize;
-
-	const bool skipOpponentRank;
-
-	const bool skipMyRank;
-};
-
-const screen_config defaultScreenConfig{
-	.width = 1920,
-	.height = 1080,
-	.skipMySelection = false,
-	.myPokemonPlacementX = {0, 391, 782, 0, 0, 0},
-	.myPokemonPlacementY = 1000,
-	.myPokemonSize = {391, 80},
-	.skipOpponentTeam = false,
-	.opponentPokemonPlacementX = 1776,
-	.opponentPokemonPlacementY = {0, 144, 288, 432, 576, 720},
-	.opponentPokemonSize = {144, 144},
-	.skipOpponentRank = false,
-	.skipMyRank = false,
-};
-
-const screen_config mySelectionScreenConfig{
-	.width = 1173,
-	.height = 80,
-	.skipMySelection = false,
-	.myPokemonPlacementX = {0, 391, 782, 0, 0, 0},
-	.myPokemonPlacementY = 0,
-	.myPokemonSize = {391, 80},
-	.skipOpponentTeam = true,
-	.opponentPokemonPlacementX = 0,
-	.opponentPokemonPlacementY = {0, 144, 288, 432, 576, 720},
-	.opponentPokemonSize = {144, 144},
-	.skipOpponentRank = true,
-	.skipMyRank = true,
-};
-
-const screen_config opponentTeamScreenConfig{
-	.width = 144,
-	.height = 864,
-	.skipMySelection = true,
-	.myPokemonPlacementX = {0, 391, 782, 0, 0, 0},
-	.myPokemonPlacementY = 0,
-	.myPokemonSize = {391, 80},
-	.skipOpponentTeam = false,
-	.opponentPokemonPlacementX = 0,
-	.opponentPokemonPlacementY = {0, 144, 288, 432, 576, 720},
-	.opponentPokemonSize = {144, 144},
-	.skipOpponentRank = true,
-	.skipMyRank = true,
-};
-
-const screen_config opponentRankScreenConfig{
-	.width = 250,
-	.height = 36,
-	.skipMySelection = true,
-	.skipOpponentTeam = true,
-	.skipOpponentRank = false,
-	.skipMyRank = true,
-};
-
-const screen_config myRankScreenConfig{
-	.width = 271,
-	.height = 99,
-	.skipMySelection = true,
-	.skipOpponentTeam = true,
-	.skipOpponentRank = true,
-	.skipMyRank = false,
-};
-
-struct screen_context {
-	obs_data_t *settings = nullptr;
-	obs_source_t *source = nullptr;
-
-	gs_texrender_t *texrender = nullptr;
-	gs_stagesurf_t *stagesurface = nullptr;
-	cv::Mat gameplay_bgra;
-
-	uint64_t next_tick = 0;
-	SceneDetector sceneDetector;
-	cv::Mat screen_bgra;
-
-	screen_state state = STATE_UNKNOWN;
-	uint64_t last_state_change_ns = 0;
-	int my_selection_order_map[N_POKEMONS]{};
-	SceneDetector::Scene prev_scene;
-	uint64_t match_start_ns = 0;
-	uint64_t last_elapsed_seconds = 0;
-	uint64_t match_end_ns = 0;
-
-	EntityCropper opponentPokemonCropper;
-	EntityCropper myPokemonCropper;
-	EntityCropper selectionOrderCropper;
-	SelectionRecognizer selectionRecognizer;
-	OpponentRankExtractor opponentRankExtractor;
-
-	cv::Mat myPokemonsBGRA[N_POKEMONS];
-
-	screen_config config;
-
-	screen_context(const screen_config &_config)
-		: sceneDetector(classifier_lobby_my_select,
-				classifier_lobby_opponent_select,
-				classifier_black_transition),
-		  opponentPokemonCropper(opponent_col_range,
-					 opponent_row_range),
-		  myPokemonCropper(myPokemonColRange, myPokemonRowRange),
-		  selectionOrderCropper(selectionOrderColRange,
-					selectionOrderRowRange),
-		  config(_config)
-	{
-	}
-};
-
-static void sendEventToAllBrowserSources(const char *eventName,
-					 const char *jsonString)
-{
-	struct Param {
-		const char *eventName;
-		const char *jsonString;
-	} callParam{
-		.eventName = eventName,
-		.jsonString = jsonString,
-	};
-	obs_enum_sources(
-		[](void *_param, obs_source_t *source) -> bool {
-			Param *param = static_cast<Param *>(_param);
-			std::string id(obs_source_get_id(source));
-			if (id == "browser_source") {
-				proc_handler_t *ph =
-					obs_source_get_proc_handler(source);
-				calldata_t cd;
-				calldata_init(&cd);
-				calldata_set_string(&cd, "eventName",
-						    param->eventName);
-				calldata_set_string(&cd, "jsonString",
-						    param->jsonString);
-				proc_handler_call(ph, "javascript_event", &cd);
-			}
-			return true;
-		},
-		&callParam);
-}
+#include "screen-source.h"
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 {
@@ -327,102 +104,10 @@ static const char *screen_get_name(void *unused)
 	return obs_module_text("PokemonSVScreenBuilder");
 }
 
-static const char *screen_my_selection_get_name(void *unused)
-{
-	UNUSED_PARAMETER(unused);
-	return obs_module_text("PokemonSVScreenBuilderMySelection");
-}
-
-static const char *screen_opponent_team_get_name(void *unused)
-{
-	UNUSED_PARAMETER(unused);
-	return obs_module_text("PokemonSVScreenBuilderOpponentTeam");
-}
-
-static const char *screen_opponent_rank_get_name(void *unused)
-{
-	UNUSED_PARAMETER(unused);
-	return obs_module_text("PokemonSVScreenBuilderOpponentRank");
-}
-
-static const char *screen_my_rank_get_name(void *unused)
-{
-	UNUSED_PARAMETER(unused);
-	return obs_module_text("PokemonSVScreenBuilderMyRank");
-}
-
 static void *screen_create(obs_data_t *settings, obs_source_t *source)
 {
 	void *rawContext = bmalloc(sizeof(screen_context));
-	screen_context *context = new (rawContext)
-		screen_context(defaultScreenConfig);
-	context->settings = settings;
-	context->source = source;
-
-	context->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
-
-	obs_add_main_render_callback(screen_main_render_callback, context);
-
-	UNUSED_PARAMETER(settings);
-	return context;
-}
-
-static void *screen_my_selection_create(obs_data_t *settings,
-					obs_source_t *source)
-{
-	void *rawContext = bmalloc(sizeof(screen_context));
-	screen_context *context = new (rawContext)
-		screen_context(mySelectionScreenConfig);
-	context->settings = settings;
-	context->source = source;
-
-	context->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
-
-	obs_add_main_render_callback(screen_main_render_callback, context);
-
-	UNUSED_PARAMETER(settings);
-	return context;
-}
-
-static void *screen_opponent_team_create(obs_data_t *settings,
-					 obs_source_t *source)
-{
-	void *rawContext = bmalloc(sizeof(screen_context));
-	screen_context *context = new (rawContext)
-		screen_context(opponentTeamScreenConfig);
-	context->settings = settings;
-	context->source = source;
-
-	context->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
-
-	obs_add_main_render_callback(screen_main_render_callback, context);
-
-	UNUSED_PARAMETER(settings);
-	return context;
-}
-
-static void *screen_opponent_rank_create(obs_data_t *settings,
-					 obs_source_t *source)
-{
-	void *rawContext = bmalloc(sizeof(screen_context));
-	screen_context *context = new (rawContext)
-		screen_context(opponentRankScreenConfig);
-	context->settings = settings;
-	context->source = source;
-
-	context->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
-
-	obs_add_main_render_callback(screen_main_render_callback, context);
-
-	UNUSED_PARAMETER(settings);
-	return context;
-}
-
-static void *screen_my_rank_create(obs_data_t *settings, obs_source_t *source)
-{
-	void *rawContext = bmalloc(sizeof(screen_context));
-	screen_context *context = new (rawContext)
-		screen_context(myRankScreenConfig);
+	screen_context *context = new (rawContext) screen_context();
 	context->settings = settings;
 	context->source = source;
 
@@ -443,18 +128,6 @@ static void screen_destroy(void *data)
 						context);
 		bfree(context);
 	}
-}
-
-static uint32_t screen_get_width(void *data)
-{
-	screen_context *context = reinterpret_cast<screen_context *>(data);
-	return context->config.width;
-}
-
-static uint32_t screen_get_height(void *data)
-{
-	screen_context *context = reinterpret_cast<screen_context *>(data);
-	return context->config.height;
 }
 
 static void screen_defaults(obs_data_t *settings)
@@ -549,7 +222,7 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 
 static obs_properties_t *screen_properties(void *data)
 {
-	screen_context *context = reinterpret_cast<screen_context *>(data);
+	UNUSED_PARAMETER(data);
 	obs_properties_t *props = obs_properties_create();
 
 	obs_property_t *prop_gameplay_source = obs_properties_add_list(
@@ -562,16 +235,11 @@ static obs_properties_t *screen_properties(void *data)
 		OBS_COMBO_TYPE_EDITABLE, OBS_COMBO_FORMAT_STRING);
 	obs_enum_sources(add_text_sources_to_list, prop_timer);
 
-	if (!context->config.skipOpponentRank) {
-		obs_property_t *prop_opponent_rank_source =
-			obs_properties_add_list(
-				props, "opponent_rank_source",
-				obs_module_text("OpponentRankSource"),
-				OBS_COMBO_TYPE_EDITABLE,
-				OBS_COMBO_FORMAT_STRING);
-		obs_enum_sources(add_text_sources_to_list,
-				 prop_opponent_rank_source);
-	}
+	obs_property_t *prop_opponent_rank_source = obs_properties_add_list(
+		props, "opponent_rank_source",
+		obs_module_text("OpponentRankSource"), OBS_COMBO_TYPE_EDITABLE,
+		OBS_COMBO_FORMAT_STRING);
+	obs_enum_sources(add_text_sources_to_list, prop_opponent_rank_source);
 
 	obs_properties_add_button(
 		props, "add_default_layout_button",
@@ -587,23 +255,13 @@ static void drawOpponentPokemons(screen_context *context)
 	context->opponentPokemonCropper.generateMask();
 	std::vector<std::string> imageUrls(N_POKEMONS);
 	for (int i = 0; i < N_POKEMONS; i++) {
-		auto x = context->config.opponentPokemonPlacementX;
-		auto y = context->config.opponentPokemonPlacementY[i];
-		auto &pokemonBGRA =
-			context->opponentPokemonCropper.imagesBGRA[i];
-		cv::Mat resizedBGRA;
-		cv::resize(pokemonBGRA, resizedBGRA,
-			   context->config.opponentPokemonSize);
-		resizedBGRA.copyTo(
-			context->screen_bgra.rowRange(y, y + resizedBGRA.rows)
-				.colRange(x, x + resizedBGRA.cols));
-
 		std::vector<uchar> pngImage;
-		cv::imencode(".png", resizedBGRA, pngImage);
+		cv::imencode(".png",
+			     context->opponentPokemonCropper.imagesBGRA[i],
+			     pngImage);
 		imageUrls[i] =
 			"data:image/png;base64," + Base64::encode(pngImage);
 	}
-
 	nlohmann::json json{
 		{"imageUrls", imageUrls},
 	};
@@ -658,25 +316,6 @@ static void drawMyPokemons(screen_context *context)
 			imageUrls[i] = "data:image/png;base64," +
 				       Base64::encode(pngImage);
 		}
-	}
-
-	for (int i = 0; i < N_POKEMONS; i++) {
-		int pokemon = context->my_selection_order_map[i];
-		if (pokemon == 0)
-			continue;
-
-		auto pokemonBGRA = context->myPokemonsBGRA[pokemon - 1];
-		if (pokemonBGRA.empty())
-			continue;
-		cv::Mat resizedBGRA;
-		cv::resize(pokemonBGRA, resizedBGRA,
-			   context->config.myPokemonSize);
-
-		auto x = context->config.myPokemonPlacementX[i];
-		auto y = context->config.myPokemonPlacementY;
-		resizedBGRA.copyTo(
-			context->screen_bgra.rowRange(y, y + resizedBGRA.rows)
-				.colRange(x, x + resizedBGRA.cols));
 	}
 
 	nlohmann::json json{
@@ -738,12 +377,6 @@ static void screen_video_tick(void *data, float seconds)
 	SceneDetector::Scene scene =
 		context->sceneDetector.detectScene(gameplay_hsv);
 
-	if (context->screen_bgra.empty()) {
-		context->screen_bgra = cv::Mat(context->config.height,
-					       context->config.width, CV_8UC4,
-					       cv::Scalar(0));
-	}
-
 	if (context->state == STATE_UNKNOWN) {
 		cv::Mat screenTextBinary =
 			context->sceneDetector.generateTextBinaryScreen(
@@ -751,57 +384,18 @@ static void screen_video_tick(void *data, float seconds)
 
 		if (context->sceneDetector.isOpponentRankShown(
 			    screenTextBinary)) {
-			blog(LOG_INFO, "Rank shown!");
-
-			context->screen_bgra = cv::Mat(context->config.height,
-						       context->config.width,
-						       CV_8UC4, cv::Scalar(0));
-
-			if (!context->config.skipOpponentRank) {
-				context->opponentRankExtractor.extract(
-					screenTextBinary,
-					context->gameplay_bgra);
-				blog(LOG_INFO, "Rank shown!");
-				std::string result = recognizeText(
-					context->opponentRankExtractor
-						.imageBGRA);
-				blog(LOG_INFO, "Rank %s!", result.c_str());
-				cv::Mat &opponentRank =
-					context->opponentRankExtractor.imageBGRA;
-				opponentRank.copyTo(
-					context->screen_bgra
-						.rowRange(0, opponentRank.rows)
-						.colRange(0,
-							  opponentRank.cols));
-				const char *opponent_rank_name =
-					obs_data_get_string(
-						context->settings,
-						"opponent_rank_source");
-				obs_source_t *opponent_rank_source =
-					obs_get_source_by_name(
-						opponent_rank_name);
-				if (opponent_rank_source) {
-					update_text(opponent_rank_source,
-						    result);
-					obs_source_release(
-						opponent_rank_source);
-				}
-				nlohmann::json json{{"text", result}};
-				const char *eventName =
-					"obsPokemonSvScreenBuilderOpponentRankShown";
-				std::string jsonString = json.dump();
-				sendEventToAllBrowserSources(
-					eventName, jsonString.c_str());
-			}
-
-			if (!context->config.skipMyRank) {
-				context->gameplay_bgra.rowRange(236, 335)
-					.colRange(1277, 1548)
-					.copyTo(context->screen_bgra
-							.rowRange(0, 99)
-							.colRange(0, 271));
-				blog(LOG_INFO, "aaaa!");
-			}
+			context->opponentRankExtractor.extract(
+				screenTextBinary, context->gameplay_bgra);
+			std::string result = recognizeText(
+				context->opponentRankExtractor.imageBGRA);
+			nlohmann::json json{
+				{"text", result},
+			};
+			const char *eventName =
+				"obsPokemonSvScreenBuilderOpponentRankShown";
+			std::string jsonString(json.dump());
+			sendEventToAllBrowserSources(eventName,
+						     jsonString.c_str());
 		}
 
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
@@ -812,9 +406,7 @@ static void screen_video_tick(void *data, float seconds)
 	} else if (context->state == STATE_ENTERING_SELECT_POKEMON) {
 		const uint64_t now = os_gettime_ns();
 		if (now - context->last_state_change_ns > 1000000000) {
-			if (!context->config.skipOpponentTeam) {
-				drawOpponentPokemons(context);
-			}
+			drawOpponentPokemons(context);
 			for (int i = 0; i < N_POKEMONS; i++) {
 				context->my_selection_order_map[i] = 0;
 			}
@@ -823,8 +415,7 @@ static void screen_video_tick(void *data, float seconds)
 			     "State: ENTERING_SELECT_POKEMON to SELECT_POKEMON");
 		}
 	} else if (context->state == STATE_SELECT_POKEMON) {
-		if (detectSelectionOrderChange(context) &&
-		    !context->config.skipMySelection) {
+		if (detectSelectionOrderChange(context)) {
 			drawMyPokemons(context);
 		}
 
@@ -908,21 +499,6 @@ static void screen_video_tick(void *data, float seconds)
 	}
 	context->prev_scene = scene;
 
-	if (!context->screen_bgra.empty()) {
-		struct obs_source_frame frame = {
-			.width = static_cast<uint32_t>(
-				context->screen_bgra.cols),
-			.height = static_cast<uint32_t>(
-				context->screen_bgra.rows),
-			.timestamp = cur_time,
-			.format = VIDEO_FORMAT_BGRA,
-		};
-		frame.data[0] = context->screen_bgra.data;
-		frame.linesize[0] = context->screen_bgra.cols * 4;
-
-		obs_source_output_video(context->source, &frame);
-	}
-
 	UNUSED_PARAMETER(seconds);
 }
 
@@ -933,64 +509,6 @@ struct obs_source_info screen_info = {
 	.get_name = screen_get_name,
 	.create = screen_create,
 	.destroy = screen_destroy,
-	.get_width = screen_get_width,
-	.get_height = screen_get_height,
-	.get_defaults = screen_defaults,
-	.get_properties = screen_properties,
-	.video_tick = screen_video_tick,
-};
-
-struct obs_source_info screen_my_selection_info = {
-	.id = "obs-pokemon-sv-screen-builder-my-selection",
-	.type = OBS_SOURCE_TYPE_INPUT,
-	.output_flags = OBS_SOURCE_ASYNC_VIDEO,
-	.get_name = screen_my_selection_get_name,
-	.create = screen_my_selection_create,
-	.destroy = screen_destroy,
-	.get_width = screen_get_width,
-	.get_height = screen_get_height,
-	.get_defaults = screen_defaults,
-	.get_properties = screen_properties,
-	.video_tick = screen_video_tick,
-};
-
-struct obs_source_info screen_opponent_team_info = {
-	.id = "obs-pokemon-sv-screen-builder-opponent-team",
-	.type = OBS_SOURCE_TYPE_INPUT,
-	.output_flags = OBS_SOURCE_ASYNC_VIDEO,
-	.get_name = screen_opponent_team_get_name,
-	.create = screen_opponent_team_create,
-	.destroy = screen_destroy,
-	.get_width = screen_get_width,
-	.get_height = screen_get_height,
-	.get_defaults = screen_defaults,
-	.get_properties = screen_properties,
-	.video_tick = screen_video_tick,
-};
-
-struct obs_source_info screen_opponent_rank_info = {
-	.id = "obs-pokemon-sv-screen-builder-opponent-rank",
-	.type = OBS_SOURCE_TYPE_INPUT,
-	.output_flags = OBS_SOURCE_ASYNC_VIDEO,
-	.get_name = screen_opponent_rank_get_name,
-	.create = screen_opponent_rank_create,
-	.destroy = screen_destroy,
-	.get_width = screen_get_width,
-	.get_height = screen_get_height,
-	.get_defaults = screen_defaults,
-	.get_properties = screen_properties,
-	.video_tick = screen_video_tick,
-};
-
-struct obs_source_info screen_my_rank_info = {
-	.id = "obs-pokemon-sv-screen-builder-my-rank",
-	.type = OBS_SOURCE_TYPE_INPUT,
-	.output_flags = OBS_SOURCE_ASYNC_VIDEO,
-	.get_name = screen_my_rank_get_name,
-	.create = screen_my_rank_create,
-	.destroy = screen_destroy,
-	.get_width = screen_get_width,
-	.get_height = screen_get_height,
 	.get_defaults = screen_defaults,
 	.get_properties = screen_properties,
 	.video_tick = screen_video_tick,
