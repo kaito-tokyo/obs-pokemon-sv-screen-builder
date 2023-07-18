@@ -2,7 +2,10 @@ cmake_minimum_required(VERSION 3.16...3.26)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake" NO_POLICY_SCOPE)
 
-project(${_name} VERSION ${_version})
+project(
+  ${_name}
+  VERSION ${_version}
+  LANGUAGES C CXX)
 
 option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" OFF)
 option(ENABLE_QT "Use Qt functionality" OFF)
@@ -45,6 +48,13 @@ target_sources(
           src/SelectionRecognizerGenerated.cpp
           src/OpponentRankExtractor.cpp
           src/OpponentRankExtractorGenerated.cpp)
+
+if(APPLE)
+  enable_language(OBJCXX)
+  target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/macos/VisionTextRecognizer.mm)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-framework Vision")
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-framework CoreVideo")
+endif()
 
 include(cmake/BuildMyOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
