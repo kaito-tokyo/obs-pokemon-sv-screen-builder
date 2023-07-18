@@ -10,10 +10,11 @@ CGImageRef convertBGRAtoCgImage(const cv::Mat &imageBGRA)
 	CVPixelBufferRef pixelBuffer;
 	CVReturn retPixelBuffer = CVPixelBufferCreateWithBytes(
 		kCFAllocatorDefault, imageBGRA.cols, imageBGRA.rows,
-		kCVPixelFormatType_32BGRA, imageBGRA.data, imageBGRA.cols * 4,
-		NULL, NULL, NULL, &pixelBuffer);
+		kCVPixelFormatType_OneComponent8, imageBGRA.data,
+		imageBGRA.cols, NULL, NULL, NULL, &pixelBuffer);
 	if (retPixelBuffer != kCVReturnSuccess) {
-		blog(LOG_ERROR, "CVPixelBuffer creation failed!");
+		blog(LOG_ERROR, "CVPixelBuffer creation failed! %d",
+		     retPixelBuffer);
 		if (pixelBuffer != NULL) {
 			CFRelease(pixelBuffer);
 		}

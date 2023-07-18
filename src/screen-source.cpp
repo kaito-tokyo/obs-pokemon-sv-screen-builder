@@ -359,9 +359,6 @@ static std::string update_text(obs_source_t *source, std::string rank)
 	return rank;
 }
 
-const char EVENT_NAME_OPPONENT_RANK_SHOWN[] =
-	"obsPokemonSvScreenBuilderOpponentRankShown";
-
 static void screen_video_tick(void *data, float seconds)
 {
 	screen_context *context = reinterpret_cast<screen_context *>(data);
@@ -394,20 +391,15 @@ static void screen_video_tick(void *data, float seconds)
 			context->state = nextState;
 		}
 	} else if (context->state == ScreenState::ENTERING_SHOW_RANK) {
-		context->opponentRankExtractor.extract(gameplay_binary,
-						       context->gameplay_bgra);
-		std::string result =
-			recognizeText(context->opponentRankExtractor.imageBGRA);
-		nlohmann::json json{
-			{"text", result},
-		};
-		std::string jsonString(json.dump());
-		sendEventToAllBrowserSources(EVENT_NAME_OPPONENT_RANK_SHOWN,
-					     jsonString.c_str());
-
-		context->state = ScreenState::SHOW_RANK;
-		context->last_state_change_ns = os_gettime_ns();
-		blog(LOG_INFO, "State: ENTERING_SHOW_RANK to SHOW_RANK");
+		const ScreenState nextState = handleEnteringShowRank(
+			context->opponentRankExtractor, gameplay_binary);
+		if (nextState != context->state) {
+			context->last_state_change_ns = os_gettime_ns();
+			blog(LOG_INFO, "State: %s to %s",
+			     ScreenStateNames.at(context->state),
+			     ScreenStateNames.at(nextState));
+			context->state = nextState;
+		}
 	} else if (context->state == ScreenState::SHOW_RANK) {
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 			context->state = ScreenState::ENTERING_SELECT_POKEMON;

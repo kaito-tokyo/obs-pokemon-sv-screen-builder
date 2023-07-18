@@ -2,8 +2,12 @@
 
 #include <map>
 
+#include <nlohmann/json.hpp>
+
 #include "modules/SceneDetector.h"
 #include "modules/OpponentRankExtractor.h"
+#include "modules/TextRecognizer.h"
+#include "obs-browser-api.h"
 
 enum class ScreenState {
 	UNKNOWN,
@@ -33,6 +37,9 @@ const std::map<ScreenState, const char *> ScreenStateNames = {
 	{ScreenState::RESULT, "RESULT"},
 };
 
+const char EVENT_NAME_OPPONENT_RANK_SHOWN[] =
+	"obsPokemonSvScreenBuilderOpponentRankShown";
+
 static ScreenState handleUnknown(SceneDetector::Scene scene)
 {
 	if (scene == SceneDetector::SCENE_SHOW_RANK) {
@@ -42,4 +49,19 @@ static ScreenState handleUnknown(SceneDetector::Scene scene)
 	} else {
 		return ScreenState::UNKNOWN;
 	}
+}
+
+static ScreenState
+handleEnteringShowRank(OpponentRankExtractor &opponentRankExtractor,
+		       const cv::Mat &gameplayBinary)
+{
+	cv::Rect rankRect = opponentRankExtractor.extract(gameplayBinary);
+	std::string recognizedText = recognizeText(~gameplayBinary(rankRect));
+	nlohmann::json json{
+		{"text", recognizedText},
+	};
+	std::string jsonString(json.dump());
+	sendEventToAllBrowserSources(EVENT_NAME_OPPONENT_RANK_SHOWN,
+				     jsonString.c_str());
+	return ScreenState::SHOW_RANK;
 }
