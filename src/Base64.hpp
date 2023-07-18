@@ -18,7 +18,7 @@ namespace Base64 {
 
         int pad = input.size() % 3;
         if (pad == 0) {
-            encoded[i+1] = '\0';
+            encoded[i] = '\0';
         } else if (pad == 1) {
             encoded[i] = table[input[j] >> 2];
             encoded[i+1] = table[(input[j] << 4) & 0x30];
