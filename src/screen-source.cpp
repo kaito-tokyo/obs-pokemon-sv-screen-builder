@@ -150,7 +150,7 @@ const screen_config opponentRankScreenConfig{
 };
 
 const screen_config myRankScreenConfig{
-	.width = 261,
+	.width = 271,
 	.height = 99,
 	.skipMySelection = true,
 	.skipOpponentTeam = true,
@@ -614,11 +614,12 @@ static void screen_video_tick(void *data, float seconds)
 			}
 
 			if (!context->config.skipMyRank) {
-				context->screen_bgra.rowRange(0, 99)
-					.colRange(0, 261)
-					.copyTo(context->gameplay_bgra
-							.rowRange(236, 335)
-							.colRange(1277, 1548));
+				context->gameplay_bgra.rowRange(236, 335)
+					.colRange(1277, 1548)
+					.copyTo(context->screen_bgra
+							.rowRange(0, 99)
+							.colRange(0, 271));
+				blog(LOG_INFO, "aaaa!");
 			}
 		}
 
@@ -800,7 +801,7 @@ struct obs_source_info screen_opponent_rank_info = {
 	.video_tick = screen_video_tick,
 };
 
-struct obs_source_info screen_opponent_rank_info = {
+struct obs_source_info screen_my_rank_info = {
 	.id = "obs-pokemon-sv-screen-builder-my-rank",
 	.type = OBS_SOURCE_TYPE_INPUT,
 	.output_flags = OBS_SOURCE_ASYNC_VIDEO,
