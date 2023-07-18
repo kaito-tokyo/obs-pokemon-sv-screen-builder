@@ -41,13 +41,13 @@ target_sources(
   ${CMAKE_PROJECT_NAME}
   PRIVATE src/plugin-main.cpp
           src/screen-source.cpp
-          src/SceneDetector.cpp
-          src/SceneDetectorTextRecognizerGenerated.cpp
-          src/EntityCropper.cpp
-          src/SelectionRecognizer.cpp
-          src/SelectionRecognizerGenerated.cpp
-          src/OpponentRankExtractor.cpp
-          src/OpponentRankExtractorGenerated.cpp)
+          src/modules/SceneDetector.cpp
+          src/modules/SceneDetectorTextRecognizerGenerated.cpp
+          src/modules/EntityCropper.cpp
+          src/modules/SelectionRecognizer.cpp
+          src/modules/SelectionRecognizerGenerated.cpp
+          src/modules/OpponentRankExtractor.cpp
+          src/modules/OpponentRankExtractorGenerated.cpp)
 
 if(APPLE)
   enable_language(OBJCXX)
