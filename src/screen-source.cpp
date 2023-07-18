@@ -92,6 +92,8 @@ struct screen_config {
 	const cv::Size opponentPokemonSize;
 
 	const bool skipOpponentRank;
+
+	const bool skipMyRank;
 };
 
 const screen_config defaultScreenConfig{
@@ -105,6 +107,8 @@ const screen_config defaultScreenConfig{
 	.opponentPokemonPlacementX = 1776,
 	.opponentPokemonPlacementY = {0, 144, 288, 432, 576, 720},
 	.opponentPokemonSize = {144, 144},
+	.skipOpponentRank = false,
+	.skipMyRank = false,
 };
 
 const screen_config mySelectionScreenConfig{
@@ -119,6 +123,7 @@ const screen_config mySelectionScreenConfig{
 	.opponentPokemonPlacementY = {0, 144, 288, 432, 576, 720},
 	.opponentPokemonSize = {144, 144},
 	.skipOpponentRank = true,
+	.skipMyRank = true,
 };
 
 const screen_config opponentTeamScreenConfig{
@@ -133,6 +138,7 @@ const screen_config opponentTeamScreenConfig{
 	.opponentPokemonPlacementY = {0, 144, 288, 432, 576, 720},
 	.opponentPokemonSize = {144, 144},
 	.skipOpponentRank = true,
+	.skipMyRank = true,
 };
 
 const screen_config opponentRankScreenConfig{
@@ -141,6 +147,16 @@ const screen_config opponentRankScreenConfig{
 	.skipMySelection = true,
 	.skipOpponentTeam = true,
 	.skipOpponentRank = false,
+	.skipMyRank = true,
+};
+
+const screen_config myRankScreenConfig{
+	.width = 271,
+	.height = 99,
+	.skipMySelection = true,
+	.skipOpponentTeam = true,
+	.skipOpponentRank = true,
+	.skipMyRank = false,
 };
 
 struct screen_context {
@@ -294,6 +310,12 @@ static const char *screen_opponent_rank_get_name(void *unused)
 	return obs_module_text("PokemonSVScreenBuilderOpponentRank");
 }
 
+static const char *screen_my_rank_get_name(void *unused)
+{
+	UNUSED_PARAMETER(unused);
+	return obs_module_text("PokemonSVScreenBuilderMyRank");
+}
+
 static void *screen_create(obs_data_t *settings, obs_source_t *source)
 {
 	void *rawContext = bmalloc(sizeof(screen_context));
@@ -350,6 +372,22 @@ static void *screen_opponent_rank_create(obs_data_t *settings,
 	void *rawContext = bmalloc(sizeof(screen_context));
 	screen_context *context = new (rawContext)
 		screen_context(opponentRankScreenConfig);
+	context->settings = settings;
+	context->source = source;
+
+	context->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
+
+	obs_add_main_render_callback(screen_main_render_callback, context);
+
+	UNUSED_PARAMETER(settings);
+	return context;
+}
+
+static void *screen_my_rank_create(obs_data_t *settings, obs_source_t *source)
+{
+	void *rawContext = bmalloc(sizeof(screen_context));
+	screen_context *context = new (rawContext)
+		screen_context(myRankScreenConfig);
 	context->settings = settings;
 	context->source = source;
 
@@ -612,6 +650,15 @@ static void screen_video_tick(void *data, float seconds)
 						opponent_rank_source);
 				}
 			}
+
+			if (!context->config.skipMyRank) {
+				context->gameplay_bgra.rowRange(236, 335)
+					.colRange(1277, 1548)
+					.copyTo(context->screen_bgra
+							.rowRange(0, 99)
+							.colRange(0, 271));
+				blog(LOG_INFO, "aaaa!");
+			}
 		}
 
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
@@ -784,6 +831,20 @@ struct obs_source_info screen_opponent_rank_info = {
 	.output_flags = OBS_SOURCE_ASYNC_VIDEO,
 	.get_name = screen_opponent_rank_get_name,
 	.create = screen_opponent_rank_create,
+	.destroy = screen_destroy,
+	.get_width = screen_get_width,
+	.get_height = screen_get_height,
+	.get_defaults = screen_defaults,
+	.get_properties = screen_properties,
+	.video_tick = screen_video_tick,
+};
+
+struct obs_source_info screen_my_rank_info = {
+	.id = "obs-pokemon-sv-screen-builder-my-rank",
+	.type = OBS_SOURCE_TYPE_INPUT,
+	.output_flags = OBS_SOURCE_ASYNC_VIDEO,
+	.get_name = screen_my_rank_get_name,
+	.create = screen_my_rank_create,
 	.destroy = screen_destroy,
 	.get_width = screen_get_width,
 	.get_height = screen_get_height,
