@@ -9,7 +9,7 @@ std::string encode(const std::vector<unsigned char> input)
 	const char table[] =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
 
-    std::vector<char> encoded((input.size() + 2) / 3 * 4 + 1);
+	std::vector<char> encoded((input.size() + 2) / 3 * 4 + 1);
 
 	size_t i = 0, j = 0;
 	for (; j < input.size() - 2; i += 4, j += 3) {
