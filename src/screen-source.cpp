@@ -388,7 +388,9 @@ static void screen_video_tick(void *data, float seconds)
 		const ScreenState nextState = handleUnknown(scene);
 		if (nextState != context->state) {
 			context->last_state_change_ns = os_gettime_ns();
-	        blog(LOG_INFO, "State: %s to %s", ScreenStateNames.at(context->state), ScreenStateNames.at(nextState));
+			blog(LOG_INFO, "State: %s to %s",
+			     ScreenStateNames.at(context->state),
+			     ScreenStateNames.at(nextState));
 			context->state = nextState;
 		}
 	} else if (context->state == ScreenState::ENTERING_SHOW_RANK) {
