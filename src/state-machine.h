@@ -56,10 +56,12 @@ static ScreenState handleUnknown(SceneDetector::Scene scene)
 
 static ScreenState
 handleEnteringShowRank(const OpponentRankExtractor &opponentRankExtractor,
-		       const cv::Mat &gameplayBinary)
+		       const cv::Mat &gameplayBinary, const Logger &logger)
 {
 	cv::Rect rankRect = opponentRankExtractor.extract(gameplayBinary);
-	std::string recognizedText = recognizeText(~gameplayBinary(rankRect));
+	cv::Mat rankImage = ~gameplayBinary(rankRect);
+	logger.writeOpponentRankImage(logger.getPrefix(), rankImage);
+	std::string recognizedText = recognizeText(rankImage);
 	nlohmann::json json{
 		{"text", recognizedText},
 	};
