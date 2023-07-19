@@ -44,7 +44,8 @@ target_sources(
           src/modules/SelectionRecognizer.cpp
           src/modules/SelectionRecognizerGenerated.cpp
           src/modules/OpponentRankExtractor.cpp
-          src/modules/OpponentRankExtractorGenerated.cpp)
+          src/modules/OpponentRankExtractorGenerated.cpp
+          src/modules/Logger.cpp)
 
 if(APPLE)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/modules/macos/VisionTextRecognizer.mm)

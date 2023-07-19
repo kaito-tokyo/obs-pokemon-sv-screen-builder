@@ -7,6 +7,7 @@ void *screen_create(obs_data_t *settings, obs_source_t *source);
 void screen_destroy(void *data);
 void screen_defaults(obs_data_t *settings);
 obs_properties_t *screen_properties(void *data);
+void screen_update(void *data, obs_data_t *settings);
 void screen_video_tick(void *data, float seconds);
 
 static struct obs_source_info screen_info = {
@@ -18,6 +19,7 @@ static struct obs_source_info screen_info = {
 	.destroy = screen_destroy,
 	.get_defaults = screen_defaults,
 	.get_properties = screen_properties,
+	.update = screen_update,
 	.video_tick = screen_video_tick,
 };
 

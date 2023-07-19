@@ -9,6 +9,7 @@
 #include "modules/OpponentRankExtractor.h"
 #include "modules/SceneDetector.h"
 #include "modules/SelectionRecognizer.h"
+#include "modules/Logger.hpp"
 #include "state-machine.h"
 
 const HistClassifier classifier_lobby_my_select = {{149, 811}, {139, 842}, 0,
@@ -69,6 +70,7 @@ struct screen_context {
 	EntityCropper selectionOrderCropper;
 	SelectionRecognizer selectionRecognizer;
 	OpponentRankExtractor opponentRankExtractor;
+	Logger logger;
 
 	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
 

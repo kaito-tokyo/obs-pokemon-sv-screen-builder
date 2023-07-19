@@ -5,20 +5,25 @@
 #include "modules/Base64.hpp"
 #include "modules/EntityCropper.h"
 #include "modules/SelectionRecognizer.h"
+#include "modules/Logger.hpp"
 
 #include "constants.h"
 #include "obs-browser-api.h"
 
 static void renderOpponentPokemons(const cv::Mat &gameplayBGRA,
-				   EntityCropper &opponentPokemonCropper)
+				   EntityCropper &opponentPokemonCropper,
+				   const Logger &logger)
 {
 	opponentPokemonCropper.crop(gameplayBGRA);
 	opponentPokemonCropper.generateMask();
 	std::vector<std::string> imageUrls(N_POKEMONS);
+	std::string prefix = logger.getPrefix();
 	for (int i = 0; i < N_POKEMONS; i++) {
+		cv::Mat &image = opponentPokemonCropper.imagesBGRA[i];
+		logger.writeOpponentPokemonImage(prefix, i, image);
+
 		std::vector<uchar> pngImage;
-		cv::imencode(".png", opponentPokemonCropper.imagesBGRA[i],
-			     pngImage);
+		cv::imencode(".png", image, pngImage);
 		imageUrls[i] =
 			"data:image/png;base64," + Base64::encode(pngImage);
 	}

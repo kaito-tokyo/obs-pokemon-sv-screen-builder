@@ -78,15 +78,15 @@ static ScreenState handleShowRank(SceneDetector::Scene scene)
 	}
 }
 
-static ScreenState
-handleEnteringSelectPokemon(uint64_t lastStateChangedNs,
-			    const cv::Mat &gameplayBGRA,
-			    EntityCropper &opponentPokemonCropper,
-			    std::array<int, N_POKEMONS> &mySelectionOrderMap)
+static ScreenState handleEnteringSelectPokemon(
+	uint64_t lastStateChangedNs, const cv::Mat &gameplayBGRA,
+	EntityCropper &opponentPokemonCropper,
+	std::array<int, N_POKEMONS> &mySelectionOrderMap, const Logger &logger)
 {
 	const uint64_t now = os_gettime_ns();
 	if (now - lastStateChangedNs > 1000000000) {
-		renderOpponentPokemons(gameplayBGRA, opponentPokemonCropper);
+		renderOpponentPokemons(gameplayBGRA, opponentPokemonCropper,
+				       logger);
 		mySelectionOrderMap.fill(0);
 		return ScreenState::SELECT_POKEMON;
 	} else {

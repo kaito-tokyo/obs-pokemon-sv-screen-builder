@@ -15,6 +15,9 @@
 #include "obs-platform-util.h"
 
 #include "screen-source.h"
+#include "plugin-support.h"
+
+extern "C" void screen_update(void *data, obs_data_t *settings);
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 {
@@ -116,7 +119,8 @@ extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 
 	obs_add_main_render_callback(screen_main_render_callback, context);
 
-	UNUSED_PARAMETER(settings);
+	screen_update(rawContext, settings);
+
 	return context;
 }
 
@@ -286,6 +290,20 @@ extern "C" obs_properties_t *screen_properties(void *data)
 	return props;
 }
 
+extern "C" void screen_update(void *data, obs_data_t *settings)
+{
+	screen_context *context = reinterpret_cast<screen_context *>(data);
+	bool logEnabled = obs_data_get_bool(settings, "log_enabled");
+	if (logEnabled) {
+		const char *logPath = obs_data_get_string(settings, "log_path");
+		context->logger.basedir = logPath;
+		obs_log(LOG_INFO, "Log path is %s", logPath);
+	} else {
+		context->logger.basedir = "";
+		obs_log(LOG_INFO, "Log disabled");
+	}
+}
+
 static uint64_t update_timer_text(obs_source_t *timer_source,
 				  uint64_t time_start, uint64_t time_now,
 				  uint64_t last_elapsed_seconds)
@@ -352,7 +370,7 @@ extern "C" void screen_video_tick(void *data, float seconds)
 		nextState = handleEnteringSelectPokemon(
 			context->last_state_change_ns, context->gameplay_bgra,
 			context->opponentPokemonCropper,
-			context->my_selection_order_map);
+			context->my_selection_order_map, context->logger);
 	} else if (context->state == ScreenState::SELECT_POKEMON) {
 		nextState = handleSelectPokemon(
 			scene, context->selectionOrderCropper,
