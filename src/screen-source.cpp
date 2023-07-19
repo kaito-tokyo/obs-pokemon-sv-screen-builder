@@ -205,7 +205,7 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 
 	addBrowserSourceToSceneIfNotExists(
 		scene, obs_module_text("OpponentTeamSource"),
-		"browser/OpponentTeam.html", 78, 488, 1751, 0, 2.21, 2.21);
+		"browser/OpponentTeam.html", 78, 488, 1751, 0, 2.21f, 2.21f);
 
 	addBrowserSourceToSceneIfNotExists(scene,
 					   obs_module_text("MySelectionSource"),
