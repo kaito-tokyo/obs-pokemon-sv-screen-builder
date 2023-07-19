@@ -135,11 +135,14 @@ static std::string getFrontendRecordPath(config_t *config)
 {
 	std::string output = config_get_string(config, "Output", "Mode");
 	if (output == "Advanced" || output == "advanced") {
-		std::string advOut = config_get_string(config, "AdvOut", "RecType");
+		std::string advOut =
+			config_get_string(config, "AdvOut", "RecType");
 		if (advOut == "Standard" || advOut == "standard") {
-			return config_get_string(config, "AdvOut", "RecFilePath");
+			return config_get_string(config, "AdvOut",
+						 "RecFilePath");
 		} else {
-			return config_get_string(config, "AdvOut", "FFFilePath");
+			return config_get_string(config, "AdvOut",
+						 "FFFilePath");
 		}
 	} else {
 		return config_get_string(config, "SimpleOutput", "FilePath");
@@ -152,7 +155,8 @@ static void screen_defaults(obs_data_t *settings)
 	obs_data_set_default_string(settings, "timer_source", "");
 	config_t *config = obs_frontend_get_profile_config();
 	const std::string recordPath = getFrontendRecordPath(config);
-	const std::string logPath = recordPath + "/obs-pokemon-sv-screen-builder-log";
+	const std::string logPath =
+		recordPath + "/obs-pokemon-sv-screen-builder-log";
 	obs_data_set_default_string(settings, "log_path", logPath.c_str());
 }
 
@@ -272,9 +276,12 @@ static obs_properties_t *screen_properties(void *data)
 		&handleClickAddDefaultLayout);
 
 	obs_properties_t *props_log = obs_properties_create();
-	obs_properties_add_path(props_log, "log_path", obs_module_text("LogPath"),
-				OBS_PATH_DIRECTORY, NULL, NULL);
-	obs_properties_add_group(props, "log_enabled", obs_module_text("LogEnabled"), OBS_GROUP_CHECKABLE, props_log);
+	obs_properties_add_path(props_log, "log_path",
+				obs_module_text("LogPath"), OBS_PATH_DIRECTORY,
+				NULL, NULL);
+	obs_properties_add_group(props, "log_enabled",
+				 obs_module_text("LogEnabled"),
+				 OBS_GROUP_CHECKABLE, props_log);
 
 	return props;
 }
