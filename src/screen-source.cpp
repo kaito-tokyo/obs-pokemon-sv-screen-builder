@@ -350,15 +350,13 @@ static void screen_video_tick(void *data, float seconds)
 			context->state = nextState;
 		}
 	} else if (context->state == ScreenState::ENTERING_CONFIRM_POKEMON) {
-		uint64_t now = os_gettime_ns();
-		if (now - context->last_state_change_ns > 500000000) {
-			context->state = ScreenState::CONFIRM_POKEMON;
-			blog(LOG_INFO,
-			     "State: ENTERING_CONFIRM_POKEMON to CONFIRM_POKEMON");
-		} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
-			context->state = ScreenState::ENTERING_MATCH;
-			blog(LOG_INFO,
-			     "State: LEAVE_SELECT_POKEMON to ENTERING_MATCH");
+		const ScreenState nextState = handleEnteringConfirmPokemon(scene, context->last_state_change_ns);
+		if (nextState != context->state) {
+			context->last_state_change_ns = os_gettime_ns();
+			blog(LOG_INFO, "State: %s to %s",
+			     ScreenStateNames.at(context->state),
+			     ScreenStateNames.at(nextState));
+			context->state = nextState;
 		}
 	} else if (context->state == ScreenState::CONFIRM_POKEMON) {
 		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {

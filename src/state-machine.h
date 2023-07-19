@@ -106,3 +106,14 @@ static ScreenState handleSelectPokemon(SceneDetector::Scene scene, EntityCropper
 		return ScreenState::SELECT_POKEMON;
 	}
 }
+
+static ScreenState handleEnteringConfirmPokemon(SceneDetector::Scene scene, uint64_t lastStateChangedNs) {
+	uint64_t now = os_gettime_ns();
+	if (now - lastStateChangedNs > 500000000) {
+		return ScreenState::CONFIRM_POKEMON;
+	} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
+		return ScreenState::ENTERING_MATCH;
+	} else {
+		return ScreenState::ENTERING_CONFIRM_POKEMON;
+	}
+}
