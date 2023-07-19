@@ -216,6 +216,11 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 		scene, obs_module_text("OpponentRankSource"),
 		"browser/OpponentRank.html", 600, 100, 0, 864, 1, 1);
 
+	addBrowserSourceToSceneIfNotExists(scene,
+					   obs_module_text("MatchTimerSource"),
+					   "browser/MatchTimer.html", 530, 100,
+					   600, 872, 1, 1);
+
 	obs_scene_release(scene);
 	return true;
 }
@@ -328,8 +333,7 @@ static void screen_video_tick(void *data, float seconds)
 	} else if (context->state == ScreenState::CONFIRM_POKEMON) {
 		nextState = handleConfirmPokemon(scene);
 	} else if (context->state == ScreenState::ENTERING_MATCH) {
-		nextState = handleEnteringMatch(scene, context->prev_scene,
-						context->match_start_ns);
+		nextState = handleEnteringMatch(scene, context->prev_scene);
 	} else if (context->state == ScreenState::MATCH) {
 		nextState = handleMatch(scene, context->prev_scene);
 	} else if (context->state == ScreenState::ENTERING_RESULT) {

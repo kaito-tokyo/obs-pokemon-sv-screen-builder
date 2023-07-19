@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>Match Timer</title>
+    <style>
+        body {
+            color: white;
+            font-size: 100px;
+            line-height: 100px;
+            font-family: "Hiragino Sans", sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+        .stopped {
+            display: none;
+        }
+    </style>
+    <script>
+        let running = false;
+        let matchStart = 0;
+        let duration = 0;
+        function tick() {
+            const remainingMillis = duration - Date.now() + matchStart;
+
+            const minute = document.querySelector('#minute');
+            const remainingMinutePart = Math.floor(remainingMillis / 60000);
+            minute.textContent = remainingMinutePart.toString().padStart(2, '0');
+
+            const second = document.querySelector('#second');
+            const remainingSecondPart = Math.floor(remainingMillis % 60000 / 1000);
+            second.textContent = remainingSecondPart.toString().padStart(2, '0');
+
+            const milli = document.querySelector('#milli');
+            const remainingMilliPart = Math.floor(remainingMillis % 1000);
+            milli.textContent = remainingMilliPart.toString().padStart(3, '0');
+
+            if (running) {
+                window.requestAnimationFrame(tick);
+            }
+        }
+
+        window.addEventListener("obsPokemonSvScreenBuilderMatchStarted", ({ detail: { durationMins } }) => {
+            running = true;
+            duration = durationMins * 60000;
+            matchStart = Date.now();
+            document.body.classList.remove("stopped")
+            window.requestAnimationFrame(tick);
+        });
+        window.addEventListener("obsPokemonSvScreenBuilderMatchEnded", () => {
+            running = false;
+        });
+    </script>
+</head>
+<body class="stopped"><span id="minute"></span><span id="sep-1">:</span><span id="second"></span><span id="sep-2">.</span><span id="milli"></span></body>
+</html>

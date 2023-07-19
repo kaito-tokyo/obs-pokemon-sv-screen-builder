@@ -146,14 +146,15 @@ static ScreenState handleConfirmPokemon(SceneDetector::Scene scene)
 }
 
 static ScreenState handleEnteringMatch(SceneDetector::Scene scene,
-				       SceneDetector::Scene prevScene,
-				       uint64_t &matchStartNs)
+				       SceneDetector::Scene prevScene)
 {
-
-	uint64_t now = os_gettime_ns();
 	if (prevScene != SceneDetector::SCENE_BLACK_TRANSITION &&
 	    scene == SceneDetector::SCENE_BLACK_TRANSITION) {
-		matchStartNs = now;
+		nlohmann::json json{{"durationMins", 20}};
+		std::string jsonString(json.dump());
+		sendEventToAllBrowserSources(
+			"obsPokemonSvScreenBuilderMatchStarted",
+			jsonString.c_str());
 		return ScreenState::MATCH;
 	} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 		return ScreenState::ENTERING_SELECT_POKEMON;
@@ -168,11 +169,17 @@ static ScreenState handleMatch(SceneDetector::Scene scene,
 			       SceneDetector::Scene prevScene)
 {
 	if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+		sendEventToAllBrowserSources(
+			"obsPokemonSvScreenBuilderMatchEnded", "null");
 		return ScreenState::ENTERING_SELECT_POKEMON;
 	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
+		sendEventToAllBrowserSources(
+			"obsPokemonSvScreenBuilderMatchEnded", "null");
 		return ScreenState::ENTERING_SHOW_RANK;
 	} else if (prevScene != SceneDetector::SCENE_BLACK_TRANSITION &&
 		   scene == SceneDetector::SCENE_BLACK_TRANSITION) {
+		sendEventToAllBrowserSources(
+			"obsPokemonSvScreenBuilderMatchEnded", "null");
 		return ScreenState::ENTERING_RESULT;
 	} else {
 		return ScreenState::MATCH;
