@@ -80,7 +80,7 @@ bool SceneDetector::isOpponentRankShown(const cv::Mat &screenTextBinary) const
 	for (size_t i = 0; i < TEXT_TEMPLATES.size(); i++) {
 		const cv::Mat &resultImage = image ^ TEXT_TEMPLATES[i];
 		const auto actual = cv::sum(resultImage) / 255;
-		if (actual[0] < image.total() * 0.2) {
+		if (actual[0] < static_cast<double>(image.total()) * 0.2) {
 			return true;
 		}
 	}
