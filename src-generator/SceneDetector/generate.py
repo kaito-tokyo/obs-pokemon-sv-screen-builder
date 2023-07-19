@@ -23,5 +23,5 @@ env = Environment(
 )
 template = env.get_template('TextRecognizer.j2')
 result = template.render(data=data, cols=cols)
-with open('src/SceneDetectorTextRecognizerGenerated.cpp', 'w') as fp:
+with open('src/modules/SceneDetectorTextRecognizerGenerated.cpp', 'w') as fp:
     fp.write(result)

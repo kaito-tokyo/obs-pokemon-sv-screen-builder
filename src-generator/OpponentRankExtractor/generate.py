@@ -36,5 +36,5 @@ env = Environment(
 )
 template = env.get_template('OpponentRankExtractor.j2')
 result = template.render(data=data, cols=cols, parenMap=parenMap)
-with open('src/OpponentRankExtractorGenerated.cpp', 'w') as fp:
+with open('src/modules/OpponentRankExtractorGenerated.cpp', 'w') as fp:
     fp.write(result)
