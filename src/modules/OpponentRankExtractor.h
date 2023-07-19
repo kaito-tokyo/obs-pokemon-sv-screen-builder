@@ -7,8 +7,11 @@
 
 class OpponentRankExtractor {
 public:
-	cv::Mat imageBGRA;
-	void extract(const cv::Mat &imageTextBinary, const cv::Mat &imageBGRA);
+	const cv::Rect lineRect = {544, 831, 834, 36};
+	const std::string language = "ja";
+	const double matchThreshold = 5;
+
+	cv::Rect extract(const cv::Mat &screenBinary) const;
 
 private:
 	static const std::map<std::string, std::pair<int, int>> PAREN_MAP;

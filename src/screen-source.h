@@ -9,20 +9,7 @@
 #include "modules/OpponentRankExtractor.h"
 #include "modules/SceneDetector.h"
 #include "modules/SelectionRecognizer.h"
-
-enum screen_state {
-	STATE_UNKNOWN,
-	STATE_ENTERING_SHOW_RANK,
-	STATE_SHOW_RANK,
-	STATE_ENTERING_SELECT_POKEMON,
-	STATE_SELECT_POKEMON,
-	STATE_ENTERING_CONFIRM_POKEMON,
-	STATE_CONFIRM_POKEMON,
-	STATE_ENTERING_MATCH,
-	STATE_MATCH,
-	STATE_ENTERING_RESULT,
-	STATE_RESULT,
-};
+#include "state-machine.h"
 
 const HistClassifier classifier_lobby_my_select = {.rangeCol = {149, 811},
 						   .rangeRow = {139, 842},
@@ -68,8 +55,6 @@ const std::vector<std::array<int, 2>> selectionOrderRowRange{{{154, 186},
 							      {619, 651},
 							      {735, 767}}};
 
-const int N_POKEMONS = 6;
-
 struct screen_context {
 	obs_data_t *settings = nullptr;
 	obs_source_t *source = nullptr;
@@ -84,9 +69,9 @@ struct screen_context {
 	uint64_t next_tick = 0;
 	SceneDetector sceneDetector;
 
-	screen_state state = STATE_UNKNOWN;
+	ScreenState state = ScreenState::UNKNOWN;
 	uint64_t last_state_change_ns = 0;
-	int my_selection_order_map[N_POKEMONS]{};
+	std::array<int, N_POKEMONS> my_selection_order_map;
 	SceneDetector::Scene prev_scene;
 	uint64_t match_start_ns = 0;
 	uint64_t last_elapsed_seconds = 0;
@@ -98,7 +83,7 @@ struct screen_context {
 	SelectionRecognizer selectionRecognizer;
 	OpponentRankExtractor opponentRankExtractor;
 
-	cv::Mat myPokemonsBGRA[N_POKEMONS];
+	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
 
 	screen_context()
 		: sceneDetector(classifier_lobby_my_select,

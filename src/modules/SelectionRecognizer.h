@@ -6,7 +6,7 @@
 
 class SelectionRecognizer {
 public:
-	int recognizeSelection(const cv::Mat &imageBGR);
+	int recognizeSelection(const cv::Mat &imageBGR) const;
 
 private:
 	static const std::vector<int> SELECTION_INDEX;
