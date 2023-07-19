@@ -1,7 +1,10 @@
 #pragma once
 
+#include <string>
+#include <opencv2/opencv.hpp>
+
 #ifdef __APPLE__
-#include "macos/VisionTextRecognizer.h"
+std::string recognizeText(const cv::Mat &imageBGR);
 #else
 std::string recognizeText(const cv::Mat &imageBGRA)
 {
