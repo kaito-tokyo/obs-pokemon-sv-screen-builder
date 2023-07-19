@@ -37,6 +37,18 @@ void Logger::writeOpponentRankImage(const std::string &prefix,
 	writeImage(oss.str(), image);
 }
 
+void Logger::writeMyPokemonImage(const std::string &prefix, int index,
+				 const cv::Mat &image) const
+{
+	if (basedir.empty()) {
+		return;
+	}
+	std::ostringstream oss;
+	oss << prefix << "-MyPokemon-" << index << ".png";
+	const std::string filename = oss.str();
+	writeImage(oss.str(), image);
+}
+
 void Logger::writeImage(const std::string &filename, const cv::Mat &image) const
 {
 	std::filesystem::create_directories(basedir);
