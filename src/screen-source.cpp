@@ -249,84 +249,6 @@ static obs_properties_t *screen_properties(void *data)
 	return props;
 }
 
-static void drawOpponentPokemons(screen_context *context)
-{
-	context->opponentPokemonCropper.crop(context->gameplay_bgra);
-	context->opponentPokemonCropper.generateMask();
-	std::vector<std::string> imageUrls(N_POKEMONS);
-	for (int i = 0; i < N_POKEMONS; i++) {
-		std::vector<uchar> pngImage;
-		cv::imencode(".png",
-			     context->opponentPokemonCropper.imagesBGRA[i],
-			     pngImage);
-		imageUrls[i] =
-			"data:image/png;base64," + Base64::encode(pngImage);
-	}
-	nlohmann::json json{
-		{"imageUrls", imageUrls},
-	};
-	const char eventName[] = "obsPokemonSvScreenBuilderOpponentTeamShown";
-	std::string jsonString = json.dump();
-	sendEventToAllBrowserSources(eventName, jsonString.c_str());
-}
-
-static bool detectSelectionOrderChange(screen_context *context)
-{
-	context->selectionOrderCropper.crop(context->gameplay_bgra);
-
-	int orders[N_POKEMONS];
-	bool change_detected = false;
-	for (int i = 0; i < N_POKEMONS; i++) {
-		orders[i] = context->selectionRecognizer.recognizeSelection(
-			context->selectionOrderCropper.imagesBGR[i]);
-		if (orders[i] > 0 &&
-		    context->my_selection_order_map[orders[i] - 1] != i + 1) {
-			context->my_selection_order_map[orders[i] - 1] = i + 1;
-			change_detected = true;
-		}
-	}
-	if (change_detected) {
-		blog(LOG_INFO, "My order: %d %d %d %d %d %d\n", orders[0],
-		     orders[1], orders[2], orders[3], orders[4], orders[5]);
-	}
-	return change_detected;
-}
-
-static void drawMyPokemons(screen_context *context)
-{
-	std::vector<std::string> imageUrls(N_POKEMONS);
-	context->myPokemonCropper.crop(context->gameplay_bgra);
-	for (int i = 0; i < N_POKEMONS; i++) {
-		cv::Vec4b &pixel =
-			context->myPokemonCropper.imagesBGRA[i].at<cv::Vec4b>(
-				0, 0);
-		if (pixel[1] > 150 && pixel[2] > 150)
-			continue;
-		context->myPokemonsBGRA[i] =
-			context->myPokemonCropper.imagesBGRA[i].clone();
-	}
-
-	for (int i = 0; i < N_POKEMONS; i++) {
-		if (context->myPokemonsBGRA[i].empty()) {
-			imageUrls[i] = "";
-		} else {
-			std::vector<uchar> pngImage;
-			cv::imencode(".png", context->myPokemonsBGRA[i],
-				     pngImage);
-			imageUrls[i] = "data:image/png;base64," +
-				       Base64::encode(pngImage);
-		}
-	}
-
-	nlohmann::json json{
-		{"imageUrls", imageUrls},
-		{"mySelectionOrderMap", context->my_selection_order_map},
-	};
-	const char eventName[] = "obsPokemonSvScreenBuilderMySelectionChanged";
-	std::string jsonString = json.dump();
-	sendEventToAllBrowserSources(eventName, jsonString.c_str());
-}
-
 static uint64_t update_timer_text(obs_source_t *timer_source,
 				  uint64_t time_start, uint64_t time_now,
 				  uint64_t last_elapsed_seconds)
@@ -410,30 +332,22 @@ static void screen_video_tick(void *data, float seconds)
 			context->state = nextState;
 		}
 	} else if (context->state == ScreenState::ENTERING_SELECT_POKEMON) {
-		const uint64_t now = os_gettime_ns();
-		if (now - context->last_state_change_ns > 1000000000) {
-			drawOpponentPokemons(context);
-			for (int i = 0; i < N_POKEMONS; i++) {
-				context->my_selection_order_map[i] = 0;
-			}
-			context->state = ScreenState::SELECT_POKEMON;
-			blog(LOG_INFO,
-			     "State: ENTERING_SELECT_POKEMON to SELECT_POKEMON");
+		const ScreenState nextState = handleEnteringSelectPokemon(context->last_state_change_ns, context->gameplay_bgra, context->opponentPokemonCropper, context->my_selection_order_map);
+		if (nextState != context->state) {
+			context->last_state_change_ns = os_gettime_ns();
+			blog(LOG_INFO, "State: %s to %s",
+			     ScreenStateNames.at(context->state),
+			     ScreenStateNames.at(nextState));
+			context->state = nextState;
 		}
 	} else if (context->state == ScreenState::SELECT_POKEMON) {
-		if (detectSelectionOrderChange(context)) {
-			drawMyPokemons(context);
-		}
-
-		if (scene == SceneDetector::SCENE_UNDEFINED) {
+		const ScreenState nextState = handleSelectPokemon(scene, context->selectionOrderCropper, context->gameplay_bgra, context->selectionRecognizer, context->my_selection_order_map, context->myPokemonCropper, context->myPokemonsBGRA);
+		if (nextState != context->state) {
 			context->last_state_change_ns = os_gettime_ns();
-			context->state = ScreenState::ENTERING_CONFIRM_POKEMON;
-			blog(LOG_INFO,
-			     "State: SELECT_POKEMON to ENTERING_CONFIRM_POKEMON");
-		} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
-			context->state = ScreenState::ENTERING_MATCH;
-			blog(LOG_INFO,
-			     "State: SELECT_POKEMON to ENTERING_MATCH");
+			blog(LOG_INFO, "State: %s to %s",
+			     ScreenStateNames.at(context->state),
+			     ScreenStateNames.at(nextState));
+			context->state = nextState;
 		}
 	} else if (context->state == ScreenState::ENTERING_CONFIRM_POKEMON) {
 		uint64_t now = os_gettime_ns();

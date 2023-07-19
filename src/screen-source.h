@@ -55,8 +55,6 @@ const std::vector<std::array<int, 2>> selectionOrderRowRange{{{154, 186},
 							      {619, 651},
 							      {735, 767}}};
 
-const int N_POKEMONS = 6;
-
 struct screen_context {
 	obs_data_t *settings = nullptr;
 	obs_source_t *source = nullptr;
@@ -73,7 +71,7 @@ struct screen_context {
 
 	ScreenState state = ScreenState::UNKNOWN;
 	uint64_t last_state_change_ns = 0;
-	int my_selection_order_map[N_POKEMONS]{};
+	std::array<int, N_POKEMONS> my_selection_order_map;
 	SceneDetector::Scene prev_scene;
 	uint64_t match_start_ns = 0;
 	uint64_t last_elapsed_seconds = 0;
@@ -85,7 +83,7 @@ struct screen_context {
 	SelectionRecognizer selectionRecognizer;
 	OpponentRankExtractor opponentRankExtractor;
 
-	cv::Mat myPokemonsBGRA[N_POKEMONS];
+	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
 
 	screen_context()
 		: sceneDetector(classifier_lobby_my_select,

@@ -7,6 +7,9 @@
 #include "modules/SceneDetector.h"
 #include "modules/OpponentRankExtractor.h"
 #include "modules/TextRecognizer.h"
+
+#include "constants.h"
+#include "renderers.h"
 #include "obs-browser-api.h"
 
 enum class ScreenState {
@@ -52,7 +55,7 @@ static ScreenState handleUnknown(SceneDetector::Scene scene)
 }
 
 static ScreenState
-handleEnteringShowRank(OpponentRankExtractor &opponentRankExtractor,
+handleEnteringShowRank(const OpponentRankExtractor &opponentRankExtractor,
 		       const cv::Mat &gameplayBinary)
 {
 	cv::Rect rankRect = opponentRankExtractor.extract(gameplayBinary);
@@ -70,5 +73,36 @@ static ScreenState handleShowRank(SceneDetector::Scene scene)
 {
     if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
         return ScreenState::ENTERING_SELECT_POKEMON;
+    } else {
+        return ScreenState::SHOW_RANK;
     }
+}
+
+static ScreenState handleEnteringSelectPokemon(uint64_t lastStateChangedNs, const cv::Mat &gameplayBGRA, EntityCropper &opponentPokemonCropper, std::array<int, N_POKEMONS> &mySelectionOrderMap)
+{
+    const uint64_t now = os_gettime_ns();
+    if (now - lastStateChangedNs > 1000000000) {
+        renderOpponentPokemons(gameplayBGRA, opponentPokemonCropper);
+        mySelectionOrderMap.fill(0);
+        return ScreenState::SELECT_POKEMON;
+    } else {
+        return ScreenState::ENTERING_SELECT_POKEMON;
+    }
+}
+
+static ScreenState handleSelectPokemon(SceneDetector::Scene scene, EntityCropper &selectionOrderCropper, const cv::Mat &gameplayBGRA, const SelectionRecognizer &selectionRecognizer, std::array<int, N_POKEMONS> &mySelectionOrderMap, EntityCropper &myPokemonCropper, std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA)
+{
+    if (detectSelectionOrderChange(selectionOrderCropper, gameplayBGRA, selectionRecognizer, mySelectionOrderMap)) {
+        drawMyPokemons(myPokemonCropper, gameplayBGRA, myPokemonsBGRA, mySelectionOrderMap);
+    }
+
+    if (scene == SceneDetector::SCENE_UNDEFINED) {
+		return ScreenState::ENTERING_CONFIRM_POKEMON;
+    } else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
+		return ScreenState::ENTERING_MATCH;
+	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
+		return ScreenState::ENTERING_SHOW_RANK;
+    } else {
+		return ScreenState::SELECT_POKEMON;
+	}
 }
