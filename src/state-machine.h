@@ -71,43 +71,59 @@ handleEnteringShowRank(const OpponentRankExtractor &opponentRankExtractor,
 
 static ScreenState handleShowRank(SceneDetector::Scene scene)
 {
-    if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-        return ScreenState::ENTERING_SELECT_POKEMON;
-    } else {
-        return ScreenState::SHOW_RANK;
-    }
+	if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+		return ScreenState::ENTERING_SELECT_POKEMON;
+	} else {
+		return ScreenState::SHOW_RANK;
+	}
 }
 
-static ScreenState handleEnteringSelectPokemon(uint64_t lastStateChangedNs, const cv::Mat &gameplayBGRA, EntityCropper &opponentPokemonCropper, std::array<int, N_POKEMONS> &mySelectionOrderMap)
+static ScreenState
+handleEnteringSelectPokemon(uint64_t lastStateChangedNs,
+			    const cv::Mat &gameplayBGRA,
+			    EntityCropper &opponentPokemonCropper,
+			    std::array<int, N_POKEMONS> &mySelectionOrderMap)
 {
-    const uint64_t now = os_gettime_ns();
-    if (now - lastStateChangedNs > 1000000000) {
-        renderOpponentPokemons(gameplayBGRA, opponentPokemonCropper);
-        mySelectionOrderMap.fill(0);
-        return ScreenState::SELECT_POKEMON;
-    } else {
-        return ScreenState::ENTERING_SELECT_POKEMON;
-    }
+	const uint64_t now = os_gettime_ns();
+	if (now - lastStateChangedNs > 1000000000) {
+		renderOpponentPokemons(gameplayBGRA, opponentPokemonCropper);
+		mySelectionOrderMap.fill(0);
+		return ScreenState::SELECT_POKEMON;
+	} else {
+		return ScreenState::ENTERING_SELECT_POKEMON;
+	}
 }
 
-static ScreenState handleSelectPokemon(SceneDetector::Scene scene, EntityCropper &selectionOrderCropper, const cv::Mat &gameplayBGRA, const SelectionRecognizer &selectionRecognizer, std::array<int, N_POKEMONS> &mySelectionOrderMap, EntityCropper &myPokemonCropper, std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA)
+static ScreenState
+handleSelectPokemon(SceneDetector::Scene scene,
+		    EntityCropper &selectionOrderCropper,
+		    const cv::Mat &gameplayBGRA,
+		    const SelectionRecognizer &selectionRecognizer,
+		    std::array<int, N_POKEMONS> &mySelectionOrderMap,
+		    EntityCropper &myPokemonCropper,
+		    std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA)
 {
-    if (detectSelectionOrderChange(selectionOrderCropper, gameplayBGRA, selectionRecognizer, mySelectionOrderMap)) {
-        drawMyPokemons(myPokemonCropper, gameplayBGRA, myPokemonsBGRA, mySelectionOrderMap);
-    }
+	if (detectSelectionOrderChange(selectionOrderCropper, gameplayBGRA,
+				       selectionRecognizer,
+				       mySelectionOrderMap)) {
+		drawMyPokemons(myPokemonCropper, gameplayBGRA, myPokemonsBGRA,
+			       mySelectionOrderMap);
+	}
 
-    if (scene == SceneDetector::SCENE_UNDEFINED) {
+	if (scene == SceneDetector::SCENE_UNDEFINED) {
 		return ScreenState::ENTERING_CONFIRM_POKEMON;
-    } else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
+	} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 		return ScreenState::ENTERING_MATCH;
 	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
 		return ScreenState::ENTERING_SHOW_RANK;
-    } else {
+	} else {
 		return ScreenState::SELECT_POKEMON;
 	}
 }
 
-static ScreenState handleEnteringConfirmPokemon(SceneDetector::Scene scene, uint64_t lastStateChangedNs) {
+static ScreenState handleEnteringConfirmPokemon(SceneDetector::Scene scene,
+						uint64_t lastStateChangedNs)
+{
 	uint64_t now = os_gettime_ns();
 	if (now - lastStateChangedNs > 500000000) {
 		return ScreenState::CONFIRM_POKEMON;
@@ -118,7 +134,8 @@ static ScreenState handleEnteringConfirmPokemon(SceneDetector::Scene scene, uint
 	}
 }
 
-static ScreenState handleConfirmPokemon(SceneDetector::Scene scene) {
+static ScreenState handleConfirmPokemon(SceneDetector::Scene scene)
+{
 	if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 		return ScreenState::ENTERING_SELECT_POKEMON;
 	} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
@@ -128,17 +145,56 @@ static ScreenState handleConfirmPokemon(SceneDetector::Scene scene) {
 	}
 }
 
-static ScreenState handleEnteringMatch(SceneDetector::Scene scene, SceneDetector::Scene prevScene, uint64_t &matchStartNs) {
-		if (prevScene !=
-			    SceneDetector::SCENE_BLACK_TRANSITION &&
-		    scene == SceneDetector::SCENE_BLACK_TRANSITION) {
-				matchStartNs = os_gettime_ns();
-			return ScreenState::MATCH;
-		} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			return ScreenState::ENTERING_SELECT_POKEMON;
-		} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
-			return ScreenState::ENTERING_SHOW_RANK;
-		} else {
-			return ScreenState::ENTERING_MATCH;
-		}
+static ScreenState handleEnteringMatch(SceneDetector::Scene scene,
+				       SceneDetector::Scene prevScene,
+				       uint64_t &matchStartNs)
+{
+
+	uint64_t now = os_gettime_ns();
+	if (prevScene != SceneDetector::SCENE_BLACK_TRANSITION &&
+	    scene == SceneDetector::SCENE_BLACK_TRANSITION) {
+		matchStartNs = now;
+		return ScreenState::MATCH;
+	} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+		return ScreenState::ENTERING_SELECT_POKEMON;
+	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
+		return ScreenState::ENTERING_SHOW_RANK;
+	} else {
+		return ScreenState::ENTERING_MATCH;
+	}
+}
+
+static ScreenState handleMatch(SceneDetector::Scene scene,
+			       SceneDetector::Scene prevScene)
+{
+	if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+		return ScreenState::ENTERING_SELECT_POKEMON;
+	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
+		return ScreenState::ENTERING_SHOW_RANK;
+	} else if (prevScene != SceneDetector::SCENE_BLACK_TRANSITION &&
+		   scene == SceneDetector::SCENE_BLACK_TRANSITION) {
+		return ScreenState::ENTERING_RESULT;
+	} else {
+		return ScreenState::MATCH;
+	}
+}
+
+static ScreenState handleEnteringResult()
+{
+	return ScreenState::RESULT;
+}
+
+static ScreenState handleResult(SceneDetector::Scene scene,
+				uint64_t lastStateChangedNs)
+{
+	uint64_t now = os_gettime_ns();
+	if (now - lastStateChangedNs > 2000000000) {
+		return ScreenState::UNKNOWN;
+	} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+		return ScreenState::ENTERING_SELECT_POKEMON;
+	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
+		return ScreenState::ENTERING_SHOW_RANK;
+	} else {
+		return ScreenState::RESULT;
+	}
 }

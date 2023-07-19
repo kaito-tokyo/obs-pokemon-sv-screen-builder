@@ -9,15 +9,15 @@
 #include "constants.h"
 #include "obs-browser-api.h"
 
-static void renderOpponentPokemons(const cv::Mat &gameplayBGRA, EntityCropper &opponentPokemonCropper)
+static void renderOpponentPokemons(const cv::Mat &gameplayBGRA,
+				   EntityCropper &opponentPokemonCropper)
 {
 	opponentPokemonCropper.crop(gameplayBGRA);
 	opponentPokemonCropper.generateMask();
 	std::vector<std::string> imageUrls(N_POKEMONS);
 	for (int i = 0; i < N_POKEMONS; i++) {
 		std::vector<uchar> pngImage;
-		cv::imencode(".png",
-			     opponentPokemonCropper.imagesBGRA[i],
+		cv::imencode(".png", opponentPokemonCropper.imagesBGRA[i],
 			     pngImage);
 		imageUrls[i] =
 			"data:image/png;base64," + Base64::encode(pngImage);
@@ -30,7 +30,11 @@ static void renderOpponentPokemons(const cv::Mat &gameplayBGRA, EntityCropper &o
 	sendEventToAllBrowserSources(eventName, jsonString.c_str());
 }
 
-static bool detectSelectionOrderChange(EntityCropper &selectionOrderCropper, const cv::Mat &gameplayBGRA, const SelectionRecognizer &selectionRecognizer, std::array<int, N_POKEMONS> &mySelectionOrderMap)
+static bool
+detectSelectionOrderChange(EntityCropper &selectionOrderCropper,
+			   const cv::Mat &gameplayBGRA,
+			   const SelectionRecognizer &selectionRecognizer,
+			   std::array<int, N_POKEMONS> &mySelectionOrderMap)
 {
 	selectionOrderCropper.crop(gameplayBGRA);
 
@@ -52,14 +56,16 @@ static bool detectSelectionOrderChange(EntityCropper &selectionOrderCropper, con
 	return change_detected;
 }
 
-static void drawMyPokemons(EntityCropper &myPokemonCropper, const cv::Mat &gameplayBGRA, std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA, const std::array<int, N_POKEMONS> &mySelectionOrderMap)
+static void
+drawMyPokemons(EntityCropper &myPokemonCropper, const cv::Mat &gameplayBGRA,
+	       std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA,
+	       const std::array<int, N_POKEMONS> &mySelectionOrderMap)
 {
 	std::vector<std::string> imageUrls(N_POKEMONS);
 	myPokemonCropper.crop(gameplayBGRA);
 	for (int i = 0; i < N_POKEMONS; i++) {
 		cv::Vec4b &pixel =
-			myPokemonCropper.imagesBGRA[i].at<cv::Vec4b>(
-				0, 0);
+			myPokemonCropper.imagesBGRA[i].at<cv::Vec4b>(0, 0);
 		if (pixel[1] > 150 && pixel[2] > 150)
 			continue;
 		myPokemonsBGRA[i] = myPokemonCropper.imagesBGRA[i].clone();
@@ -70,8 +76,7 @@ static void drawMyPokemons(EntityCropper &myPokemonCropper, const cv::Mat &gamep
 			imageUrls[i] = "";
 		} else {
 			std::vector<uchar> pngImage;
-			cv::imencode(".png", myPokemonsBGRA[i],
-				     pngImage);
+			cv::imencode(".png", myPokemonsBGRA[i], pngImage);
 			imageUrls[i] = "data:image/png;base64," +
 				       Base64::encode(pngImage);
 		}

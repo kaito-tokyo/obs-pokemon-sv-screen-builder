@@ -303,113 +303,46 @@ static void screen_video_tick(void *data, float seconds)
 	SceneDetector::Scene scene = context->sceneDetector.detectScene(
 		gameplay_hsv, gameplay_binary);
 
+	ScreenState nextState = ScreenState::UNKNOWN;
 	if (context->state == ScreenState::UNKNOWN) {
-		const ScreenState nextState = handleUnknown(scene);
-		if (nextState != context->state) {
-			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO, "State: %s to %s",
-			     ScreenStateNames.at(context->state),
-			     ScreenStateNames.at(nextState));
-			context->state = nextState;
-		}
+		nextState = handleUnknown(scene);
 	} else if (context->state == ScreenState::ENTERING_SHOW_RANK) {
-		const ScreenState nextState = handleEnteringShowRank(
+		nextState = handleEnteringShowRank(
 			context->opponentRankExtractor, gameplay_binary);
-		if (nextState != context->state) {
-			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO, "State: %s to %s",
-			     ScreenStateNames.at(context->state),
-			     ScreenStateNames.at(nextState));
-			context->state = nextState;
-		}
 	} else if (context->state == ScreenState::SHOW_RANK) {
-		const ScreenState nextState = handleShowRank(scene);
-		if (nextState != context->state) {
-			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO, "State: %s to %s",
-			     ScreenStateNames.at(context->state),
-			     ScreenStateNames.at(nextState));
-			context->state = nextState;
-		}
+		nextState = handleShowRank(scene);
 	} else if (context->state == ScreenState::ENTERING_SELECT_POKEMON) {
-		const ScreenState nextState = handleEnteringSelectPokemon(context->last_state_change_ns, context->gameplay_bgra, context->opponentPokemonCropper, context->my_selection_order_map);
-		if (nextState != context->state) {
-			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO, "State: %s to %s",
-			     ScreenStateNames.at(context->state),
-			     ScreenStateNames.at(nextState));
-			context->state = nextState;
-		}
+		nextState = handleEnteringSelectPokemon(
+			context->last_state_change_ns, context->gameplay_bgra,
+			context->opponentPokemonCropper,
+			context->my_selection_order_map);
 	} else if (context->state == ScreenState::SELECT_POKEMON) {
-		const ScreenState nextState = handleSelectPokemon(scene, context->selectionOrderCropper, context->gameplay_bgra, context->selectionRecognizer, context->my_selection_order_map, context->myPokemonCropper, context->myPokemonsBGRA);
-		if (nextState != context->state) {
-			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO, "State: %s to %s",
-			     ScreenStateNames.at(context->state),
-			     ScreenStateNames.at(nextState));
-			context->state = nextState;
-		}
+		nextState = handleSelectPokemon(
+			scene, context->selectionOrderCropper,
+			context->gameplay_bgra, context->selectionRecognizer,
+			context->my_selection_order_map,
+			context->myPokemonCropper, context->myPokemonsBGRA);
 	} else if (context->state == ScreenState::ENTERING_CONFIRM_POKEMON) {
-		const ScreenState nextState = handleEnteringConfirmPokemon(scene, context->last_state_change_ns);
-		if (nextState != context->state) {
-			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO, "State: %s to %s",
-			     ScreenStateNames.at(context->state),
-			     ScreenStateNames.at(nextState));
-			context->state = nextState;
-		}
+		nextState = handleEnteringConfirmPokemon(
+			scene, context->last_state_change_ns);
 	} else if (context->state == ScreenState::CONFIRM_POKEMON) {
-		const ScreenState nextState = handleConfirmPokemon(scene);
-		if (nextState != context->state) {
-			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO, "State: %s to %s",
-			     ScreenStateNames.at(context->state),
-			     ScreenStateNames.at(nextState));
-			context->state = nextState;
-		}
+		nextState = handleConfirmPokemon(scene);
 	} else if (context->state == ScreenState::ENTERING_MATCH) {
-		const ScreenState nextState = handleEnteringMatch(scene, context->prev_scene, context->match_start_ns);
-		if (nextState != context->state) {
-			context->last_state_change_ns = os_gettime_ns();
-			blog(LOG_INFO, "State: %s to %s",
-			     ScreenStateNames.at(context->state),
-			     ScreenStateNames.at(nextState));
-			context->state = nextState;
-		}
+		nextState = handleEnteringMatch(scene, context->prev_scene,
+						context->match_start_ns);
 	} else if (context->state == ScreenState::MATCH) {
-		const char *timer_name =
-			obs_data_get_string(context->settings, "timer_source");
-		obs_source_t *timer_source = obs_get_source_by_name(timer_name);
-		if (timer_source) {
-			context->last_elapsed_seconds = update_timer_text(
-				timer_source, context->match_start_ns,
-				os_gettime_ns(), context->last_elapsed_seconds);
-			obs_source_release(timer_source);
-		}
-
-		if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			context->state = ScreenState::ENTERING_SELECT_POKEMON;
-			blog(LOG_INFO,
-			     "State: MATCH to ENTERING_SELECT_POKEMON");
-		} else if (context->prev_scene !=
-				   SceneDetector::SCENE_BLACK_TRANSITION &&
-			   scene == SceneDetector::SCENE_BLACK_TRANSITION) {
-			context->match_end_ns = os_gettime_ns();
-			context->state = ScreenState::RESULT;
-			blog(LOG_INFO, "MATCH to RESULT");
-		}
+		nextState = handleMatch(scene, context->prev_scene);
+	} else if (context->state == ScreenState::ENTERING_RESULT) {
+		nextState = handleEnteringResult();
 	} else if (context->state == ScreenState::RESULT) {
-		uint64_t now = os_gettime_ns();
-		if (now - context->match_end_ns > 2000000000) {
-			context->state = ScreenState::UNKNOWN;
-			blog(LOG_INFO, "RESULT to UNKNOWN");
-		} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
-			for (int i = 0; i < N_POKEMONS; i++) {
-				context->my_selection_order_map[i] = 0;
-			}
-			context->state = ScreenState::ENTERING_SELECT_POKEMON;
-			blog(LOG_INFO, "MATCH to ENTERING_SELECT_POKEMON");
-		}
+		nextState = handleResult(scene, context->last_state_change_ns);
+	}
+	if (nextState != context->state) {
+		context->last_state_change_ns = os_gettime_ns();
+		blog(LOG_INFO, "State: %s to %s",
+		     ScreenStateNames.at(context->state),
+		     ScreenStateNames.at(nextState));
+		context->state = nextState;
 	}
 	context->prev_scene = scene;
 
