@@ -1,7 +1,9 @@
 #import <Foundation/Foundation.h>
 #import <VideoToolbox/VideoToolbox.h>
 #import <Vision/Vision.h>
-#import "VisionTextRecognizer.h"
+
+#include <string>
+#include <opencv2/opencv.hpp>
 
 #include <obs.h>
 
