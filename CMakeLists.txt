@@ -36,7 +36,7 @@ endif()
 
 target_sources(
   ${CMAKE_PROJECT_NAME}
-  PRIVATE src/plugin-main.cpp
+  PRIVATE src/plugin-main.c
           src/screen-source.cpp
           src/modules/SceneDetector.cpp
           src/modules/SceneDetectorTextRecognizerGenerated.cpp

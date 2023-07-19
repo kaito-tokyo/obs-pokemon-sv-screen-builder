@@ -99,13 +99,13 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 	UNUSED_PARAMETER(cy);
 }
 
-static const char *screen_get_name(void *unused)
+extern "C" const char *screen_get_name(void *unused)
 {
 	UNUSED_PARAMETER(unused);
 	return obs_module_text("PokemonSVScreenBuilder");
 }
 
-static void *screen_create(obs_data_t *settings, obs_source_t *source)
+extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 {
 	void *rawContext = bmalloc(sizeof(screen_context));
 	screen_context *context = new (rawContext) screen_context();
@@ -120,7 +120,7 @@ static void *screen_create(obs_data_t *settings, obs_source_t *source)
 	return context;
 }
 
-static void screen_destroy(void *data)
+extern "C" void screen_destroy(void *data)
 {
 	screen_context *context = reinterpret_cast<screen_context *>(data);
 
@@ -149,7 +149,7 @@ static std::string getFrontendRecordPath(config_t *config)
 	}
 }
 
-static void screen_defaults(obs_data_t *settings)
+extern "C" void screen_defaults(obs_data_t *settings)
 {
 	obs_data_set_default_string(settings, "gameplay_source", "");
 	obs_data_set_default_string(settings, "timer_source", "");
@@ -249,7 +249,7 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 	return true;
 }
 
-static obs_properties_t *screen_properties(void *data)
+extern "C" obs_properties_t *screen_properties(void *data)
 {
 	UNUSED_PARAMETER(data);
 	obs_properties_t *props = obs_properties_create();
@@ -318,7 +318,7 @@ static std::string update_text(obs_source_t *source, std::string rank)
 	return rank;
 }
 
-static void screen_video_tick(void *data, float seconds)
+extern "C" void screen_video_tick(void *data, float seconds)
 {
 	screen_context *context = reinterpret_cast<screen_context *>(data);
 	uint64_t cur_time = os_gettime_ns();
@@ -384,15 +384,3 @@ static void screen_video_tick(void *data, float seconds)
 
 	UNUSED_PARAMETER(seconds);
 }
-
-struct obs_source_info screen_info = {
-	.id = "obs-pokemon-sv-screen-builder",
-	.type = OBS_SOURCE_TYPE_INPUT,
-	.output_flags = OBS_SOURCE_ASYNC_VIDEO,
-	.get_name = screen_get_name,
-	.create = screen_create,
-	.destroy = screen_destroy,
-	.get_defaults = screen_defaults,
-	.get_properties = screen_properties,
-	.video_tick = screen_video_tick,
-};
