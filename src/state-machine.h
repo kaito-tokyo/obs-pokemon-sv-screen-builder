@@ -140,6 +140,8 @@ static ScreenState handleConfirmPokemon(SceneDetector::Scene scene)
 		return ScreenState::ENTERING_SELECT_POKEMON;
 	} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 		return ScreenState::ENTERING_MATCH;
+	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
+		return ScreenState::SHOW_RANK;
 	} else {
 		return ScreenState::CONFIRM_POKEMON;
 	}
