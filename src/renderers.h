@@ -11,7 +11,8 @@
 #include "obs-browser-api.h"
 
 static void renderOpponentPokemons(const cv::Mat &gameplayBGRA,
-				   EntityCropper &opponentPokemonCropper, const Logger &logger)
+				   EntityCropper &opponentPokemonCropper,
+				   const Logger &logger)
 {
 	opponentPokemonCropper.crop(gameplayBGRA);
 	opponentPokemonCropper.generateMask();
@@ -19,11 +20,10 @@ static void renderOpponentPokemons(const cv::Mat &gameplayBGRA,
 	std::string prefix = logger.getPrefix();
 	for (int i = 0; i < N_POKEMONS; i++) {
 		cv::Mat &image = opponentPokemonCropper.imagesBGRA[i];
-		logger.writeOpponentPokemonImage(prefix, i,image);
+		logger.writeOpponentPokemonImage(prefix, i, image);
 
 		std::vector<uchar> pngImage;
-		cv::imencode(".png", image,
-			     pngImage);
+		cv::imencode(".png", image, pngImage);
 		imageUrls[i] =
 			"data:image/png;base64," + Base64::encode(pngImage);
 	}
