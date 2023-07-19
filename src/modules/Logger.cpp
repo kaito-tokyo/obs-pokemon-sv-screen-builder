@@ -30,5 +30,5 @@ void Logger::writeImage(const std::string &filename, const cv::Mat &image) const
 	std::filesystem::create_directories(basedir);
 	std::filesystem::path p(basedir);
 	p /= filename;
-	cv::imwrite(p.c_str(), image);
+	cv::imwrite(p.string<char>(), image);
 }
