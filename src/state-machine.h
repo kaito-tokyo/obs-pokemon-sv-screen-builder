@@ -117,3 +117,28 @@ static ScreenState handleEnteringConfirmPokemon(SceneDetector::Scene scene, uint
 		return ScreenState::ENTERING_CONFIRM_POKEMON;
 	}
 }
+
+static ScreenState handleConfirmPokemon(SceneDetector::Scene scene) {
+	if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+		return ScreenState::ENTERING_SELECT_POKEMON;
+	} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
+		return ScreenState::ENTERING_MATCH;
+	} else {
+		return ScreenState::CONFIRM_POKEMON;
+	}
+}
+
+static ScreenState handleEnteringMatch(SceneDetector::Scene scene, SceneDetector::Scene prevScene, uint64_t &matchStartNs) {
+		if (prevScene !=
+			    SceneDetector::SCENE_BLACK_TRANSITION &&
+		    scene == SceneDetector::SCENE_BLACK_TRANSITION) {
+				matchStartNs = os_gettime_ns();
+			return ScreenState::MATCH;
+		} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+			return ScreenState::ENTERING_SELECT_POKEMON;
+		} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
+			return ScreenState::ENTERING_SHOW_RANK;
+		} else {
+			return ScreenState::ENTERING_MATCH;
+		}
+}
