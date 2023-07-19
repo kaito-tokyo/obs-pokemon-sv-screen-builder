@@ -2,12 +2,12 @@
 
 #include <plugin-support.h>
 
-extern const char *screen_get_name(void *unused);
-extern void *screen_create(obs_data_t *settings, obs_source_t *source);
-extern void screen_destroy(void *data);
-extern void screen_defaults(obs_data_t *settings);
-extern obs_properties_t *screen_properties(void *data);
-extern void screen_video_tick(void *data, float seconds);
+const char *screen_get_name(void *unused);
+void *screen_create(obs_data_t *settings, obs_source_t *source);
+void screen_destroy(void *data);
+void screen_defaults(obs_data_t *settings);
+obs_properties_t *screen_properties(void *data);
+void screen_video_tick(void *data, float seconds);
 
 static struct obs_source_info screen_info = {
 	.id = "obs-pokemon-sv-screen-builder",
