@@ -18,6 +18,7 @@ enum class ScreenState {
 	SHOW_RANK,
 	ENTERING_SELECT_POKEMON,
 	SELECT_POKEMON,
+	LEAVING_SELECT_POKEMON,
 	ENTERING_CONFIRM_POKEMON,
 	CONFIRM_POKEMON,
 	ENTERING_MATCH,
@@ -32,6 +33,7 @@ const std::map<ScreenState, const char *> ScreenStateNames = {
 	{ScreenState::SHOW_RANK, "SHOW_RANK"},
 	{ScreenState::ENTERING_SELECT_POKEMON, "ENTERING_SELECT_POKEMON"},
 	{ScreenState::SELECT_POKEMON, "SELECT_POKEMON"},
+	{ScreenState::LEAVING_SELECT_POKEMON, "LEAVING_SELECT_POKEMON"},
 	{ScreenState::ENTERING_CONFIRM_POKEMON, "ENTERING_CONFIRM_POKEMON"},
 	{ScreenState::CONFIRM_POKEMON, "CONFIRM_POKEMON"},
 	{ScreenState::ENTERING_MATCH, "ENTERING_MATCH"},
@@ -112,14 +114,30 @@ handleSelectPokemon(SceneDetector::Scene scene,
 			       mySelectionOrderMap);
 	}
 
+	if (scene != SceneDetector::SCENE_SELECT_POKEMON) {
+		return ScreenState::LEAVING_SELECT_POKEMON;
+	} else {
+		return ScreenState::SELECT_POKEMON;
+	}
+}
+
+static ScreenState
+handleLeavingSelectPokemon(SceneDetector::Scene scene, const std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA, const Logger &logger)
+{
+	std::string prefix = logger.getPrefix();
+	for (int i = 0; i < N_POKEMONS; i++) {
+		logger.writeMyPokemonImage(prefix, i, myPokemonsBGRA[i]);
+	}
 	if (scene == SceneDetector::SCENE_UNDEFINED) {
 		return ScreenState::ENTERING_CONFIRM_POKEMON;
+	} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
+		return ScreenState::ENTERING_SELECT_POKEMON;
 	} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 		return ScreenState::ENTERING_MATCH;
 	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
 		return ScreenState::ENTERING_SHOW_RANK;
 	} else {
-		return ScreenState::SELECT_POKEMON;
+		return ScreenState::UNKNOWN;
 	}
 }
 
