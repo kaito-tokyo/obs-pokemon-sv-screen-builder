@@ -363,7 +363,8 @@ extern "C" void screen_video_tick(void *data, float seconds)
 		nextState = handleUnknown(scene);
 	} else if (context->state == ScreenState::ENTERING_SHOW_RANK) {
 		nextState = handleEnteringShowRank(
-			context->opponentRankExtractor, gameplay_binary);
+			context->opponentRankExtractor, gameplay_binary,
+			context->logger);
 	} else if (context->state == ScreenState::SHOW_RANK) {
 		nextState = handleShowRank(scene);
 	} else if (context->state == ScreenState::ENTERING_SELECT_POKEMON) {
