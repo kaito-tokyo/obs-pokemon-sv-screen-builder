@@ -38,7 +38,7 @@ void Logger::writeOpponentRankImage(const std::string &prefix,
 }
 
 void Logger::writeMyPokemonImage(const std::string &prefix, int index,
-				    const cv::Mat &image) const
+				 const cv::Mat &image) const
 {
 	if (basedir.empty()) {
 		return;

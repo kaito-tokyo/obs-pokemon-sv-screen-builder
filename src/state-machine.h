@@ -121,8 +121,10 @@ handleSelectPokemon(SceneDetector::Scene scene,
 	}
 }
 
-static ScreenState
-handleLeavingSelectPokemon(SceneDetector::Scene scene, const std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA, const Logger &logger)
+static ScreenState handleLeavingSelectPokemon(
+	SceneDetector::Scene scene,
+	const std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA,
+	const Logger &logger)
 {
 	std::string prefix = logger.getPrefix();
 	for (int i = 0; i < N_POKEMONS; i++) {
