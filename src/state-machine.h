@@ -95,12 +95,10 @@ static ScreenState handleEnteringSelectPokemon(
 				       logger);
 		mySelectionOrderMap.fill(0);
 		for (int i = 0; i < N_POKEMONS; i++) {
-			const cv::Mat &imageBGR =
-				opponentPokemonCropper.imagesBGR[i];
-			const cv::Mat &mask = opponentPokemonCropper.masks[i];
+			const cv::Mat &imageBGRA =
+				opponentPokemonCropper.imagesBGRA[i];
 			const std::string name =
-				pokemonRecognizer.recognizePokemon(imageBGR,
-								   mask);
+				pokemonRecognizer.recognizePokemon(imageBGRA);
 			blog(LOG_INFO, "%s", name.c_str());
 		}
 		return ScreenState::SELECT_POKEMON;

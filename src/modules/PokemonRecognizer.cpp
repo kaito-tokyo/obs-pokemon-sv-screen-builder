@@ -1,15 +1,23 @@
 #include "PokemonRecognizer.h"
 
-static constexpr int NORMALIZED_HEIGHT = 98;
-static constexpr int DESCRIPTOR_SIZE = 16;
-
-std::string PokemonRecognizer::recognizePokemon(const cv::Mat &imageBGR,
-						const cv::Mat &mask) const
+static void extractAFromBGRA(const cv::Mat &imageBGRA, cv::Mat &imageA)
 {
-	cv::Mat scaledBGR;
-	cv::resize(imageBGR, scaledBGR,
-		   cv::Size(imageBGR.cols * NORMALIZED_HEIGHT / imageBGR.rows,
-			    NORMALIZED_HEIGHT));
+	imageA = cv::Mat(imageBGRA.rows, imageBGRA.cols, CV_8U);
+	for (int y = 0; y < imageBGRA.rows; y++) {
+		for (int x = 0; x < imageBGRA.cols; x++) {
+			imageA.at<uchar>(y, x) =
+				imageBGRA.at<cv::Vec4b>(y, x)[3];
+		}
+	}
+}
+
+std::string PokemonRecognizer::recognizePokemon(const cv::Mat &imageBGRA) const
+{
+	cv::Mat scaledBGRA, scaledBGR, mask;
+	cv::resize(imageBGRA, scaledBGRA,
+		   cv::Size(imageBGRA.cols * HEIGHT / imageBGRA.rows, HEIGHT));
+	cv::cvtColor(scaledBGRA, scaledBGR, cv::COLOR_BGRA2BGR);
+	extractAFromBGRA(scaledBGRA, mask);
 
 	std::vector<cv::KeyPoint> targetKeyPoints;
 	cv::Mat targetDescriptors;
@@ -38,5 +46,5 @@ std::string PokemonRecognizer::recognizePokemon(const cv::Mat &imageBGR,
 		std::distance(results.begin(),
 			      std::min_element(results.begin(), results.end()));
 
-	return POKEMON_IDS[index];
+	return POKEMON_NAMES[index];
 }

@@ -7,10 +7,11 @@
 
 class PokemonRecognizer {
 public:
-	std::string recognizePokemon(const cv::Mat &imageBGR,
-				     const cv::Mat &mask) const;
+	std::string recognizePokemon(const cv::Mat &imageBGRA) const;
 
 private:
-	static const std::vector<std::string> POKEMON_IDS;
+	static const int HEIGHT;
+	static const int DESCRIPTOR_SIZE;
+	static const std::vector<std::string> POKEMON_NAMES;
 	static const std::vector<cv::Mat> POKEMON_DESCRIPTORS;
 };
