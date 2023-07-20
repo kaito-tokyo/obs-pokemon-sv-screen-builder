@@ -9,7 +9,8 @@ int matchParenStart(const cv::Mat &lineBinary, const cv::Mat &parenStart)
 		cv::Rect matchingRect(i, 0, parenStart.cols, parenStart.rows);
 		cv::Mat matchResult = parenStart ^ lineBinary(matchingRect);
 		const double difference = cv::sum(matchResult)[0] / 255.0;
-		if (difference < static_cast<double>(parenStart.total()) * 0.05) {
+		if (difference <
+		    static_cast<double>(parenStart.total()) * 0.05) {
 			return i + parenStart.cols;
 		}
 	}
