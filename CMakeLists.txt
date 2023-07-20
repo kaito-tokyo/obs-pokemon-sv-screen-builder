@@ -45,6 +45,7 @@ target_sources(
           src/modules/SelectionRecognizerGenerated.cpp
           src/modules/OpponentRankExtractor.cpp
           src/modules/OpponentRankExtractorGenerated.cpp
+          src/modules/DefaultLayoutCreatedDialog.cpp
           src/modules/Logger.cpp
           src/update-checker/UpdateDialog.cpp
           src/update-checker/update-checker.cpp)

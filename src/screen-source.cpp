@@ -222,7 +222,6 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 {
 	UNUSED_PARAMETER(props);
 	UNUSED_PARAMETER(property);
-	UNUSED_PARAMETER(data);
 
 	obs_source_t *scene_source = obs_frontend_get_current_scene();
 	obs_scene_t *scene = obs_scene_from_source(scene_source);
@@ -246,6 +245,9 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 					   600, 872, 1, 1);
 
 	obs_scene_release(scene);
+
+	screen_context *context = static_cast<screen_context *>(data);
+	context->defaultLayoutCreatedDialog.exec();
 	return true;
 }
 
