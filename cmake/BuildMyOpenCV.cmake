@@ -181,7 +181,8 @@ set_target_properties(
 
 add_library(OpenCV INTERFACE)
 add_dependencies(OpenCV OpenCV_Build)
-target_link_libraries(OpenCV INTERFACE OpenCV::Features2d OpenCV::Imgcodecs OpenCV::Imgproc OpenCV::Core OpenCV::Libpng OpenCV::Zlib)
+target_link_libraries(OpenCV INTERFACE OpenCV::Features2d OpenCV::Imgcodecs OpenCV::Imgproc OpenCV::Core OpenCV::Libpng
+                                       OpenCV::Zlib)
 set_target_properties(OpenCV::Core OpenCV::Imgproc PROPERTIES INTERFACE_INCLUDE_DIRECTORIES ${OpenCV_INCLUDE_PATH})
 if(APPLE)
   target_link_libraries(OpenCV INTERFACE "-framework Accelerate")
