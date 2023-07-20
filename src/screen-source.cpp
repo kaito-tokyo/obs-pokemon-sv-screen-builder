@@ -17,11 +17,8 @@
 #include "screen-source.h"
 #include "plugin-support.h"
 
-extern "C" void screen_update(void *data, obs_data_t *settings);
-
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 {
-	UNUSED_PARAMETER(data);
 	screen_context *context = static_cast<screen_context *>(data);
 
 	if (!obs_source_enabled(context->source))
@@ -48,45 +45,45 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 	obs_source_video_render(context->gameplaySource);
 	gs_texrender_end(context->texrender);
 
-	// if (context->stagesurface) {
-	// 	uint32_t stagesurface_width =
-	// 		gs_stagesurface_get_width(context->stagesurface);
-	// 	uint32_t stagesurface_height =
-	// 		gs_stagesurface_get_height(context->stagesurface);
-	// 	if (stagesurface_width != gameplay_width ||
-	// 	    stagesurface_height != gameplay_height) {
-	// 		gs_stagesurface_destroy(context->stagesurface);
-	// 		context->stagesurface = nullptr;
-	// 	}
-	// }
-	// if (!context->stagesurface) {
-	// 	context->stagesurface = gs_stagesurface_create(
-	// 		gameplay_width, gameplay_height, GS_BGRA);
-	// }
-	// gs_stage_texture(context->stagesurface,
-	// 		 gs_texrender_get_texture(context->texrender));
-	// uint8_t *stagesurface_data;
-	// uint32_t linesize;
-	// if (!gs_stagesurface_map(context->stagesurface, &stagesurface_data,
-	// 			 &linesize))
-	// 	return;
-	// if (stagesurface_data && linesize) {
-	// 	if (gameplay_width * 4 == linesize) {
-	// 		context->gameplay_bgra =
-	// 			cv::Mat(gameplay_height, gameplay_width,
-	// 				CV_8UC4, stagesurface_data);
-	// 	} else {
-	// 		context->gameplay_bgra = cv::Mat(
-	// 			gameplay_height, gameplay_width, CV_8UC4);
-	// 		for (uint32_t i = 0; i < gameplay_height; i++) {
-	// 			memcpy(context->gameplay_bgra.data +
-	// 				       gameplay_width * 4 * i,
-	// 			       stagesurface_data + linesize * i,
-	// 			       gameplay_width * 4);
-	// 		}
-	// 	}
-	// }
-	// gs_stagesurface_unmap(context->stagesurface);
+	if (context->stagesurface) {
+		uint32_t stagesurface_width =
+			gs_stagesurface_get_width(context->stagesurface);
+		uint32_t stagesurface_height =
+			gs_stagesurface_get_height(context->stagesurface);
+		if (stagesurface_width != gameplay_width ||
+		    stagesurface_height != gameplay_height) {
+			gs_stagesurface_destroy(context->stagesurface);
+			context->stagesurface = nullptr;
+		}
+	}
+	if (!context->stagesurface) {
+		context->stagesurface = gs_stagesurface_create(
+			gameplay_width, gameplay_height, GS_BGRA);
+	}
+	gs_stage_texture(context->stagesurface,
+			 gs_texrender_get_texture(context->texrender));
+	uint8_t *stagesurface_data;
+	uint32_t linesize;
+	if (!gs_stagesurface_map(context->stagesurface, &stagesurface_data,
+				 &linesize))
+		return;
+	if (stagesurface_data && linesize) {
+		if (gameplay_width * 4 == linesize) {
+			context->gameplay_bgra =
+				cv::Mat(gameplay_height, gameplay_width,
+					CV_8UC4, stagesurface_data);
+		} else {
+			context->gameplay_bgra = cv::Mat(
+				gameplay_height, gameplay_width, CV_8UC4);
+			for (uint32_t i = 0; i < gameplay_height; i++) {
+				memcpy(context->gameplay_bgra.data +
+					       gameplay_width * 4 * i,
+				       stagesurface_data + linesize * i,
+				       gameplay_width * 4);
+			}
+		}
+	}
+	gs_stagesurface_unmap(context->stagesurface);
 
 	UNUSED_PARAMETER(cx);
 	UNUSED_PARAMETER(cy);
@@ -128,7 +125,7 @@ extern "C" void screen_destroy(void *data)
 
 	obs_remove_main_render_callback(screen_main_render_callback,
 					context);
-	//context->~screen_context();
+	context->~screen_context();
 	bfree(context);
 }
 
@@ -206,6 +203,7 @@ static void addBrowserSourceToSceneIfNotExists(obs_scene_t *scene,
 	obs_source_t *source = obs_source_create("browser_source", sourceName,
 						 settings, nullptr);
 	obs_scene_add(scene, source);
+	obs_source_release(source);
 	obs_data_release(settings);
 	bfree(localFile);
 
@@ -307,38 +305,6 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 	obs_source_t *gameplaySource = obs_get_source_by_name(gameplayName);
 	UNUSED_PARAMETER(gameplaySource);
 	context->gameplaySource = gameplaySource;
-}
-
-static uint64_t update_timer_text(obs_source_t *timer_source,
-				  uint64_t time_start, uint64_t time_now,
-				  uint64_t last_elapsed_seconds)
-{
-	uint64_t elapsed_seconds = (time_now - time_start) / 1000000000;
-	if (elapsed_seconds == last_elapsed_seconds)
-		return elapsed_seconds;
-	uint64_t remaining_seconds = 20 * 60 - elapsed_seconds;
-	uint64_t minutes = remaining_seconds / 60;
-	uint64_t seconds = remaining_seconds % 60;
-
-	char time_str[512];
-	snprintf(time_str, sizeof(time_str), "%02" PRIu64 ":%02" PRIu64,
-		 minutes, seconds);
-
-	obs_data_t *settings = obs_data_create();
-	obs_data_set_string(settings, "text", time_str);
-	obs_source_update(timer_source, settings);
-	obs_data_release(settings);
-
-	return elapsed_seconds;
-}
-
-static std::string update_text(obs_source_t *source, std::string rank)
-{
-	obs_data_t *settings = obs_data_create();
-	obs_data_set_string(settings, "text", rank.c_str());
-	obs_source_update(source, settings);
-	obs_data_release(settings);
-	return rank;
 }
 
 extern "C" void screen_video_tick(void *data, float seconds)
