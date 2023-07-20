@@ -2,6 +2,8 @@
 
 #include <plugin-support.h>
 
+#include "update-checker/update-checker.h"
+
 const char *screen_get_name(void *unused);
 void *screen_create(obs_data_t *settings, obs_source_t *source);
 void screen_destroy(void *data);
@@ -33,6 +35,11 @@ bool obs_module_load(void)
 
 	obs_log(LOG_INFO, "plugin loaded successfully (version %s)",
 		PLUGIN_VERSION);
+
+	const char UPDATE_URL[] =
+		"https://api.github.com/repos/umireon/obs-pokemon-sv-screen-builder/releases/latest";
+	update_checker_check_update(UPDATE_URL, PLUGIN_NAME, PLUGIN_VERSION);
+
 	return true;
 }
 

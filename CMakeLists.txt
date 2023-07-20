@@ -45,7 +45,9 @@ target_sources(
           src/modules/SelectionRecognizerGenerated.cpp
           src/modules/OpponentRankExtractor.cpp
           src/modules/OpponentRankExtractorGenerated.cpp
-          src/modules/Logger.cpp)
+          src/modules/Logger.cpp
+          src/update-checker/UpdateDialog.cpp
+          src/update-checker/update-checker.cpp)
 
 if(APPLE)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/modules/macos/VisionTextRecognizer.mm)
@@ -55,6 +57,10 @@ endif()
 
 include(cmake/BuildMyOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
+
+include(cmake/BuildMyCurl.cmake)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libcurl)
+
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
