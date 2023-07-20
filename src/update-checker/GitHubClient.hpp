@@ -25,9 +25,9 @@ public:
 	{
 		URLResponse response = getUrl(latestReleaseUrl);
 		if (response.second != CURLE_OK) {
-			log(LOG_INFO,
-			    "[%s] Failed to get the latest release info!",
-			    pluginName.c_str());
+			blog(LOG_INFO,
+			     "[%s] Failed to get the latest release info!",
+			     pluginName.c_str());
 			return {"", "", true};
 		}
 
@@ -67,7 +67,7 @@ private:
 		CURL *curl = curl_easy_init();
 		if (!curl) {
 			blog(LOG_ERROR, "[%s] Failed to initialize curl!",
-			     pluginName);
+			     pluginName.c_str());
 			return {"", CURL_LAST};
 		}
 
