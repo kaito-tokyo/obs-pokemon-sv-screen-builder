@@ -58,7 +58,7 @@ static ScreenState handleUnknown(SceneDetector::Scene scene)
 
 static ScreenState
 handleEnteringRankShown(const OpponentRankExtractor &opponentRankExtractor,
-		       const cv::Mat &gameplayBinary, const Logger &logger)
+			const cv::Mat &gameplayBinary, const Logger &logger)
 {
 	cv::Rect rankRect = opponentRankExtractor.extract(gameplayBinary);
 	cv::Mat rankImage = ~gameplayBinary(rankRect);
