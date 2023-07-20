@@ -13,10 +13,11 @@ DefaultLayoutCreatedDialog::DefaultLayoutCreatedDialog(QWidget *parent)
 	layout = new QVBoxLayout;
 	setLayout(layout);
 
-	QLabel *label = new QLabel(obs_module_text("DefaultLayoutCreatedDialogText"));
+	QLabel *label =
+		new QLabel(obs_module_text("DefaultLayoutCreatedDialogText"));
 	layout->addWidget(label);
 
 	buttonBox = new QDialogButtonBox(QDialogButtonBox::Ok);
 	layout->addWidget(buttonBox);
-    connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
+	connect(buttonBox, &QDialogButtonBox::accepted, this, &QDialog::accept);
 }
