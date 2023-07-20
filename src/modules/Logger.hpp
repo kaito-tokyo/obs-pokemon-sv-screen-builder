@@ -17,7 +17,9 @@ public:
 				 const cv::Mat &image) const;
 	void writeScreenshot(const std::string &prefix, const std::string &name,
 			     const cv::Mat &image) const;
-	void writeOpponentTeamText(const std::string &prefix, const std::vector<std::string> &pokemonNames) const;
+	void writeOpponentTeamText(
+		const std::string &prefix,
+		const std::vector<std::string> &pokemonNames) const;
 
 private:
 	void writeImage(const std::string &filename,

@@ -98,7 +98,8 @@ static ScreenState handleEnteringSelectPokemon(
 		for (int i = 0; i < N_POKEMONS; i++) {
 			const cv::Mat &imageBGRA =
 				opponentPokemonCropper.imagesBGRA[i];
-			pokemonNames[i] = pokemonRecognizer.recognizePokemon(imageBGRA);
+			pokemonNames[i] =
+				pokemonRecognizer.recognizePokemon(imageBGRA);
 		}
 		logger.writeOpponentTeamText(logger.getPrefix(), pokemonNames);
 		return ScreenState::SELECT_POKEMON;

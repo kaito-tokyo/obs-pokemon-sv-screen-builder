@@ -62,7 +62,9 @@ void Logger::writeScreenshot(const std::string &prefix, const std::string &name,
 	writeImage(oss.str(), image);
 }
 
-void Logger::writeOpponentTeamText(const std::string &prefix, const std::vector<std::string> &pokemonNames) const
+void Logger::writeOpponentTeamText(
+	const std::string &prefix,
+	const std::vector<std::string> &pokemonNames) const
 {
 	if (basedir.empty()) {
 		return;
