@@ -11,6 +11,7 @@
 #include "modules/SelectionRecognizer.h"
 #include "modules/Logger.hpp"
 #include "state-machine.h"
+#include "modules/DefaultLayoutCreatedDialog.hpp"
 
 const HistClassifier classifier_lobby_my_select = {{149, 811}, {139, 842}, 0,
 						   30,         17,         0.5};
@@ -70,6 +71,8 @@ struct screen_context {
 	Logger logger;
 
 	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
+
+	DefaultLayoutCreatedDialog defaultLayoutCreatedDialog;
 
 	screen_context()
 		: sceneDetector(classifier_lobby_my_select,
