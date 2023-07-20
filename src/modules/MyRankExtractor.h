@@ -7,7 +7,7 @@
 
 class MyRankExtractor {
 public:
-	const cv::Rect lineRect = {1206, 419, 1615, 474};
+	const cv::Rect lineRect = {1206, 419, 409, 55};
 
 	cv::Rect extract(const cv::Mat &screenBinary) const;
 

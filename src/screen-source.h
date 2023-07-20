@@ -13,6 +13,7 @@
 #include "state-machine.h"
 #include "modules/DefaultLayoutCreatedDialog.hpp"
 #include "modules/PokemonRecognizer.h"
+#include "modules/MyRankExtractor.h"
 
 const HistClassifier classifier_lobby_my_select = {{149, 811}, {139, 842}, 0,
 						   30,         17,         0.5};
@@ -71,6 +72,7 @@ struct screen_context {
 	OpponentRankExtractor opponentRankExtractor;
 	Logger logger;
 	PokemonRecognizer pokemonRecognizer;
+	MyRankExtractor myRankExtractor;
 
 	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
 

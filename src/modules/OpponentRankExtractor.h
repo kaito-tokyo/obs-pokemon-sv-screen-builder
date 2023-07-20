@@ -9,7 +9,6 @@ class OpponentRankExtractor {
 public:
 	const cv::Rect lineRect = {544, 831, 834, 36};
 	const std::string language = "ja";
-	const double matchThreshold = 5;
 
 	cv::Rect extract(const cv::Mat &screenBinary) const;
 
