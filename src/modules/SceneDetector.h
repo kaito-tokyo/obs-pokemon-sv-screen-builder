@@ -17,7 +17,7 @@ public:
 		SCENE_UNDEFINED,
 		SCENE_SELECT_POKEMON,
 		SCENE_BLACK_TRANSITION,
-		SCENE_SHOW_RANK,
+		SCENE_RANK_SHOWN,
 	};
 
 	const HistClassifier &classifierLobbyMySelect;
