@@ -3,16 +3,13 @@
 #include <QPushButton>
 #include <QScrollArea>
 #include <QString>
-#include <QVBoxLayout>
-
-#include <util/config-file.h>
 
 #include "UpdateDialog.hpp"
 
 static QString dialogContent =
 	"<h1>ポケモンSVスクリーンビルダー - {version}! 🚀</h1>"
 	"<p>新バージョンが利用可能です！以下のURLをクリックするとダウンロードページが表示されます！</o>"
-	"<p><a href=\"https://github.com/royshil/obs-backgroundremoval/releases\">https://github.com/royshil/obs-backgroundremoval/releases</a></p>"
+	"<p><a href=\"https://github.com/umireon/obs-pokemon-sv-screen-builder/releases\">https://github.com/umireon/obs-pokemon-sv-screen-builder/releases</a></p>"
 	"<h2>更新履歴</h2>";
 
 UpdateDialog::UpdateDialog(const char *_pluginName, const char *_pluginVersion,
@@ -49,14 +46,12 @@ UpdateDialog::UpdateDialog(const char *_pluginName, const char *_pluginVersion,
 	QCheckBox *disableCheckbox = new QCheckBox("更新通知をオフにする");
 	layout->addWidget(disableCheckbox);
 	connect(disableCheckbox, &QCheckBox::stateChanged, [this](int state) {
-		if (state == Qt::Unchecked) {
-			return;
-		}
 		config_set_bool(config, pluginName.c_str(), "check_update_skip",
-				true);
+				state != Qt::Unchecked);
 		config_set_string(config, pluginName.c_str(),
 				  "check_update_skip_version",
 				  pluginVersion.c_str());
+		config_save_safe(config, "tmp", nullptr);
 	});
 
 	// Add a button to close the dialog
