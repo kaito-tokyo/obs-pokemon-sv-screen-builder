@@ -2,7 +2,6 @@
 
 #include <plugin-support.h>
 
-#include "update-checker/github-utils.h"
 #include "update-checker/update-checker.h"
 
 const char *screen_get_name(void *unused);
@@ -37,17 +36,8 @@ bool obs_module_load(void)
 	obs_log(LOG_INFO, "plugin loaded successfully (version %s)",
 		PLUGIN_VERSION);
 
-	// const struct github_utils_release_information latestRelease =
-	// 	github_utils_get_release_information();
-	// if (latestRelease.responseCode == OBS_BGREMOVAL_GITHUB_UTILS_SUCCESS) {
-	// 	obs_log(LOG_INFO, "Latest release is %s",
-	// 		latestRelease.version);
-	// 	check_update(latestRelease);
-	// } else {
-	// 	obs_log(LOG_INFO, "failed to get latest release information");
-	// }
-	// github_utils_release_information_free(latestRelease);
-	const char UPDATE_URL[] = "https://api.github.com/repos/umireon/obs-pokemon-sv-screen-builder/releases/latest";
+	const char UPDATE_URL[] =
+		"https://api.github.com/repos/umireon/obs-pokemon-sv-screen-builder/releases/latest";
 	update_checker_check_update(UPDATE_URL, PLUGIN_NAME, PLUGIN_VERSION);
 
 	return true;

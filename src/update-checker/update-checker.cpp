@@ -10,15 +10,18 @@
 
 UpdateDialog *updateDialog;
 
-static bool getIsSkipping(config_t *config, const char *pluginName, const char *pluginVersion)
+static bool getIsSkipping(config_t *config, const char *pluginName,
+			  const char *pluginVersion)
 {
 	bool skip = config_get_bool(config, pluginName, "check_update_skip");
-	std::string skipVersion = config_get_string(config, pluginName, "check_update_skip_version");
+	std::string skipVersion = config_get_string(
+		config, pluginName, "check_update_skip_version");
 	if (skip) {
 		if (skipVersion == pluginVersion) {
 			return true;
 		} else {
-			config_set_bool(config, pluginName, "check_update_skip", false);
+			config_set_bool(config, pluginName, "check_update_skip",
+					false);
 			config_save_safe(config, "tmp", nullptr);
 			return false;
 		}
@@ -27,7 +30,9 @@ static bool getIsSkipping(config_t *config, const char *pluginName, const char *
 	}
 }
 
-void update_checker_check_update(const char *latest_release_url, const char *plugin_name, const char *plugin_version)
+void update_checker_check_update(const char *latest_release_url,
+				 const char *plugin_name,
+				 const char *plugin_version)
 {
 	config_t *config = obs_frontend_get_global_config();
 	if (getIsSkipping(config, plugin_name, plugin_version)) {
@@ -38,7 +43,8 @@ void update_checker_check_update(const char *latest_release_url, const char *plu
 	GitHubClient client(plugin_name, plugin_version);
 	auto result = client.getLatestRelease(latest_release_url);
 	if (result.error) {
-		blog(LOG_INFO, "[%s] Failed to fetch latest release info!", plugin_name);
+		blog(LOG_INFO, "[%s] Failed to fetch latest release info!",
+		     plugin_name);
 		return;
 	}
 	if (result.version == plugin_version) {
@@ -46,6 +52,9 @@ void update_checker_check_update(const char *latest_release_url, const char *plu
 		return;
 	}
 
-	updateDialog = new UpdateDialog(result.version, result.body, (QWidget *)obs_frontend_get_main_window());
+	updateDialog = new UpdateDialog(
+		plugin_name, plugin_version, result.version.c_str(),
+		result.body.c_str(), config,
+		(QWidget *)obs_frontend_get_main_window());
 	QTimer::singleShot(2000, updateDialog, &UpdateDialog::exec);
 }

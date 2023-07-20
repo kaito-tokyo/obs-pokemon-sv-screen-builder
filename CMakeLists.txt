@@ -46,10 +46,8 @@ target_sources(
           src/modules/OpponentRankExtractor.cpp
           src/modules/OpponentRankExtractorGenerated.cpp
           src/modules/Logger.cpp
-          src/obs-utils/obs-config-utils.cpp
-          src/update-checker/update-checker.cpp
-          src/update-checker/github-utils.cpp
-          src/update-checker/UpdateDialog.cpp)
+          src/update-checker/UpdateDialog.cpp
+          src/update-checker/update-checker.cpp)
 
 if(APPLE)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/modules/macos/VisionTextRecognizer.mm)

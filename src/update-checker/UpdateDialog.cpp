@@ -1,36 +1,34 @@
-#include "UpdateDialog.hpp"
-#include "obs-utils/obs-config-utils.h"
-
-#include <obs.h>
-#include <obs-module.h>
-
+#include <QCheckBox>
 #include <QLabel>
-#include <QVBoxLayout>
+#include <QPushButton>
+#include <QScrollArea>
 #include <QString>
+#include <QVBoxLayout>
+
+#include <util/config-file.h>
+
+#include "UpdateDialog.hpp"
 
 static QString dialogContent =
-	"<h1>Background Removal - Update available! 🚀</h1>"
-	"<p>A new version of the Background Removal plugin (<a "
-	"href=\"https://github.com/royshil/obs-backgroundremoval/releases\">v{version}</a>) is "
-	"now available for download. We've made some exciting updates and improvements that we think "
-	"you'll love. To get the latest features and enhancements, please follow the link below:</p>"
-	"<p>Download the latest version from GitHub: <a "
-	"href=\"https://github.com/royshil/obs-backgroundremoval/releases\">v{version}</a></p>"
-	"<p>Once you've downloaded the new version, install the update as usual, there's no need to "
-	"uninstall the previous version.</p>"
-	"<p>If you have any questions or need assistance during the update process, feel free to reach out"
-	" to our <a href=\"https://github.com/royshil/obs-backgroundremoval/issues\">support team</a>.</p>"
-	"<p>Thank you for using our plugin and we hope you enjoy the latest release! 🙏</p>"
-	"<h2>Changelog</h2>";
+	"<h1>ポケモンSVスクリーンビルダー - {version}! 🚀</h1>"
+	"<p>新バージョンが利用可能です！以下のURLをクリックするとダウンロードページが表示されます！</o>"
+	"<p><a href=\"https://github.com/royshil/obs-backgroundremoval/releases\">https://github.com/royshil/obs-backgroundremoval/releases</a></p>"
+	"<h2>更新履歴</h2>";
 
-UpdateDialog::UpdateDialog(
-	std::string version, std::string body, QWidget *parent)
-	: QDialog(parent), layout(new QVBoxLayout)
+UpdateDialog::UpdateDialog(const char *_pluginName, const char *_pluginVersion,
+			   const char *latestVersion,
+			   const char *latestChangelog, config_t *_config,
+			   QWidget *parent = nullptr)
+	: QDialog(parent),
+	  layout(new QVBoxLayout),
+	  config(_config),
+	  pluginName(_pluginName),
+	  pluginVersion(_pluginVersion)
 {
-	setWindowTitle("Background Removal - Update available! 🚀");
+	setWindowTitle("ポケモンSVスクリーンビルダー - 更新が利用可能！");
 	setLayout(layout);
-	QLabel *label = new QLabel(dialogContent.replace(
-		QString("{version}"), QString(version.c_str())));
+	QLabel *label = new QLabel(
+		dialogContent.replace(QString("{version}"), latestVersion));
 	label->setOpenExternalLinks(true);
 	label->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	label->setTextFormat(Qt::RichText);
@@ -38,8 +36,7 @@ UpdateDialog::UpdateDialog(
 	layout->addWidget(label);
 
 	QScrollArea *scrollArea = new QScrollArea;
-	QLabel *scrollAreaLabel =
-		new QLabel(QString(body.c_str()));
+	QLabel *scrollAreaLabel = new QLabel(latestChangelog);
 	scrollAreaLabel->setOpenExternalLinks(true);
 	scrollAreaLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	scrollAreaLabel->setTextFormat(Qt::MarkdownText);
@@ -49,10 +46,17 @@ UpdateDialog::UpdateDialog(
 	layout->addWidget(scrollArea);
 
 	// Add a checkbox to disable update checks
-	QCheckBox *disableCheckbox = new QCheckBox("Disable update checks");
+	QCheckBox *disableCheckbox = new QCheckBox("更新通知をオフにする");
 	layout->addWidget(disableCheckbox);
-	connect(disableCheckbox, &QCheckBox::stateChanged, this, [](int state) {
-		setFlagFromConfig("check_for_updates", state == Qt::Unchecked);
+	connect(disableCheckbox, &QCheckBox::stateChanged, [this](int state) {
+		if (state == Qt::Unchecked) {
+			return;
+		}
+		config_set_bool(config, pluginName.c_str(), "check_update_skip",
+				true);
+		config_set_string(config, pluginName.c_str(),
+				  "check_update_skip_version",
+				  pluginVersion.c_str());
 	});
 
 	// Add a button to close the dialog

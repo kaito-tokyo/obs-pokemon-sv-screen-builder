@@ -6,86 +6,92 @@
 
 #include <curl/curl.h>
 
-class GitHubClient
-{
+class GitHubClient {
 public:
-    using URLResponse = std::pair<std::string, CURLcode>;
+	using URLResponse = std::pair<std::string, CURLcode>;
 
-    struct LatestRelease {
-        std::string version;
-        std::string body;
-        bool error;
-    };
+	struct LatestRelease {
+		std::string version;
+		std::string body;
+		bool error;
+	};
 
-    GitHubClient(const char *_pluginName, const char *_pluginVersion) : pluginName(_pluginName),
-    pluginVersion(_pluginVersion)
-    {}
+	GitHubClient(const char *_pluginName, const char *_pluginVersion)
+		: pluginName(_pluginName), pluginVersion(_pluginVersion)
+	{
+	}
 
-    LatestRelease getLatestRelease(const char *latestReleaseUrl) const
-    {
-        URLResponse response = getUrl(latestReleaseUrl);
-        if (response.second != CURLE_OK) {
-            log(LOG_INFO, "Failed to get the latest release info!");
-            return {"", "", true};
-        }
+	LatestRelease getLatestRelease(const char *latestReleaseUrl) const
+	{
+		URLResponse response = getUrl(latestReleaseUrl);
+		if (response.second != CURLE_OK) {
+			log(LOG_INFO, "Failed to get the latest release info!");
+			return {"", "", true};
+		}
 
-        obs_data_t *data = obs_data_create_from_json(response.first.c_str());
-        if (!data) {
-            log(LOG_INFO, "Failed to parse the latest release info!");
-            return {"", "", true};
-        }
+		obs_data_t *data =
+			obs_data_create_from_json(response.first.c_str());
+		if (!data) {
+			log(LOG_INFO,
+			    "Failed to parse the latest release info!");
+			return {"", "", true};
+		}
 
-        LatestRelease result;
-        result.version = obs_data_get_string(data, "tag_name");
-        result.body = obs_data_get_string(data, "body");
-        result.error = false;
-        obs_data_release(data);
+		LatestRelease result;
+		result.version = obs_data_get_string(data, "tag_name");
+		result.body = obs_data_get_string(data, "body");
+		result.error = false;
+		obs_data_release(data);
 
-        return result;
-    }
+		return result;
+	}
+
 private:
-    const std::string pluginName;
-    const std::string pluginVersion;
-    const std::string userAgent = pluginName + "/" + pluginVersion;
-    const std::string logPrefix = "[" +  pluginName + "]";
- 
-    static size_t write(void *ptr, size_t size, size_t nmemb,
-				   std::string *data)
-    {
-        data->append(static_cast<char *>(ptr), size * nmemb);
-        return size * nmemb;
-    }
+	const std::string pluginName;
+	const std::string pluginVersion;
+	const std::string userAgent = pluginName + "/" + pluginVersion;
+	const std::string logPrefix = "[" + pluginName + "]";
 
-    std::pair<std::string, CURLcode> getUrl(const char *url) const {
-        CURL *curl = curl_easy_init();
-        if (!curl) {
-            log(LOG_ERROR, "Failed to initialize curl");
-            return {"", CURL_LAST};
-        }
+	static size_t write(void *ptr, size_t size, size_t nmemb,
+			    std::string *data)
+	{
+		data->append(static_cast<char *>(ptr), size * nmemb);
+		return size * nmemb;
+	}
 
-        CURLcode code;
-        std::string data;
-        curl_easy_setopt(curl, CURLOPT_URL, url);
-        curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
-        curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write);
-        curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
+	std::pair<std::string, CURLcode> getUrl(const char *url) const
+	{
+		CURL *curl = curl_easy_init();
+		if (!curl) {
+			log(LOG_ERROR, "Failed to initialize curl");
+			return {"", CURL_LAST};
+		}
 
-        code = curl_easy_perform(curl);
-        curl_easy_cleanup(curl);
+		CURLcode code;
+		std::string data;
+		curl_easy_setopt(curl, CURLOPT_URL, url);
+		curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
+		curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write);
+		curl_easy_setopt(curl, CURLOPT_WRITEDATA, &data);
 
-        if (code == CURLE_OK) {
-            return {data, code};
-        } else {
-            log(LOG_ERROR, "Failed to fetch a content from %s", url);
-            return {"", code};
-        }
-    }
+		code = curl_easy_perform(curl);
+		curl_easy_cleanup(curl);
 
-    void log(int logLevel, const char *format, ...) const {
-        std::string prefixedFormat = logPrefix + format;
-        va_list(args);
-        va_start(args, format);
-        blogva(logLevel, prefixedFormat.c_str(), args);
-        va_end(args);
-    }
+		if (code == CURLE_OK) {
+			return {data, code};
+		} else {
+			log(LOG_ERROR, "Failed to fetch a content from %s",
+			    url);
+			return {"", code};
+		}
+	}
+
+	void log(int logLevel, const char *format, ...) const
+	{
+		std::string prefixedFormat = logPrefix + format;
+		va_list(args);
+		va_start(args, format);
+		blogva(logLevel, prefixedFormat.c_str(), args);
+		va_end(args);
+	}
 };
