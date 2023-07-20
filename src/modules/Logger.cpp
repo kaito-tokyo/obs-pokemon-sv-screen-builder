@@ -49,6 +49,18 @@ void Logger::writeMyPokemonImage(const std::string &prefix, int index,
 	writeImage(oss.str(), image);
 }
 
+void Logger::writeScreenshot(const std::string &prefix, const std::string &name,
+			     const cv::Mat &image) const
+{
+	if (basedir.empty()) {
+		return;
+	}
+	std::ostringstream oss;
+	oss << prefix << "-" << name << ".png";
+	const std::string filename = oss.str();
+	writeImage(oss.str(), image);
+}
+
 void Logger::writeImage(const std::string &filename, const cv::Mat &image) const
 {
 	std::filesystem::create_directories(basedir);
