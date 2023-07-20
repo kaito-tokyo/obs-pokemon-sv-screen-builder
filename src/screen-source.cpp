@@ -21,7 +21,8 @@ extern "C" void screen_update(void *data, obs_data_t *settings);
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 {
-	screen_context *context = reinterpret_cast<screen_context *>(data);
+	UNUSED_PARAMETER(data);
+	screen_context *context = static_cast<screen_context *>(data);
 
 	if (!obs_source_enabled(context->source))
 		return;
@@ -42,10 +43,10 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 				gameplay_height)) {
 		return;
 	}
-	// gs_ortho(0.0f, static_cast<float>(gameplay_width), 0.0f,
-	// 	 static_cast<float>(gameplay_height), -100.0f, 100.0f);
-	// obs_source_video_render(context->gameplaySource);
-	// gs_texrender_end(context->texrender);
+	gs_ortho(0.0f, static_cast<float>(gameplay_width), 0.0f,
+		 static_cast<float>(gameplay_height), -100.0f, 100.0f);
+	obs_source_video_render(context->gameplaySource);
+	gs_texrender_end(context->texrender);
 
 	// if (context->stagesurface) {
 	// 	uint32_t stagesurface_width =
@@ -108,8 +109,6 @@ extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 
 	obs_add_main_render_callback(screen_main_render_callback, context);
 
-	screen_update(rawContext, settings);
-
 	return context;
 }
 
@@ -117,7 +116,7 @@ extern "C" void screen_destroy(void *data)
 {
 	screen_context *context = reinterpret_cast<screen_context *>(data);
 
-	std::lock_guard lock(context->callbackLock);
+	obs_enter_graphics();
 	gs_texrender_destroy(context->texrender);
 	if (context->gameplaySource) {
 		obs_source_release(context->gameplaySource);
@@ -125,8 +124,11 @@ extern "C" void screen_destroy(void *data)
 	if (context->stagesurface) {
 		gs_stagesurface_destroy(context->stagesurface);
 	}
+	obs_leave_graphics();
+
 	obs_remove_main_render_callback(screen_main_render_callback,
 					context);
+	//context->~screen_context();
 	bfree(context);
 }
 
@@ -303,6 +305,7 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 	}
 	const char *gameplayName = obs_data_get_string(settings, "gameplay_source");
 	obs_source_t *gameplaySource = obs_get_source_by_name(gameplayName);
+	UNUSED_PARAMETER(gameplaySource);
 	context->gameplaySource = gameplaySource;
 }
 
