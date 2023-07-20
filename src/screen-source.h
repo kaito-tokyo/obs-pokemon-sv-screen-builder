@@ -44,7 +44,6 @@ const std::vector<std::array<int, 2>> selectionOrderRowRange{{{154, 186},
 							      {735, 767}}};
 
 struct screen_context {
-	obs_data_t *settings = nullptr;
 	obs_source_t *source = nullptr;
 	obs_source_t *gameplaySource = nullptr;
 
@@ -62,9 +61,6 @@ struct screen_context {
 	uint64_t last_state_change_ns = 0;
 	std::array<int, N_POKEMONS> my_selection_order_map;
 	SceneDetector::Scene prev_scene;
-	uint64_t match_start_ns = 0;
-	uint64_t last_elapsed_seconds = 0;
-	uint64_t match_end_ns = 0;
 
 	EntityCropper opponentPokemonCropper;
 	EntityCropper myPokemonCropper;

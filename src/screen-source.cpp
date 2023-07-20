@@ -99,9 +99,10 @@ extern "C" const char *screen_get_name(void *unused)
 
 extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 {
+	UNUSED_PARAMETER(settings);
+
 	void *rawContext = bmalloc(sizeof(screen_context));
 	screen_context *context = new (rawContext) screen_context();
-	context->settings = settings;
 	context->source = source;
 
 	context->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
@@ -164,20 +165,6 @@ static bool add_all_sources_to_list(void *param, obs_source_t *source)
 	obs_property_t *prop = static_cast<obs_property_t *>(param);
 	const char *name = obs_source_get_name(source);
 	obs_property_list_add_string(prop, name, name);
-	return true;
-}
-
-static bool add_text_sources_to_list(void *param, obs_source_t *source)
-{
-	obs_property_t *prop = static_cast<obs_property_t *>(param);
-	const char *id = obs_source_get_id(source);
-	if (strcmp(id, "text_gdiplus_v2") == 0 ||
-	    strcmp(id, "text_gdiplus") == 0 ||
-	    strcmp(id, "text_ft2_source") == 0 ||
-	    strcmp(id, "text_ft2_source_v2") == 0) {
-		const char *name = obs_source_get_name(source);
-		obs_property_list_add_string(prop, name, name);
-	}
 	return true;
 }
 
@@ -254,26 +241,15 @@ extern "C" obs_properties_t *screen_properties(void *data)
 	UNUSED_PARAMETER(data);
 	obs_properties_t *props = obs_properties_create();
 
-	obs_property_t *prop_gameplay_source = obs_properties_add_list(
-		props, "gameplay_source", obs_module_text("GamePlaySource"),
-		OBS_COMBO_TYPE_EDITABLE, OBS_COMBO_FORMAT_STRING);
-	obs_enum_sources(add_all_sources_to_list, prop_gameplay_source);
-
-	obs_property_t *prop_timer = obs_properties_add_list(
-		props, "timer_source", obs_module_text("TimerSource"),
-		OBS_COMBO_TYPE_EDITABLE, OBS_COMBO_FORMAT_STRING);
-	obs_enum_sources(add_text_sources_to_list, prop_timer);
-
-	obs_property_t *prop_opponent_rank_source = obs_properties_add_list(
-		props, "opponent_rank_source",
-		obs_module_text("OpponentRankSource"), OBS_COMBO_TYPE_EDITABLE,
-		OBS_COMBO_FORMAT_STRING);
-	obs_enum_sources(add_text_sources_to_list, prop_opponent_rank_source);
-
 	obs_properties_add_button(
 		props, "add_default_layout_button",
 		obs_module_text("AddDefaultLayoutDescription"),
 		&handleClickAddDefaultLayout);
+
+	obs_property_t *prop_gameplay_source = obs_properties_add_list(
+		props, "gameplay_source", obs_module_text("GamePlaySource"),
+		OBS_COMBO_TYPE_EDITABLE, OBS_COMBO_FORMAT_STRING);
+	obs_enum_sources(add_all_sources_to_list, prop_gameplay_source);
 
 	obs_properties_t *props_log = obs_properties_create();
 	obs_properties_add_path(props_log, "log_path",
@@ -305,7 +281,6 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 	const char *gameplayName =
 		obs_data_get_string(settings, "gameplay_source");
 	obs_source_t *gameplaySource = obs_get_source_by_name(gameplayName);
-	UNUSED_PARAMETER(gameplaySource);
 	context->gameplaySource = gameplaySource;
 }
 
@@ -314,12 +289,14 @@ extern "C" void screen_video_tick(void *data, float seconds)
 	screen_context *context = static_cast<screen_context *>(data);
 	uint64_t cur_time = os_gettime_ns();
 
-	if (cur_time < context->next_tick + 1000 * 1000 * 100)
+	if (cur_time < context->next_tick + 1000 * 1000 * 100) {
 		return;
+	}
 	context->next_tick = cur_time + 1000 * 1000 * 100;
 
-	if (context->gameplay_bgra.empty())
+	if (context->gameplay_bgra.empty()) {
 		return;
+	}
 
 	cv::Mat gameplay_bgr, gameplay_hsv, gameplay_gray, gameplay_binary;
 	cv::cvtColor(context->gameplay_bgra, gameplay_bgr, cv::COLOR_BGRA2BGR);
