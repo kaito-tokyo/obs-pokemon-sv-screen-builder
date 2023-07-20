@@ -8,7 +8,7 @@ int matchIcon(const cv::Mat &lineBinary, const cv::Mat &icon)
 		cv::Rect matchingRect(i, 0, icon.cols, icon.rows);
 		cv::Mat matchResult = icon ^ lineBinary(matchingRect);
 		const double difference = cv::sum(matchResult)[0] / 255.0;
-		if (difference < icon.total() * 0.2) {
+		if (difference < static_cast<double>(icon.total()) * 0.2) {
 			return i + icon.cols;
 		}
 	}
