@@ -28,8 +28,10 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 		return;
 	}
 
-	const uint32_t gameplay_width = obs_source_get_width(context->gameplaySource);
-	const uint32_t gameplay_height = obs_source_get_height(context->gameplaySource);
+	const uint32_t gameplay_width =
+		obs_source_get_width(context->gameplaySource);
+	const uint32_t gameplay_height =
+		obs_source_get_height(context->gameplaySource);
 
 	if (gameplay_width == 0 || gameplay_height == 0) {
 		return;
@@ -111,7 +113,7 @@ extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 
 extern "C" void screen_destroy(void *data)
 {
-	screen_context *context = reinterpret_cast<screen_context *>(data);
+	screen_context *context = static_cast<screen_context *>(data);
 
 	obs_enter_graphics();
 	gs_texrender_destroy(context->texrender);
@@ -123,8 +125,7 @@ extern "C" void screen_destroy(void *data)
 	}
 	obs_leave_graphics();
 
-	obs_remove_main_render_callback(screen_main_render_callback,
-					context);
+	obs_remove_main_render_callback(screen_main_render_callback, context);
 	context->~screen_context();
 	bfree(context);
 }
@@ -160,7 +161,7 @@ extern "C" void screen_defaults(obs_data_t *settings)
 
 static bool add_all_sources_to_list(void *param, obs_source_t *source)
 {
-	obs_property_t *prop = reinterpret_cast<obs_property_t *>(param);
+	obs_property_t *prop = static_cast<obs_property_t *>(param);
 	const char *name = obs_source_get_name(source);
 	obs_property_list_add_string(prop, name, name);
 	return true;
@@ -168,7 +169,7 @@ static bool add_all_sources_to_list(void *param, obs_source_t *source)
 
 static bool add_text_sources_to_list(void *param, obs_source_t *source)
 {
-	obs_property_t *prop = reinterpret_cast<obs_property_t *>(param);
+	obs_property_t *prop = static_cast<obs_property_t *>(param);
 	const char *id = obs_source_get_id(source);
 	if (strcmp(id, "text_gdiplus_v2") == 0 ||
 	    strcmp(id, "text_gdiplus") == 0 ||
@@ -287,7 +288,7 @@ extern "C" obs_properties_t *screen_properties(void *data)
 
 extern "C" void screen_update(void *data, obs_data_t *settings)
 {
-	screen_context *context = reinterpret_cast<screen_context *>(data);
+	screen_context *context = static_cast<screen_context *>(data);
 	bool logEnabled = obs_data_get_bool(settings, "log_enabled");
 	if (logEnabled) {
 		const char *logPath = obs_data_get_string(settings, "log_path");
@@ -301,7 +302,8 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 	if (context->gameplaySource) {
 		obs_source_release(context->gameplaySource);
 	}
-	const char *gameplayName = obs_data_get_string(settings, "gameplay_source");
+	const char *gameplayName =
+		obs_data_get_string(settings, "gameplay_source");
 	obs_source_t *gameplaySource = obs_get_source_by_name(gameplayName);
 	UNUSED_PARAMETER(gameplaySource);
 	context->gameplaySource = gameplaySource;
@@ -309,7 +311,7 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 
 extern "C" void screen_video_tick(void *data, float seconds)
 {
-	screen_context *context = reinterpret_cast<screen_context *>(data);
+	screen_context *context = static_cast<screen_context *>(data);
 	uint64_t cur_time = os_gettime_ns();
 
 	if (cur_time < context->next_tick + 1000 * 1000 * 100)
