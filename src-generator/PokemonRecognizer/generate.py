@@ -6,7 +6,7 @@ from os import path
 import sys
 
 descriptorSize = 16
-height = 98
+height = 196
 algorithm = cv2.AKAZE_create(cv2.AKAZE_DESCRIPTOR_MLDB, descriptorSize)
 
 pokemonNames = []
@@ -16,7 +16,7 @@ for file in glob('./assets/PokemonRecognizer/*/*.png'):
     srcBGRA = cv2.imread(file, cv2.IMREAD_UNCHANGED)
     scaledBGRA = cv2.resize(srcBGRA, (srcBGRA.shape[1] * height // srcBGRA.shape[0], height))
     targetBGR = cv2.cvtColor(scaledBGRA, cv2.COLOR_BGRA2BGR)
-    mask = srcBGRA[:, :, 3]
+    mask = scaledBGRA[:, :, 3]
 
     descriptors = algorithm.detectAndCompute(targetBGR, mask)[1]
     data.append('{' + ','.join(str(x) for x in np.ravel(descriptors).tolist()) + '}')
