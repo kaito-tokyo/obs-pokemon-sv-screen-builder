@@ -12,6 +12,7 @@
 #include "modules/Logger.hpp"
 #include "state-machine.h"
 #include "modules/DefaultLayoutCreatedDialog.hpp"
+#include "modules/PokemonRecognizer.h"
 
 const HistClassifier classifier_lobby_my_select = {{149, 811}, {139, 842}, 0,
 						   30,         17,         0.5};
@@ -69,6 +70,7 @@ struct screen_context {
 	SelectionRecognizer selectionRecognizer;
 	OpponentRankExtractor opponentRankExtractor;
 	Logger logger;
+	PokemonRecognizer pokemonRecognizer;
 
 	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
 
