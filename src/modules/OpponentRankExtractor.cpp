@@ -3,14 +3,14 @@
 
 const std::string LANGUAGE = "ja";
 
-int matchParenStart(const cv::Mat &lineBinary, const cv::Mat &parenStart,
-		    double matchThreshold)
+int matchParenStart(const cv::Mat &lineBinary, const cv::Mat &parenStart)
 {
 	for (int i = lineBinary.cols - parenStart.cols; i >= 0; i--) {
 		cv::Rect matchingRect(i, 0, parenStart.cols, parenStart.rows);
 		cv::Mat matchResult = parenStart ^ lineBinary(matchingRect);
-		const cv::Scalar difference = cv::sum(matchResult) / 256;
-		if (difference[0] < matchThreshold) {
+		const double difference = cv::sum(matchResult)[0] / 255.0;
+		if (difference <
+		    static_cast<double>(parenStart.total()) * 0.05) {
 			return i + parenStart.cols;
 		}
 	}
@@ -18,13 +18,13 @@ int matchParenStart(const cv::Mat &lineBinary, const cv::Mat &parenStart,
 }
 
 int matchParenEnd(const cv::Mat &lineBinary, const cv::Mat &parenEnd,
-		  double matchThreshold, int rankStart)
+		  int rankStart)
 {
 	for (int i = rankStart; i < lineBinary.cols - parenEnd.cols; i++) {
 		cv::Rect matchingRect(i, 0, parenEnd.cols, parenEnd.rows);
 		cv::Mat matchResult = parenEnd ^ lineBinary(matchingRect);
-		const cv::Scalar difference = cv::sum(matchResult) / 256;
-		if (difference[0] < matchThreshold) {
+		const double difference = cv::sum(matchResult)[0] / 255.0;
+		if (difference < static_cast<double>(parenEnd.total()) * 0.05) {
 			return i;
 		}
 	}
@@ -37,14 +37,12 @@ cv::Rect OpponentRankExtractor::extract(const cv::Mat &screenBinary) const
 	const auto parenIndices = PAREN_MAP.at(language);
 
 	cv::Mat parenStart = PAREN_TEMPLATES[parenIndices.first];
-	const int rankStart =
-		matchParenStart(lineBinary, parenStart, matchThreshold);
+	const int rankStart = matchParenStart(lineBinary, parenStart);
 	if (rankStart < 0)
 		return cv::Rect();
 
 	cv::Mat parenEnd = PAREN_TEMPLATES[parenIndices.second];
-	const int rankEnd =
-		matchParenEnd(lineBinary, parenEnd, matchThreshold, rankStart);
+	const int rankEnd = matchParenEnd(lineBinary, parenEnd, rankStart);
 	if (rankEnd < 0)
 		return cv::Rect();
 

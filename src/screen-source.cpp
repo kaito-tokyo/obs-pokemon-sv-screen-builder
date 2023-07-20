@@ -227,6 +227,11 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 		"browser/OpponentRank.html", 600, 100, 0, 864, 1, 1);
 
 	addBrowserSourceToSceneIfNotExists(scene,
+					   obs_module_text("MyRankSource"),
+					   "browser/MyRank.html", 600, 100, 0,
+					   764, 1, 1);
+
+	addBrowserSourceToSceneIfNotExists(scene,
 					   obs_module_text("MatchTimerSource"),
 					   "browser/MatchTimer.html", 530, 100,
 					   600, 872, 1, 1);
@@ -305,7 +310,7 @@ extern "C" void screen_video_tick(void *data, float seconds)
 	cv::cvtColor(gameplay_bgr, gameplay_hsv, cv::COLOR_BGR2HSV);
 	cv::cvtColor(context->gameplay_bgra, gameplay_gray,
 		     cv::COLOR_BGRA2GRAY);
-	cv::threshold(gameplay_gray, gameplay_binary, 128, 255,
+	cv::threshold(gameplay_gray, gameplay_binary, 200, 255,
 		      cv::THRESH_BINARY);
 	SceneDetector::Scene scene = context->sceneDetector.detectScene(
 		gameplay_hsv, gameplay_binary);
@@ -318,8 +323,9 @@ extern "C" void screen_video_tick(void *data, float seconds)
 						"RankShownScreenshot",
 						context->gameplay_bgra);
 		nextState = handleEnteringRankShown(
-			context->opponentRankExtractor, gameplay_binary,
-			context->logger);
+			context->opponentRankExtractor,
+			context->myRankExtractor, gameplay_binary,
+			context->gameplay_bgra, context->logger);
 	} else if (context->state == ScreenState::RANK_SHOWN) {
 		nextState = handleRankShown(scene);
 	} else if (context->state == ScreenState::ENTERING_SELECT_POKEMON) {

@@ -6,6 +6,7 @@
 
 #include "modules/SceneDetector.h"
 #include "modules/OpponentRankExtractor.h"
+#include "modules/MyRankExtractor.h"
 #include "modules/TextRecognizer.h"
 #include "modules/PokemonRecognizer.h"
 
@@ -59,18 +60,48 @@ static ScreenState handleUnknown(SceneDetector::Scene scene)
 
 static ScreenState
 handleEnteringRankShown(const OpponentRankExtractor &opponentRankExtractor,
-			const cv::Mat &gameplayBinary, const Logger &logger)
+			const MyRankExtractor &myRankExtractor,
+			const cv::Mat &gameplayBinary, const cv::Mat &g,
+			const Logger &logger)
 {
-	cv::Rect rankRect = opponentRankExtractor.extract(gameplayBinary);
-	cv::Mat rankImage = ~gameplayBinary(rankRect);
-	logger.writeOpponentRankImage(logger.getPrefix(), rankImage);
-	std::string recognizedText = recognizeText(rankImage);
-	nlohmann::json json{
-		{"text", recognizedText},
-	};
-	std::string jsonString(json.dump());
-	sendEventToAllBrowserSources(EVENT_NAME_OPPONENT_RANK_SHOWN,
-				     jsonString.c_str());
+	UNUSED_PARAMETER(g);
+	std::string prefix = logger.getPrefix();
+	cv::Rect myRankRect = myRankExtractor.extract(gameplayBinary);
+	if (myRankRect.empty()) {
+		logger.writeMyRankImage(
+			prefix, gameplayBinary(myRankExtractor.lineRect));
+		blog(LOG_INFO, "myRankRect empty");
+	} else {
+		cv::Mat myRankImage = ~gameplayBinary(myRankRect);
+		logger.writeMyRankImage(prefix, myRankImage);
+		std::string myRankText = recognizeText(myRankImage);
+		blog(LOG_INFO, "%s", myRankText.c_str());
+
+		nlohmann::json json{
+			{"text", myRankText},
+		};
+		std::string jsonString(json.dump());
+		sendEventToAllBrowserSources(
+			"obsPokemonSvScreenBuilderMyRankShown",
+			jsonString.c_str());
+	}
+	cv::Rect opponentRankRect =
+		opponentRankExtractor.extract(gameplayBinary);
+	if (opponentRankRect.empty()) {
+		logger.writeOpponentRankImage(
+			prefix, gameplayBinary(opponentRankExtractor.lineRect));
+		blog(LOG_INFO, "opponentRankRect empty");
+	} else {
+		cv::Mat rankImage = ~gameplayBinary(opponentRankRect);
+		logger.writeOpponentRankImage(prefix, rankImage);
+		std::string recognizedText = recognizeText(rankImage);
+		nlohmann::json json{
+			{"text", recognizedText},
+		};
+		std::string jsonString(json.dump());
+		sendEventToAllBrowserSources(EVENT_NAME_OPPONENT_RANK_SHOWN,
+					     jsonString.c_str());
+	}
 	return ScreenState::RANK_SHOWN;
 }
 
