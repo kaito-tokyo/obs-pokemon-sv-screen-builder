@@ -22,6 +22,7 @@ static bool sendEventToAllBrowserSourcesHandler(void *data,
 	calldata_set_string(&cd, "eventName", param->eventName);
 	calldata_set_string(&cd, "jsonString", param->jsonString);
 	proc_handler_call(ph, "javascript_event", &cd);
+	calldata_free(&cd);
 	return true;
 }
 

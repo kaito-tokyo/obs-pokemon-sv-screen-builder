@@ -17,46 +17,35 @@
 #include "screen-source.h"
 #include "plugin-support.h"
 
-extern "C" void screen_update(void *data, obs_data_t *settings);
-
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 {
-	screen_context *context = reinterpret_cast<screen_context *>(data);
+	screen_context *context = static_cast<screen_context *>(data);
 
 	if (!obs_source_enabled(context->source))
 		return;
 
-	const char *gameplay_name =
-		obs_data_get_string(context->settings, "gameplay_source");
-	obs_source_t *gameplay_source = obs_get_source_by_name(gameplay_name);
-	if (!gameplay_source) {
-		return;
-	}
-	if (!obs_source_enabled(gameplay_source)) {
-		obs_source_release(gameplay_source);
+	if (!context->gameplaySource) {
 		return;
 	}
 
-	const uint32_t gameplay_width = obs_source_get_width(gameplay_source);
-	const uint32_t gameplay_height = obs_source_get_height(gameplay_source);
+	const uint32_t gameplay_width =
+		obs_source_get_width(context->gameplaySource);
+	const uint32_t gameplay_height =
+		obs_source_get_height(context->gameplaySource);
 
 	if (gameplay_width == 0 || gameplay_height == 0) {
-		obs_source_release(gameplay_source);
 		return;
 	}
 
 	gs_texrender_reset(context->texrender);
 	if (!gs_texrender_begin(context->texrender, gameplay_width,
 				gameplay_height)) {
-		obs_source_release(gameplay_source);
 		return;
 	}
 	gs_ortho(0.0f, static_cast<float>(gameplay_width), 0.0f,
 		 static_cast<float>(gameplay_height), -100.0f, 100.0f);
-	obs_source_video_render(gameplay_source);
+	obs_source_video_render(context->gameplaySource);
 	gs_texrender_end(context->texrender);
-
-	obs_source_release(gameplay_source);
 
 	if (context->stagesurface) {
 		uint32_t stagesurface_width =
@@ -119,20 +108,26 @@ extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 
 	obs_add_main_render_callback(screen_main_render_callback, context);
 
-	screen_update(rawContext, settings);
-
 	return context;
 }
 
 extern "C" void screen_destroy(void *data)
 {
-	screen_context *context = reinterpret_cast<screen_context *>(data);
+	screen_context *context = static_cast<screen_context *>(data);
 
-	if (context) {
-		obs_remove_main_render_callback(screen_main_render_callback,
-						context);
-		bfree(context);
+	obs_enter_graphics();
+	gs_texrender_destroy(context->texrender);
+	if (context->gameplaySource) {
+		obs_source_release(context->gameplaySource);
 	}
+	if (context->stagesurface) {
+		gs_stagesurface_destroy(context->stagesurface);
+	}
+	obs_leave_graphics();
+
+	obs_remove_main_render_callback(screen_main_render_callback, context);
+	context->~screen_context();
+	bfree(context);
 }
 
 static std::string getFrontendRecordPath(config_t *config)
@@ -166,7 +161,7 @@ extern "C" void screen_defaults(obs_data_t *settings)
 
 static bool add_all_sources_to_list(void *param, obs_source_t *source)
 {
-	obs_property_t *prop = reinterpret_cast<obs_property_t *>(param);
+	obs_property_t *prop = static_cast<obs_property_t *>(param);
 	const char *name = obs_source_get_name(source);
 	obs_property_list_add_string(prop, name, name);
 	return true;
@@ -174,7 +169,7 @@ static bool add_all_sources_to_list(void *param, obs_source_t *source)
 
 static bool add_text_sources_to_list(void *param, obs_source_t *source)
 {
-	obs_property_t *prop = reinterpret_cast<obs_property_t *>(param);
+	obs_property_t *prop = static_cast<obs_property_t *>(param);
 	const char *id = obs_source_get_id(source);
 	if (strcmp(id, "text_gdiplus_v2") == 0 ||
 	    strcmp(id, "text_gdiplus") == 0 ||
@@ -209,6 +204,7 @@ static void addBrowserSourceToSceneIfNotExists(obs_scene_t *scene,
 	obs_source_t *source = obs_source_create("browser_source", sourceName,
 						 settings, nullptr);
 	obs_scene_add(scene, source);
+	obs_source_release(source);
 	obs_data_release(settings);
 	bfree(localFile);
 
@@ -292,7 +288,7 @@ extern "C" obs_properties_t *screen_properties(void *data)
 
 extern "C" void screen_update(void *data, obs_data_t *settings)
 {
-	screen_context *context = reinterpret_cast<screen_context *>(data);
+	screen_context *context = static_cast<screen_context *>(data);
 	bool logEnabled = obs_data_get_bool(settings, "log_enabled");
 	if (logEnabled) {
 		const char *logPath = obs_data_get_string(settings, "log_path");
@@ -302,43 +298,20 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 		context->logger.basedir = "";
 		obs_log(LOG_INFO, "Log disabled");
 	}
-}
 
-static uint64_t update_timer_text(obs_source_t *timer_source,
-				  uint64_t time_start, uint64_t time_now,
-				  uint64_t last_elapsed_seconds)
-{
-	uint64_t elapsed_seconds = (time_now - time_start) / 1000000000;
-	if (elapsed_seconds == last_elapsed_seconds)
-		return elapsed_seconds;
-	uint64_t remaining_seconds = 20 * 60 - elapsed_seconds;
-	uint64_t minutes = remaining_seconds / 60;
-	uint64_t seconds = remaining_seconds % 60;
-
-	char time_str[512];
-	snprintf(time_str, sizeof(time_str), "%02" PRIu64 ":%02" PRIu64,
-		 minutes, seconds);
-
-	obs_data_t *settings = obs_data_create();
-	obs_data_set_string(settings, "text", time_str);
-	obs_source_update(timer_source, settings);
-	obs_data_release(settings);
-
-	return elapsed_seconds;
-}
-
-static std::string update_text(obs_source_t *source, std::string rank)
-{
-	obs_data_t *settings = obs_data_create();
-	obs_data_set_string(settings, "text", rank.c_str());
-	obs_source_update(source, settings);
-	obs_data_release(settings);
-	return rank;
+	if (context->gameplaySource) {
+		obs_source_release(context->gameplaySource);
+	}
+	const char *gameplayName =
+		obs_data_get_string(settings, "gameplay_source");
+	obs_source_t *gameplaySource = obs_get_source_by_name(gameplayName);
+	UNUSED_PARAMETER(gameplaySource);
+	context->gameplaySource = gameplaySource;
 }
 
 extern "C" void screen_video_tick(void *data, float seconds)
 {
-	screen_context *context = reinterpret_cast<screen_context *>(data);
+	screen_context *context = static_cast<screen_context *>(data);
 	uint64_t cur_time = os_gettime_ns();
 
 	if (cur_time < context->next_tick + 1000 * 1000 * 100)

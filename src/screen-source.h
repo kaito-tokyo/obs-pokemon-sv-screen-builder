@@ -46,6 +46,7 @@ const std::vector<std::array<int, 2>> selectionOrderRowRange{{{154, 186},
 struct screen_context {
 	obs_data_t *settings = nullptr;
 	obs_source_t *source = nullptr;
+	obs_source_t *gameplaySource = nullptr;
 
 	gs_texrender_t *texrender = nullptr;
 	gs_stagesurf_t *stagesurface = nullptr;
