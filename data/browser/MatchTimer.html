@@ -21,7 +21,11 @@
         let matchStart = 0;
         let duration = 0;
         function tick() {
-            const remainingMillis = duration - Date.now() + matchStart;
+            let remainingMillis = duration - Date.now() + matchStart;
+            if (remainingMillis < 0) {
+                remainingMillis = 0;
+                running = false;
+            }
 
             const minute = document.querySelector('#minute');
             const remainingMinutePart = Math.floor(remainingMillis / 60000);
@@ -42,7 +46,7 @@
 
         window.addEventListener("obsPokemonSvScreenBuilderMatchStarted", ({ detail: { durationMins } }) => {
             running = true;
-            duration = durationMins * 60000;
+            duration = durationMins * 60000 / 20;
             matchStart = Date.now();
             document.body.classList.remove("stopped")
             window.requestAnimationFrame(tick);
