@@ -43,6 +43,8 @@ target_sources(
           src/modules/Logger.cpp
           src/modules/OpponentRankExtractor.cpp
           src/modules/OpponentRankExtractorGenerated.cpp
+          src/modules/MyRankExtractor.cpp
+          src/modules/MyRankExtractorGenerated.cpp
           src/modules/SceneDetector.cpp
           src/modules/SceneDetectorTextRecognizerGenerated.cpp
           src/modules/SelectionRecognizer.cpp
