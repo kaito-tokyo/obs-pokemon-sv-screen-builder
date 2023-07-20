@@ -1,0 +1,32 @@
+#include <vector>
+#include <map>
+#include <string>
+#include <utility>
+#include <opencv2/opencv.hpp>
+#include "PokemonRecognizer.h"
+
+const int PokemonRecognizer::HEIGHT = {{ height }};
+const int PokemonRecognizer::DESCRIPTOR_SIZE = {{ descriptorSize }};
+
+static std::vector<std::vector<uchar>> DATA = {
+    {% for d in data %}
+        {{ d }},
+    {% endfor %}
+};
+
+const std::vector<std::string> PokemonRecognizer::POKEMON_NAMES = {
+    {% for e in pokemonNames %}
+        "{{ e }}",
+    {% endfor %}
+};
+
+const std::vector<cv::Mat> PokemonRecognizer::POKEMON_DESCRIPTORS = {
+    {% for d in data %}
+        cv::Mat(
+            static_cast<int>(DATA[{{ loop.index0 }}].size()) / 2,
+            2,
+            CV_8U,
+            DATA[{{ loop.index0 }}].data()),
+    {% endfor %}
+};
+

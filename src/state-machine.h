@@ -7,6 +7,7 @@
 #include "modules/SceneDetector.h"
 #include "modules/OpponentRankExtractor.h"
 #include "modules/TextRecognizer.h"
+#include "modules/PokemonRecognizer.h"
 
 #include "constants.h"
 #include "renderers.h"
@@ -85,13 +86,22 @@ static ScreenState handleRankShown(SceneDetector::Scene scene)
 static ScreenState handleEnteringSelectPokemon(
 	uint64_t lastStateChangedNs, const cv::Mat &gameplayBGRA,
 	EntityCropper &opponentPokemonCropper,
-	std::array<int, N_POKEMONS> &mySelectionOrderMap, const Logger &logger)
+	std::array<int, N_POKEMONS> &mySelectionOrderMap,
+	const PokemonRecognizer &pokemonRecognizer, const Logger &logger)
 {
 	const uint64_t now = os_gettime_ns();
 	if (now - lastStateChangedNs > 1000000000) {
 		renderOpponentPokemons(gameplayBGRA, opponentPokemonCropper,
 				       logger);
 		mySelectionOrderMap.fill(0);
+		std::vector<std::string> pokemonNames(N_POKEMONS);
+		for (int i = 0; i < N_POKEMONS; i++) {
+			const cv::Mat &imageBGRA =
+				opponentPokemonCropper.imagesBGRA[i];
+			pokemonNames[i] =
+				pokemonRecognizer.recognizePokemon(imageBGRA);
+		}
+		logger.writeOpponentTeamText(logger.getPrefix(), pokemonNames);
 		return ScreenState::SELECT_POKEMON;
 	} else {
 		return ScreenState::ENTERING_SELECT_POKEMON;

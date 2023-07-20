@@ -1,4 +1,5 @@
 #include <ctime>
+#include <fstream>
 #include <iomanip>
 #include <sstream>
 
@@ -61,8 +62,26 @@ void Logger::writeScreenshot(const std::string &prefix, const std::string &name,
 	writeImage(oss.str(), image);
 }
 
+void Logger::writeOpponentTeamText(
+	const std::string &prefix,
+	const std::vector<std::string> &pokemonNames) const
+{
+	if (basedir.empty()) {
+		return;
+	}
+	std::filesystem::path p = basedir;
+	p /= prefix + "-OpponentTeam.txt";
+	std::ofstream ofs(p);
+	for (const std::string &pokemonName : pokemonNames) {
+		ofs << pokemonName << std::endl;
+	}
+}
+
 void Logger::writeImage(const std::string &filename, const cv::Mat &image) const
 {
+	if (image.empty()) {
+		return;
+	}
 	std::filesystem::create_directories(basedir);
 	std::filesystem::path p(basedir);
 	p /= filename;

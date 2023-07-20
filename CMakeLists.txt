@@ -38,15 +38,17 @@ target_sources(
   ${CMAKE_PROJECT_NAME}
   PRIVATE src/plugin-main.c
           src/screen-source.cpp
-          src/modules/SceneDetector.cpp
-          src/modules/SceneDetectorTextRecognizerGenerated.cpp
+          src/modules/DefaultLayoutCreatedDialog.cpp
           src/modules/EntityCropper.cpp
-          src/modules/SelectionRecognizer.cpp
-          src/modules/SelectionRecognizerGenerated.cpp
+          src/modules/Logger.cpp
           src/modules/OpponentRankExtractor.cpp
           src/modules/OpponentRankExtractorGenerated.cpp
-          src/modules/DefaultLayoutCreatedDialog.cpp
-          src/modules/Logger.cpp
+          src/modules/SceneDetector.cpp
+          src/modules/SceneDetectorTextRecognizerGenerated.cpp
+          src/modules/SelectionRecognizer.cpp
+          src/modules/SelectionRecognizerGenerated.cpp
+          src/modules/PokemonRecognizer.cpp
+          src/modules/PokemonRecognizerGenerated.cpp
           src/update-checker/UpdateDialog.cpp
           src/update-checker/update-checker.cpp)
 
