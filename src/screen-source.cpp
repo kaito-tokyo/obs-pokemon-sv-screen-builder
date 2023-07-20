@@ -337,6 +337,7 @@ extern "C" void screen_video_tick(void *data, float seconds)
 	if (context->state == ScreenState::UNKNOWN) {
 		nextState = handleUnknown(scene);
 	} else if (context->state == ScreenState::ENTERING_SHOW_RANK) {
+		context->logger.writeShowRankImage(context->gameplay_bgra);
 		nextState = handleEnteringShowRank(
 			context->opponentRankExtractor, gameplay_binary,
 			context->logger);

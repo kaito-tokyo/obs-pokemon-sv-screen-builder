@@ -15,6 +15,8 @@ public:
 				    const cv::Mat &image) const;
 	void writeMyPokemonImage(const std::string &prefix, int index,
 				 const cv::Mat &image) const;
+	void writeShowRankImage(const std::string &prefix,
+				const cv::Mat &image) const;
 
 private:
 	void writeImage(const std::string &filename,
