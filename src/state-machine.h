@@ -59,14 +59,17 @@ static ScreenState handleUnknown(SceneDetector::Scene scene)
 }
 
 static ScreenState
-handleEnteringRankShown(const OpponentRankExtractor &opponentRankExtractor, const MyRankExtractor &myRankExtractor,
-			const cv::Mat &gameplayBinary, const cv::Mat &g, const Logger &logger)
+handleEnteringRankShown(const OpponentRankExtractor &opponentRankExtractor,
+			const MyRankExtractor &myRankExtractor,
+			const cv::Mat &gameplayBinary, const cv::Mat &g,
+			const Logger &logger)
 {
 	UNUSED_PARAMETER(g);
 	std::string prefix = logger.getPrefix();
 	cv::Rect myRankRect = myRankExtractor.extract(gameplayBinary);
 	if (myRankRect.empty()) {
-		logger.writeMyRankImage(prefix, gameplayBinary(myRankExtractor.lineRect));
+		logger.writeMyRankImage(
+			prefix, gameplayBinary(myRankExtractor.lineRect));
 		blog(LOG_INFO, "myRankRect empty");
 	} else {
 		cv::Mat myRankImage = ~gameplayBinary(myRankRect);
@@ -78,12 +81,15 @@ handleEnteringRankShown(const OpponentRankExtractor &opponentRankExtractor, cons
 			{"text", myRankText},
 		};
 		std::string jsonString(json.dump());
-		sendEventToAllBrowserSources("obsPokemonSvScreenBuilderMyRankShown",
-						jsonString.c_str());
+		sendEventToAllBrowserSources(
+			"obsPokemonSvScreenBuilderMyRankShown",
+			jsonString.c_str());
 	}
-	cv::Rect opponentRankRect = opponentRankExtractor.extract(gameplayBinary);
+	cv::Rect opponentRankRect =
+		opponentRankExtractor.extract(gameplayBinary);
 	if (opponentRankRect.empty()) {
-		logger.writeOpponentRankImage(prefix, gameplayBinary(opponentRankExtractor.lineRect));
+		logger.writeOpponentRankImage(
+			prefix, gameplayBinary(opponentRankExtractor.lineRect));
 		blog(LOG_INFO, "opponentRankRect empty");
 	} else {
 		cv::Mat rankImage = ~gameplayBinary(opponentRankRect);
@@ -94,7 +100,7 @@ handleEnteringRankShown(const OpponentRankExtractor &opponentRankExtractor, cons
 		};
 		std::string jsonString(json.dump());
 		sendEventToAllBrowserSources(EVENT_NAME_OPPONENT_RANK_SHOWN,
-						jsonString.c_str());
+					     jsonString.c_str());
 	}
 	return ScreenState::RANK_SHOWN;
 }

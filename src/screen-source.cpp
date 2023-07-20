@@ -226,9 +226,10 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 		scene, obs_module_text("OpponentRankSource"),
 		"browser/OpponentRank.html", 600, 100, 0, 864, 1, 1);
 
-	addBrowserSourceToSceneIfNotExists(
-		scene, obs_module_text("MyRankSource"),
-		"browser/MyRank.html", 600, 100, 0, 764, 1, 1);
+	addBrowserSourceToSceneIfNotExists(scene,
+					   obs_module_text("MyRankSource"),
+					   "browser/MyRank.html", 600, 100, 0,
+					   764, 1, 1);
 
 	addBrowserSourceToSceneIfNotExists(scene,
 					   obs_module_text("MatchTimerSource"),
@@ -322,8 +323,9 @@ extern "C" void screen_video_tick(void *data, float seconds)
 						"RankShownScreenshot",
 						context->gameplay_bgra);
 		nextState = handleEnteringRankShown(
-			context->opponentRankExtractor, context->myRankExtractor, gameplay_binary, context->gameplay_bgra,
-			context->logger);
+			context->opponentRankExtractor,
+			context->myRankExtractor, gameplay_binary,
+			context->gameplay_bgra, context->logger);
 	} else if (context->state == ScreenState::RANK_SHOWN) {
 		nextState = handleRankShown(scene);
 	} else if (context->state == ScreenState::ENTERING_SELECT_POKEMON) {

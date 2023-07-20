@@ -17,7 +17,7 @@ int matchParenStart(const cv::Mat &lineBinary, const cv::Mat &parenStart)
 }
 
 int matchParenEnd(const cv::Mat &lineBinary, const cv::Mat &parenEnd,
-		int rankStart)
+		  int rankStart)
 {
 	for (int i = rankStart; i < lineBinary.cols - parenEnd.cols; i++) {
 		cv::Rect matchingRect(i, 0, parenEnd.cols, parenEnd.rows);
@@ -36,14 +36,12 @@ cv::Rect OpponentRankExtractor::extract(const cv::Mat &screenBinary) const
 	const auto parenIndices = PAREN_MAP.at(language);
 
 	cv::Mat parenStart = PAREN_TEMPLATES[parenIndices.first];
-	const int rankStart =
-		matchParenStart(lineBinary, parenStart);
+	const int rankStart = matchParenStart(lineBinary, parenStart);
 	if (rankStart < 0)
 		return cv::Rect();
 
 	cv::Mat parenEnd = PAREN_TEMPLATES[parenIndices.second];
-	const int rankEnd =
-		matchParenEnd(lineBinary, parenEnd, rankStart);
+	const int rankEnd = matchParenEnd(lineBinary, parenEnd, rankStart);
 	if (rankEnd < 0)
 		return cv::Rect();
 

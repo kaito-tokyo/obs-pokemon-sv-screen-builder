@@ -19,11 +19,11 @@ cv::Rect MyRankExtractor::extract(const cv::Mat &gameplayBinary) const
 {
 	cv::Mat lineBinary = gameplayBinary(lineRect);
 	cv::Mat icon = ICON_TEMPLATES[0];
-	const int rankStart =
-		matchIcon(lineBinary, icon);
+	const int rankStart = matchIcon(lineBinary, icon);
 	if (rankStart < 0) {
 		return cv::Rect();
 	} else {
-		return cv::Rect(lineRect.x + rankStart, lineRect.y, lineBinary.cols - rankStart, lineRect.height);
+		return cv::Rect(lineRect.x + rankStart, lineRect.y,
+				lineBinary.cols - rankStart, lineRect.height);
 	}
 }

@@ -39,7 +39,7 @@ void Logger::writeOpponentRankImage(const std::string &prefix,
 }
 
 void Logger::writeMyRankImage(const std::string &prefix,
-				    const cv::Mat &image) const
+			      const cv::Mat &image) const
 {
 	if (basedir.empty()) {
 		return;
