@@ -10,7 +10,7 @@ SceneDetector::detectScene(const cv::Mat &screenHSV,
 	} else if (isBlackTransition(screenHSV)) {
 		return SCENE_BLACK_TRANSITION;
 	} else if (isOpponentRankShown(screenBinary)) {
-		return SCENE_SHOW_RANK;
+		return SCENE_RANK_SHOWN;
 	} else {
 		return SCENE_UNDEFINED;
 	}

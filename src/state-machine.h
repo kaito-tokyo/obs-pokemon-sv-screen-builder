@@ -14,8 +14,8 @@
 
 enum class ScreenState {
 	UNKNOWN,
-	ENTERING_SHOW_RANK,
-	SHOW_RANK,
+	ENTERING_RANK_SHOWN,
+	RANK_SHOWN,
 	ENTERING_SELECT_POKEMON,
 	SELECT_POKEMON,
 	LEAVING_SELECT_POKEMON,
@@ -29,8 +29,8 @@ enum class ScreenState {
 
 const std::map<ScreenState, const char *> ScreenStateNames = {
 	{ScreenState::UNKNOWN, "UNKNOWN"},
-	{ScreenState::ENTERING_SHOW_RANK, "ENTERING_SHOW_RANK"},
-	{ScreenState::SHOW_RANK, "SHOW_RANK"},
+	{ScreenState::ENTERING_RANK_SHOWN, "ENTERING_RANK_SHOWN"},
+	{ScreenState::RANK_SHOWN, "RANK_SHOWN"},
 	{ScreenState::ENTERING_SELECT_POKEMON, "ENTERING_SELECT_POKEMON"},
 	{ScreenState::SELECT_POKEMON, "SELECT_POKEMON"},
 	{ScreenState::LEAVING_SELECT_POKEMON, "LEAVING_SELECT_POKEMON"},
@@ -47,8 +47,8 @@ const char EVENT_NAME_OPPONENT_RANK_SHOWN[] =
 
 static ScreenState handleUnknown(SceneDetector::Scene scene)
 {
-	if (scene == SceneDetector::SCENE_SHOW_RANK) {
-		return ScreenState::ENTERING_SHOW_RANK;
+	if (scene == SceneDetector::SCENE_RANK_SHOWN) {
+		return ScreenState::ENTERING_RANK_SHOWN;
 	} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 		return ScreenState::ENTERING_SELECT_POKEMON;
 	} else {
@@ -57,7 +57,7 @@ static ScreenState handleUnknown(SceneDetector::Scene scene)
 }
 
 static ScreenState
-handleEnteringShowRank(const OpponentRankExtractor &opponentRankExtractor,
+handleEnteringRankShown(const OpponentRankExtractor &opponentRankExtractor,
 		       const cv::Mat &gameplayBinary, const Logger &logger)
 {
 	cv::Rect rankRect = opponentRankExtractor.extract(gameplayBinary);
@@ -70,15 +70,15 @@ handleEnteringShowRank(const OpponentRankExtractor &opponentRankExtractor,
 	std::string jsonString(json.dump());
 	sendEventToAllBrowserSources(EVENT_NAME_OPPONENT_RANK_SHOWN,
 				     jsonString.c_str());
-	return ScreenState::SHOW_RANK;
+	return ScreenState::RANK_SHOWN;
 }
 
-static ScreenState handleShowRank(SceneDetector::Scene scene)
+static ScreenState handleRankShown(SceneDetector::Scene scene)
 {
 	if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 		return ScreenState::ENTERING_SELECT_POKEMON;
 	} else {
-		return ScreenState::SHOW_RANK;
+		return ScreenState::RANK_SHOWN;
 	}
 }
 
@@ -136,8 +136,8 @@ static ScreenState handleLeavingSelectPokemon(
 		return ScreenState::ENTERING_SELECT_POKEMON;
 	} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 		return ScreenState::ENTERING_MATCH;
-	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
-		return ScreenState::ENTERING_SHOW_RANK;
+	} else if (scene == SceneDetector::SCENE_RANK_SHOWN) {
+		return ScreenState::ENTERING_RANK_SHOWN;
 	} else {
 		return ScreenState::UNKNOWN;
 	}
@@ -162,8 +162,8 @@ static ScreenState handleConfirmPokemon(SceneDetector::Scene scene)
 		return ScreenState::ENTERING_SELECT_POKEMON;
 	} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 		return ScreenState::ENTERING_MATCH;
-	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
-		return ScreenState::SHOW_RANK;
+	} else if (scene == SceneDetector::SCENE_RANK_SHOWN) {
+		return ScreenState::RANK_SHOWN;
 	} else {
 		return ScreenState::CONFIRM_POKEMON;
 	}
@@ -182,8 +182,8 @@ static ScreenState handleEnteringMatch(SceneDetector::Scene scene,
 		return ScreenState::MATCH;
 	} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 		return ScreenState::ENTERING_SELECT_POKEMON;
-	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
-		return ScreenState::ENTERING_SHOW_RANK;
+	} else if (scene == SceneDetector::SCENE_RANK_SHOWN) {
+		return ScreenState::ENTERING_RANK_SHOWN;
 	} else {
 		return ScreenState::ENTERING_MATCH;
 	}
@@ -196,10 +196,10 @@ static ScreenState handleMatch(SceneDetector::Scene scene,
 		sendEventToAllBrowserSources(
 			"obsPokemonSvScreenBuilderMatchEnded", "null");
 		return ScreenState::ENTERING_SELECT_POKEMON;
-	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
+	} else if (scene == SceneDetector::SCENE_RANK_SHOWN) {
 		sendEventToAllBrowserSources(
 			"obsPokemonSvScreenBuilderMatchEnded", "null");
-		return ScreenState::ENTERING_SHOW_RANK;
+		return ScreenState::ENTERING_RANK_SHOWN;
 	} else if (prevScene != SceneDetector::SCENE_BLACK_TRANSITION &&
 		   scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 		sendEventToAllBrowserSources(
@@ -223,8 +223,8 @@ static ScreenState handleResult(SceneDetector::Scene scene,
 		return ScreenState::UNKNOWN;
 	} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 		return ScreenState::ENTERING_SELECT_POKEMON;
-	} else if (scene == SceneDetector::SCENE_SHOW_RANK) {
-		return ScreenState::ENTERING_SHOW_RANK;
+	} else if (scene == SceneDetector::SCENE_RANK_SHOWN) {
+		return ScreenState::ENTERING_RANK_SHOWN;
 	} else {
 		return ScreenState::RESULT;
 	}

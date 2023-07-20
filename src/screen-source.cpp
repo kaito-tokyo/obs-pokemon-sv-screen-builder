@@ -313,15 +313,15 @@ extern "C" void screen_video_tick(void *data, float seconds)
 	ScreenState nextState = ScreenState::UNKNOWN;
 	if (context->state == ScreenState::UNKNOWN) {
 		nextState = handleUnknown(scene);
-	} else if (context->state == ScreenState::ENTERING_SHOW_RANK) {
+	} else if (context->state == ScreenState::ENTERING_RANK_SHOWN) {
 		context->logger.writeScreenshot(context->logger.getPrefix(),
-						"ShowRankScreenshot",
+						"RankShownScreenshot",
 						context->gameplay_bgra);
-		nextState = handleEnteringShowRank(
+		nextState = handleEnteringRankShown(
 			context->opponentRankExtractor, gameplay_binary,
 			context->logger);
-	} else if (context->state == ScreenState::SHOW_RANK) {
-		nextState = handleShowRank(scene);
+	} else if (context->state == ScreenState::RANK_SHOWN) {
+		nextState = handleRankShow(scene);
 	} else if (context->state == ScreenState::ENTERING_SELECT_POKEMON) {
 		nextState = handleEnteringSelectPokemon(
 			context->last_state_change_ns, context->gameplay_bgra,
