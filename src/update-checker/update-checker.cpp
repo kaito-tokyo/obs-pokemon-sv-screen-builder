@@ -14,10 +14,11 @@ static bool getIsSkipping(config_t *config, const char *pluginName,
 			  const char *pluginVersion)
 {
 	bool skip = config_get_bool(config, pluginName, "check_update_skip");
-	std::string skipVersion = config_get_string(
+	const char *skipVersion = config_get_string(
 		config, pluginName, "check_update_skip_version");
 	if (skip) {
-		if (skipVersion == pluginVersion) {
+		if (skipVersion != nullptr &&
+		    std::strcmp(skipVersion, pluginVersion) == 0) {
 			return true;
 		} else {
 			config_set_bool(config, pluginName, "check_update_skip",
