@@ -26,77 +26,66 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 	if (!obs_source_enabled(context->source))
 		return;
 
-	const char *gameplay_name =
-		obs_data_get_string(context->settings, "gameplay_source");
-	obs_source_t *gameplay_source = obs_get_source_by_name(gameplay_name);
-	if (!gameplay_source) {
-		return;
-	}
-	if (!obs_source_enabled(gameplay_source)) {
-		obs_source_release(gameplay_source);
+	if (!context->gameplaySource) {
 		return;
 	}
 
-	const uint32_t gameplay_width = obs_source_get_width(gameplay_source);
-	const uint32_t gameplay_height = obs_source_get_height(gameplay_source);
+	const uint32_t gameplay_width = obs_source_get_width(context->gameplaySource);
+	const uint32_t gameplay_height = obs_source_get_height(context->gameplaySource);
 
 	if (gameplay_width == 0 || gameplay_height == 0) {
-		obs_source_release(gameplay_source);
 		return;
 	}
 
 	gs_texrender_reset(context->texrender);
 	if (!gs_texrender_begin(context->texrender, gameplay_width,
 				gameplay_height)) {
-		obs_source_release(gameplay_source);
 		return;
 	}
-	gs_ortho(0.0f, static_cast<float>(gameplay_width), 0.0f,
-		 static_cast<float>(gameplay_height), -100.0f, 100.0f);
-	obs_source_video_render(gameplay_source);
-	gs_texrender_end(context->texrender);
+	// gs_ortho(0.0f, static_cast<float>(gameplay_width), 0.0f,
+	// 	 static_cast<float>(gameplay_height), -100.0f, 100.0f);
+	// obs_source_video_render(context->gameplaySource);
+	// gs_texrender_end(context->texrender);
 
-	obs_source_release(gameplay_source);
-
-	if (context->stagesurface) {
-		uint32_t stagesurface_width =
-			gs_stagesurface_get_width(context->stagesurface);
-		uint32_t stagesurface_height =
-			gs_stagesurface_get_height(context->stagesurface);
-		if (stagesurface_width != gameplay_width ||
-		    stagesurface_height != gameplay_height) {
-			gs_stagesurface_destroy(context->stagesurface);
-			context->stagesurface = nullptr;
-		}
-	}
-	if (!context->stagesurface) {
-		context->stagesurface = gs_stagesurface_create(
-			gameplay_width, gameplay_height, GS_BGRA);
-	}
-	gs_stage_texture(context->stagesurface,
-			 gs_texrender_get_texture(context->texrender));
-	uint8_t *stagesurface_data;
-	uint32_t linesize;
-	if (!gs_stagesurface_map(context->stagesurface, &stagesurface_data,
-				 &linesize))
-		return;
-	if (stagesurface_data && linesize) {
-		if (gameplay_width * 4 == linesize) {
-			context->gameplay_bgra =
-				cv::Mat(gameplay_height, gameplay_width,
-					CV_8UC4, stagesurface_data);
-		} else {
-			context->gameplay_bgra = cv::Mat(
-				gameplay_height, gameplay_width, CV_8UC4);
-			for (uint32_t i = 0; i < gameplay_height; i++) {
-				memcpy(context->gameplay_bgra.data +
-					       gameplay_width * 4 * i,
-				       stagesurface_data + linesize * i,
-				       gameplay_width * 4);
-			}
-		}
-	}
-	gs_stagesurface_unmap(context->stagesurface);
+	// if (context->stagesurface) {
+	// 	uint32_t stagesurface_width =
+	// 		gs_stagesurface_get_width(context->stagesurface);
+	// 	uint32_t stagesurface_height =
+	// 		gs_stagesurface_get_height(context->stagesurface);
+	// 	if (stagesurface_width != gameplay_width ||
+	// 	    stagesurface_height != gameplay_height) {
+	// 		gs_stagesurface_destroy(context->stagesurface);
+	// 		context->stagesurface = nullptr;
+	// 	}
+	// }
+	// if (!context->stagesurface) {
+	// 	context->stagesurface = gs_stagesurface_create(
+	// 		gameplay_width, gameplay_height, GS_BGRA);
+	// }
+	// gs_stage_texture(context->stagesurface,
+	// 		 gs_texrender_get_texture(context->texrender));
+	// uint8_t *stagesurface_data;
+	// uint32_t linesize;
+	// if (!gs_stagesurface_map(context->stagesurface, &stagesurface_data,
+	// 			 &linesize))
+	// 	return;
+	// if (stagesurface_data && linesize) {
+	// 	if (gameplay_width * 4 == linesize) {
+	// 		context->gameplay_bgra =
+	// 			cv::Mat(gameplay_height, gameplay_width,
+	// 				CV_8UC4, stagesurface_data);
+	// 	} else {
+	// 		context->gameplay_bgra = cv::Mat(
+	// 			gameplay_height, gameplay_width, CV_8UC4);
+	// 		for (uint32_t i = 0; i < gameplay_height; i++) {
+	// 			memcpy(context->gameplay_bgra.data +
+	// 				       gameplay_width * 4 * i,
+	// 			       stagesurface_data + linesize * i,
+	// 			       gameplay_width * 4);
+	// 		}
+	// 	}
+	// }
+	// gs_stagesurface_unmap(context->stagesurface);
 
 	UNUSED_PARAMETER(cx);
 	UNUSED_PARAMETER(cy);
@@ -128,11 +117,17 @@ extern "C" void screen_destroy(void *data)
 {
 	screen_context *context = reinterpret_cast<screen_context *>(data);
 
-	if (context) {
-		obs_remove_main_render_callback(screen_main_render_callback,
-						context);
-		bfree(context);
+	std::lock_guard lock(context->callbackLock);
+	gs_texrender_destroy(context->texrender);
+	if (context->gameplaySource) {
+		obs_source_release(context->gameplaySource);
 	}
+	if (context->stagesurface) {
+		gs_stagesurface_destroy(context->stagesurface);
+	}
+	obs_remove_main_render_callback(screen_main_render_callback,
+					context);
+	bfree(context);
 }
 
 static std::string getFrontendRecordPath(config_t *config)
@@ -302,6 +297,13 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 		context->logger.basedir = "";
 		obs_log(LOG_INFO, "Log disabled");
 	}
+
+	if (context->gameplaySource) {
+		obs_source_release(context->gameplaySource);
+	}
+	const char *gameplayName = obs_data_get_string(settings, "gameplay_source");
+	obs_source_t *gameplaySource = obs_get_source_by_name(gameplayName);
+	context->gameplaySource = gameplaySource;
 }
 
 static uint64_t update_timer_text(obs_source_t *timer_source,

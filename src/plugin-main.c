@@ -20,7 +20,7 @@ static struct obs_source_info screen_info = {
 	.get_defaults = screen_defaults,
 	.get_properties = screen_properties,
 	.update = screen_update,
-	.video_tick = screen_video_tick,
+	//.video_tick = screen_video_tick,
 };
 
 OBS_DECLARE_MODULE()
