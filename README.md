@@ -13,7 +13,7 @@ OBSのバージョン29以上が必要です。Windows、macOS、Linuxの全て�
 
 ## 画面の例
 
-<img src="https://user-images.githubusercontent.com/1067855/218967358-68312e37-166b-4120-890a-8cd8d1df7d49.png" width="600">
+![画面の例](https://github.com/umireon/obs-pokemon-sv-screen-builder/assets/1067855/4eae70fa-e1ed-441a-9028-3f99f01a392c)
 
 ## ダウンロード
 
@@ -34,6 +34,6 @@ OBSポケモンSVスクリーンビルダーをインストールすると、「
 
 ポケモンSVスクリーンビルダー追加時にプロパティが開きますので、まずは「デフォルトレイアウトのソースを追加」ボタンをクリックしてください。次に、ゲーム画面ソースの欄に先ほどメモしたゲーム画面の写っているソースの名前を指定してください。
 
-<img width="600" src="https://user-images.githubusercontent.com/1067855/218971023-39bafc81-7970-42d8-9108-636de5fb0c24.png">
+<img width="832" alt="設定" src="https://github.com/umireon/obs-pokemon-sv-screen-builder/assets/1067855/39f25d24-e246-45c6-bc4b-98574936b100">
 
 これにより現在のシーンに「対戦時間」「相手のランク」「自分の選出」「相手のパーティー」というソースが追加されます。これで、ゲーム本編で試合を開始すればそれぞれのソースに試合の情報が表示されるようになります。
