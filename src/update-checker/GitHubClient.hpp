@@ -25,15 +25,18 @@ public:
 	{
 		URLResponse response = getUrl(latestReleaseUrl);
 		if (response.second != CURLE_OK) {
-			log(LOG_INFO, "Failed to get the latest release info!");
+			log(LOG_INFO,
+			    "[%s] Failed to get the latest release info!",
+			    pluginName.c_str());
 			return {"", "", true};
 		}
 
 		obs_data_t *data =
 			obs_data_create_from_json(response.first.c_str());
 		if (!data) {
-			log(LOG_INFO,
-			    "Failed to parse the latest release info!");
+			blog(LOG_INFO,
+			     "[%s] Failed to parse the latest release info!",
+			     pluginName.c_str());
 			return {"", "", true};
 		}
 
@@ -63,7 +66,8 @@ private:
 	{
 		CURL *curl = curl_easy_init();
 		if (!curl) {
-			log(LOG_ERROR, "Failed to initialize curl");
+			blog(LOG_ERROR, "[%s] Failed to initialize curl!",
+			     pluginName);
 			return {"", CURL_LAST};
 		}
 
@@ -80,18 +84,10 @@ private:
 		if (code == CURLE_OK) {
 			return {data, code};
 		} else {
-			log(LOG_ERROR, "Failed to fetch a content from %s",
-			    url);
+			blog(LOG_ERROR,
+			     "[%s] Failed to fetch a content from %s!",
+			     pluginName.c_str(), url);
 			return {"", code};
 		}
-	}
-
-	void log(int logLevel, const char *format, ...) const
-	{
-		std::string prefixedFormat = logPrefix + format;
-		va_list(args);
-		va_start(args, format);
-		blogva(logLevel, prefixedFormat.c_str(), args);
-		va_end(args);
 	}
 };
