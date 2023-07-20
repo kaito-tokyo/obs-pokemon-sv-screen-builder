@@ -24,13 +24,13 @@ static QString dialogContent =
 	"<h2>Changelog</h2>";
 
 UpdateDialog::UpdateDialog(
-	struct github_utils_release_information latestVersion, QWidget *parent)
+	std::string version, std::string body, QWidget *parent)
 	: QDialog(parent), layout(new QVBoxLayout)
 {
 	setWindowTitle("Background Removal - Update available! 🚀");
 	setLayout(layout);
 	QLabel *label = new QLabel(dialogContent.replace(
-		QString("{version}"), QString(latestVersion.version)));
+		QString("{version}"), QString(version.c_str())));
 	label->setOpenExternalLinks(true);
 	label->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	label->setTextFormat(Qt::RichText);
@@ -39,7 +39,7 @@ UpdateDialog::UpdateDialog(
 
 	QScrollArea *scrollArea = new QScrollArea;
 	QLabel *scrollAreaLabel =
-		new QLabel(QString(latestVersion.responseBody));
+		new QLabel(QString(body.c_str()));
 	scrollAreaLabel->setOpenExternalLinks(true);
 	scrollAreaLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	scrollAreaLabel->setTextFormat(Qt::MarkdownText);

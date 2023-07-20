@@ -1,12 +1,10 @@
 #pragma once
 
-#include "github-utils.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif
 
-void check_update(struct github_utils_release_information latestRelease);
+void update_checker_check_update(const char *latest_release_url, const char *plugin_name, const char *plugin_version);
 
 #ifdef __cplusplus
 }

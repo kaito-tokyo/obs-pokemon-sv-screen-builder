@@ -1,37 +1,51 @@
-#include "update-checker.h"
-#include "UpdateDialog.hpp"
-#include "github-utils.h"
-#include "obs-utils/obs-config-utils.h"
-
-#include <obs-frontend-api.h>
-#include <obs-module.h>
-
 #include <QTimer>
 
-UpdateDialog *update_dialog;
+#include <obs-frontend-api.h>
+#include <util/config-file.h>
 
-extern "C" const char *PLUGIN_VERSION;
+#include "UpdateDialog.hpp"
+#include "GitHubClient.hpp"
 
-void check_update(struct github_utils_release_information latestRelease)
+#include "update-checker.h"
+
+UpdateDialog *updateDialog;
+
+static bool getIsSkipping(config_t *config, const char *pluginName, const char *pluginVersion)
 {
-	bool shouldCheckForUpdates = false;
-	if (getFlagFromConfig("check_for_updates", &shouldCheckForUpdates) !=
-	    OBS_BGREMOVAL_CONFIG_SUCCESS) {
-		// Failed to get the config value, assume it's enabled
-		shouldCheckForUpdates = true;
+	bool skip = config_get_bool(config, pluginName, "check_update_skip");
+	std::string skipVersion = config_get_string(config, pluginName, "check_update_skip_version");
+	if (skip) {
+		if (skipVersion == pluginVersion) {
+			return true;
+		} else {
+			config_set_bool(config, pluginName, "check_update_skip", false);
+			config_save_safe(config, "tmp", nullptr);
+			return false;
+		}
+	} else {
+		return false;
 	}
+}
 
-	if (!shouldCheckForUpdates) {
-		// Update checks are disabled
+void update_checker_check_update(const char *latest_release_url, const char *plugin_name, const char *plugin_version)
+{
+	config_t *config = obs_frontend_get_global_config();
+	if (getIsSkipping(config, plugin_name, plugin_version)) {
+		blog(LOG_INFO, "[%s] Checking update skipped!", plugin_name);
 		return;
 	}
 
-	if (strcmp(latestRelease.version, PLUGIN_VERSION) == 0) {
-		// No update available, latest version is the same as the current version
+	GitHubClient client(plugin_name, plugin_version);
+	auto result = client.getLatestRelease(latest_release_url);
+	if (result.error) {
+		blog(LOG_INFO, "[%s] Failed to fetch latest release info!", plugin_name);
+		return;
+	}
+	if (result.version == plugin_version) {
+		blog(LOG_INFO, "[%s] This plugin is latest!", plugin_name);
 		return;
 	}
 
-	update_dialog = new UpdateDialog(
-		latestRelease, (QWidget *)obs_frontend_get_main_window());
-	QTimer::singleShot(2000, update_dialog, &UpdateDialog::exec);
+	updateDialog = new UpdateDialog(result.version, result.body, (QWidget *)obs_frontend_get_main_window());
+	QTimer::singleShot(2000, updateDialog, &UpdateDialog::exec);
 }
