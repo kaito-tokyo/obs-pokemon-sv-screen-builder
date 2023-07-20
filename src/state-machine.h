@@ -94,13 +94,13 @@ static ScreenState handleEnteringSelectPokemon(
 		renderOpponentPokemons(gameplayBGRA, opponentPokemonCropper,
 				       logger);
 		mySelectionOrderMap.fill(0);
+		std::vector<std::string> pokemonNames(N_POKEMONS);
 		for (int i = 0; i < N_POKEMONS; i++) {
 			const cv::Mat &imageBGRA =
 				opponentPokemonCropper.imagesBGRA[i];
-			const std::string name =
-				pokemonRecognizer.recognizePokemon(imageBGRA);
-			blog(LOG_INFO, "%s", name.c_str());
+			pokemonNames[i] = pokemonRecognizer.recognizePokemon(imageBGRA);
 		}
+		logger.writeOpponentTeamText(logger.getPrefix(), pokemonNames);
 		return ScreenState::SELECT_POKEMON;
 	} else {
 		return ScreenState::ENTERING_SELECT_POKEMON;
