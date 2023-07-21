@@ -3,6 +3,7 @@
 #include "ScreenState.hpp"
 #include "modules/SceneDetector.h"
 #include "ActionHandler.hpp"
+#include "constants.h"
 
 class Automaton {
 public:
@@ -38,5 +39,8 @@ private:
 	cv::Mat gameplayBGR;
 	cv::Mat gameplayHSV;
 	cv::Mat gameplayGray;
-	uint64_t elapsedNs = 0;
+	uint64_t lastStateChangeNs = 0;
+	uint64_t elapsedNsFromLastStateChange = 0;
+	std::array<int, N_POKEMONS> mySelectionOrderMap;
+	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
 };

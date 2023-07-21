@@ -3,6 +3,7 @@
 
 #include <obs.h>
 
+#include "obs-platform-util.h"
 #include "modules/SceneDetector.h"
 #include "plugin-support.h"
 
@@ -22,13 +23,17 @@ void Automaton::operator()(const cv::Mat &_gameplayBGRA)
 	SceneDetector::Scene currentScene =
 		sceneDetector.detectScene(gameplayHSV, gameplayBinary);
 
+	uint64_t nowNs = os_gettime_ns();
+	elapsedNsFromLastStateChange = nowNs - lastStateChangeNs;
 	ScreenState nextState = compute(currentScene);
+	prevScene = currentScene;
 	if (nextState != state) {
 		std::string stateString(NAMEOF_ENUM(state));
 		std::string nextStateString(NAMEOF_ENUM(nextState));
 		obs_log(LOG_INFO, "State: %s to %s", stateString.c_str(),
 			nextStateString.c_str());
 		state = nextState;
+		lastStateChangeNs = nowNs;
 	}
 }
 
@@ -92,7 +97,9 @@ ScreenState Automaton::computeRankShown(SceneDetector::Scene scene)
 
 ScreenState Automaton::computeEnteringSelectPokemon(void)
 {
-	if (elapsedNs > 1000000000) {
+	bool canEnterToSelectPokemon = elapsedNsFromLastStateChange > 1000000000;
+	actionHandler.handleEnteringSelectPokemon(gameplayBGRA, canEnterToSelectPokemon, mySelectionOrderMap);
+	if (canEnterToSelectPokemon) {
 		return ScreenState::SELECT_POKEMON;
 	} else {
 		return ScreenState::ENTERING_SELECT_POKEMON;
@@ -101,6 +108,7 @@ ScreenState Automaton::computeEnteringSelectPokemon(void)
 
 ScreenState Automaton::computeSelectPokemon(SceneDetector::Scene scene)
 {
+	actionHandler.handleSelectPokemon(gameplayBGRA, gameplayHSV, mySelectionOrderMap, myPokemonsBGRA);
 	if (scene != SceneDetector::SCENE_SELECT_POKEMON) {
 		return ScreenState::LEAVING_SELECT_POKEMON;
 	} else {
@@ -126,7 +134,7 @@ ScreenState Automaton::computeLeavingSelectPokemon(SceneDetector::Scene scene)
 
 ScreenState Automaton::computeEnteringConfirmPokemon(SceneDetector::Scene scene)
 {
-	if (elapsedNs > 500000000) {
+	if (elapsedNsFromLastStateChange > 500000000) {
 		return ScreenState::CONFIRM_POKEMON;
 	} else if (scene == SceneDetector::SCENE_BLACK_TRANSITION) {
 		return ScreenState::ENTERING_MATCH;
@@ -184,7 +192,7 @@ ScreenState Automaton::computeEnteringResult(void)
 
 ScreenState Automaton::computeResult(SceneDetector::Scene scene)
 {
-	if (elapsedNs > 2000000000) {
+	if (elapsedNsFromLastStateChange > 2000000000) {
 		return ScreenState::UNKNOWN;
 	} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 		return ScreenState::ENTERING_SELECT_POKEMON;

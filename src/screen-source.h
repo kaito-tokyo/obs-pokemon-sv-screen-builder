@@ -91,7 +91,7 @@ struct screen_context {
 					 opponent_row_range),
 		  selectionOrderCropper(selectionOrderColRange,
 					selectionOrderRowRange),
-		  actionHandler(myRankExtractor, opponentRankExtractor, logger),
+		  actionHandler(myRankExtractor, opponentRankExtractor, logger, pokemonRecognizer, opponentPokemonCropper, selectionOrderCropper, selectionRecognizer, myPokemonCropper),
 		  automaton(actionHandler, sceneDetector)
 	{
 	}
