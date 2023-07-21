@@ -23,7 +23,8 @@ using winrt::Windows::Foundation::IMemoryBufferReference;
 using Windows::Foundation::IMemoryBufferByteAccess;
 
 #include <fstream>
-std::string recognizeTextImpl(const unsigned char *data, int width, int height) {
+std::string recognizeTextImpl(const unsigned char *data, int width, int height)
+{
 	const int dataSize = width * height;
 
 	MemoryBuffer memoryBuffer(dataSize);
@@ -47,15 +48,14 @@ std::string recognizeTextImpl(const unsigned char *data, int width, int height) 
 	return winrt::to_string(result.Text());
 }
 
-namespace winrt::WinRTTextRecognizer::implementation
+namespace winrt::WinRTTextRecognizer::implementation {
+int32_t Class::MyProperty()
 {
-    int32_t Class::MyProperty()
-    {
-        throw hresult_not_implemented();
-    }
+	throw hresult_not_implemented();
+}
 
-    void Class::MyProperty(int32_t /* value */)
-    {
-        throw hresult_not_implemented();
-    }
+void Class::MyProperty(int32_t /* value */)
+{
+	throw hresult_not_implemented();
+}
 }
