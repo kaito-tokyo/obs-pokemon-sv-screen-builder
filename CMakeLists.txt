@@ -71,4 +71,13 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libcurl)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nameof/include)
 
+if(MSVC)
+  set(WinRTTextRecognizer_DIR "${CMAKE_SOURCE_DIR}/src/TextRecognizer/WinRTTextRecognizer")
+  include_external_msproject(WinRTTextRecognizer "${WinRTTextRecognizer_DIR}/WinRTTextRecognizer.vcxproj")
+  target_link_libraries(
+    ${CMAKE_PROJECT_NAME}
+    PRIVATE "${WinRTTextRecognizer_DIR}/x64/${CMAKE_BUILD_TYPE}/WinRTTextRecognizer/WinRTTextRecognizer.lib")
+  add_dependencies(${CMAKE_PROJECT_NAME} WinRTTextRecognizer)
+endif()
+
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
