@@ -6,6 +6,7 @@
 #include "modules/EntityCropper.h"
 #include "modules/SelectionRecognizer.h"
 #include "modules/Logger.hpp"
+#include "Croppers/MyPokemonCropper.hpp"
 
 #include "constants.h"
 #include "obs-browser-api.h"
@@ -62,18 +63,22 @@ detectSelectionOrderChange(EntityCropper &selectionOrderCropper,
 }
 
 static void
-drawMyPokemons(EntityCropper &myPokemonCropper, const cv::Mat &gameplayBGRA,
+drawMyPokemons(const MyPokemonCropper &myPokemonCropper,
+	       const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHSV,
 	       std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA,
 	       const std::array<int, N_POKEMONS> &mySelectionOrderMap)
 {
 	std::vector<std::string> imageUrls(N_POKEMONS);
-	myPokemonCropper.crop(gameplayBGRA);
+	const std::vector<cv::Mat> croppedBGRA =
+		myPokemonCropper.crop(gameplayBGRA);
+	const std::vector<bool> shouldUpdate =
+		myPokemonCropper.getShouldUpdate(gameplayHSV);
+
 	for (int i = 0; i < N_POKEMONS; i++) {
-		cv::Vec4b &pixel =
-			myPokemonCropper.imagesBGRA[i].at<cv::Vec4b>(0, 0);
-		if (pixel[1] > 150 && pixel[2] > 150)
-			continue;
-		myPokemonsBGRA[i] = myPokemonCropper.imagesBGRA[i].clone();
+		if (shouldUpdate[i]) {
+			blog(LOG_INFO, "shouldUpdate: %d", i);
+			myPokemonsBGRA[i] = croppedBGRA[i].clone();
+		}
 	}
 
 	for (int i = 0; i < N_POKEMONS; i++) {
