@@ -190,3 +190,14 @@ void ActionHandler::handleSelectPokemon(const cv::Mat &gameplayBGRA, const cv::M
 			       myPokemonsBGRA, mySelectionOrderMap);
 	}
 }
+
+void ActionHandler::handleEnteringMatch(bool canEnterToMatch) const
+{
+	if (canEnterToMatch) {
+		nlohmann::json json{{"durationMins", 20}};
+	std::string jsonString(json.dump());
+	sendEventToAllBrowserSources(
+		"obsPokemonSvScreenBuilderMatchStarted",
+		jsonString.c_str());
+	}
+}

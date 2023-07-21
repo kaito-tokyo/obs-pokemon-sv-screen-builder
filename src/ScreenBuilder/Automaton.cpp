@@ -159,8 +159,10 @@ ScreenState Automaton::computeConfirmPokemon(SceneDetector::Scene scene)
 
 ScreenState Automaton::computeEnteringMatch(SceneDetector::Scene scene)
 {
-	if (prevScene != SceneDetector::SCENE_BLACK_TRANSITION &&
-	    scene == SceneDetector::SCENE_BLACK_TRANSITION) {
+	bool canEnterToMatch = prevScene != SceneDetector::SCENE_BLACK_TRANSITION &&
+	    scene == SceneDetector::SCENE_BLACK_TRANSITION;
+	actionHandler.handleEnteringMatch(canEnterToMatch);
+	if (canEnterToMatch) {
 		return ScreenState::MATCH;
 	} else if (scene == SceneDetector::SCENE_SELECT_POKEMON) {
 		return ScreenState::ENTERING_SELECT_POKEMON;

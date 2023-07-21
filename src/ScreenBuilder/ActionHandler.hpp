@@ -48,4 +48,5 @@ public:
 	void handleSelectPokemon(const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHsv,
 		    std::array<int, N_POKEMONS> &mySelectionOrderMap,
 		    std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA) const;
+	void handleEnteringMatch(bool canEnterToMatch) const;
 };
