@@ -14,6 +14,7 @@
 #include "modules/DefaultLayoutCreatedDialog.hpp"
 #include "modules/PokemonRecognizer.h"
 #include "modules/MyRankExtractor.h"
+#include "Croppers/MyPokemonCropper.hpp"
 
 const HistClassifier classifier_lobby_my_select = {{149, 811}, {139, 842}, 0,
 						   30,         17,         0.5};
@@ -66,7 +67,7 @@ struct screen_context {
 	SceneDetector::Scene prev_scene;
 
 	EntityCropper opponentPokemonCropper;
-	EntityCropper myPokemonCropper;
+	MyPokemonCropper myPokemonCropper;
 	EntityCropper selectionOrderCropper;
 	SelectionRecognizer selectionRecognizer;
 	OpponentRankExtractor opponentRankExtractor;
@@ -84,7 +85,6 @@ struct screen_context {
 				classifier_black_transition),
 		  opponentPokemonCropper(opponent_col_range,
 					 opponent_row_range),
-		  myPokemonCropper(myPokemonColRange, myPokemonRowRange),
 		  selectionOrderCropper(selectionOrderColRange,
 					selectionOrderRowRange)
 	{

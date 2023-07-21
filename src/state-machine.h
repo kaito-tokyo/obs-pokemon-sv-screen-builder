@@ -9,6 +9,7 @@
 #include "modules/MyRankExtractor.h"
 #include "modules/TextRecognizer.h"
 #include "modules/PokemonRecognizer.h"
+#include "Croppers/MyPokemonCropper.hpp"
 
 #include "constants.h"
 #include "renderers.h"
@@ -145,7 +146,7 @@ handleSelectPokemon(SceneDetector::Scene scene,
 		    const cv::Mat &gameplayBGRA,
 		    const SelectionRecognizer &selectionRecognizer,
 		    std::array<int, N_POKEMONS> &mySelectionOrderMap,
-		    EntityCropper &myPokemonCropper,
+		    MyPokemonCropper &myPokemonCropper,
 		    std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA)
 {
 	if (detectSelectionOrderChange(selectionOrderCropper, gameplayBGRA,
