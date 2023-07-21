@@ -30,8 +30,7 @@ std::string PokemonRecognizer::recognizePokemon(const cv::Mat &imageBGRA) const
 	std::vector<double> results;
 	for (int i = 0; i < static_cast<int>(DESCRIPTORS.size()); i++) {
 		std::vector<cv::DMatch> matches;
-		const cv::Mat candidateDescriptor =
-			DESCRIPTORS[i];
+		const cv::Mat candidateDescriptor = DESCRIPTORS[i];
 		std::cout << candidateDescriptor << std::endl;
 		matcher->match(targetDescriptors, candidateDescriptor, matches);
 
