@@ -1,6 +1,7 @@
 #include <inttypes.h>
 #include <sstream>
 #include <iomanip>
+#include <filesystem>
 
 #include <opencv2/opencv.hpp>
 #include <nlohmann/json.hpp>
@@ -184,7 +185,12 @@ static void addBrowserSourceToSceneIfNotExists(obs_scene_t *scene,
 
 	obs_data_t *settings = obs_data_create();
 	char *localFile = obs_module_file(moduleFileName);
-	obs_data_set_string(settings, "local_file", localFile);
+	std::filesystem::path localFileAbs =
+		std::filesystem::absolute(localFile);
+	bfree(localFile);
+	std::string localFileString = localFileAbs.string<char>();
+
+	obs_data_set_string(settings, "local_file", localFileString.c_str());
 	obs_data_set_int(settings, "width", width);
 	obs_data_set_int(settings, "height", height);
 	obs_data_set_bool(settings, "is_local_file", true);
@@ -193,7 +199,6 @@ static void addBrowserSourceToSceneIfNotExists(obs_scene_t *scene,
 	obs_scene_add(scene, source);
 	obs_source_release(source);
 	obs_data_release(settings);
-	bfree(localFile);
 
 	obs_sceneitem_t *sceneItem =
 		obs_scene_sceneitem_from_source(scene, source);
