@@ -337,7 +337,8 @@ extern "C" void screen_video_tick(void *data, float seconds)
 	} else if (context->state == ScreenState::SELECT_POKEMON) {
 		nextState = handleSelectPokemon(
 			scene, context->selectionOrderCropper,
-			context->gameplay_bgra, context->selectionRecognizer,
+			context->gameplay_bgra, gameplay_hsv,
+			context->selectionRecognizer,
 			context->my_selection_order_map,
 			context->myPokemonCropper, context->myPokemonsBGRA);
 	} else if (context->state == ScreenState::LEAVING_SELECT_POKEMON) {

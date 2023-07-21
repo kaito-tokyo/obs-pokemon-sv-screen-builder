@@ -1,24 +1,35 @@
 #pragma once
 
-#include <array>
 #include <vector>
 
 #include <opencv2/opencv.hpp>
 
-#include "constants.h"
-
 class MyPokemonCropper {
 public:
-	const cv::Range colRange = {182, 711};
-	const std::vector<cv::Range> rowRanges = {{147, 254}, {263, 371},
-						  {379, 486}, {496, 602},
-						  {612, 718}, {727, 834}};
+	const std::vector<cv::Rect> rects = {
+		{182, 147, 529, 107}, {182, 263, 529, 107},
+		{182, 379, 529, 107}, {182, 496, 529, 107},
+		{182, 612, 529, 107}, {182, 727, 529, 107},
+	};
+	const uchar backgroundValueThreshold = 128;
+	const cv::Point backgroundPoint = {0, 0};
 
-	std::array<cv::Mat, N_POKEMONS> crop(const cv::Mat &input)
+	std::vector<cv::Mat> crop(const cv::Mat &input) const
 	{
-		std::array<cv::Mat, N_POKEMONS> output;
-		for (size_t i = 0; i < rowRanges.size(); i++) {
-			output[i] = input(rowRanges[i], colRange).clone();
+		std::vector<cv::Mat> output(rects.size());
+		for (size_t i = 0; i < rects.size(); i++) {
+			output[i] = input(rects[i]);
+		}
+		return output;
+	}
+
+	std::vector<bool> getShouldUpdate(const cv::Mat &inputHsv) const
+	{
+		std::vector<bool> output(rects.size());
+		for (size_t i = 0; i < rects.size(); i++) {
+			output[i] = inputHsv(rects[i]).at<cv::Vec3b>(
+					    backgroundPoint)[2] <
+				    backgroundValueThreshold;
 		}
 		return output;
 	}

@@ -143,17 +143,17 @@ static ScreenState handleEnteringSelectPokemon(
 static ScreenState
 handleSelectPokemon(SceneDetector::Scene scene,
 		    EntityCropper &selectionOrderCropper,
-		    const cv::Mat &gameplayBGRA,
+		    const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHsv,
 		    const SelectionRecognizer &selectionRecognizer,
 		    std::array<int, N_POKEMONS> &mySelectionOrderMap,
-		    MyPokemonCropper &myPokemonCropper,
+		    const MyPokemonCropper &myPokemonCropper,
 		    std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA)
 {
 	if (detectSelectionOrderChange(selectionOrderCropper, gameplayBGRA,
 				       selectionRecognizer,
 				       mySelectionOrderMap)) {
-		drawMyPokemons(myPokemonCropper, gameplayBGRA, myPokemonsBGRA,
-			       mySelectionOrderMap);
+		drawMyPokemons(myPokemonCropper, gameplayBGRA, gameplayHsv,
+			       myPokemonsBGRA, mySelectionOrderMap);
 	}
 
 	if (scene != SceneDetector::SCENE_SELECT_POKEMON) {

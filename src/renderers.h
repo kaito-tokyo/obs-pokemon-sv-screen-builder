@@ -63,17 +63,22 @@ detectSelectionOrderChange(EntityCropper &selectionOrderCropper,
 }
 
 static void
-drawMyPokemons(MyPokemonCropper &myPokemonCropper, const cv::Mat &gameplayBGRA,
+drawMyPokemons(const MyPokemonCropper &myPokemonCropper,
+	       const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHSV,
 	       std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA,
 	       const std::array<int, N_POKEMONS> &mySelectionOrderMap)
 {
 	std::vector<std::string> imageUrls(N_POKEMONS);
-	auto croppedsBGRA = myPokemonCropper.crop(gameplayBGRA);
+	const std::vector<cv::Mat> croppedBGRA =
+		myPokemonCropper.crop(gameplayBGRA);
+	const std::vector<bool> shouldUpdate =
+		myPokemonCropper.getShouldUpdate(gameplayHSV);
+
 	for (int i = 0; i < N_POKEMONS; i++) {
-		cv::Vec4b &pixel = croppedsBGRA[i].at<cv::Vec4b>(0, 0);
-		if (pixel[1] > 150 && pixel[2] > 150)
-			continue;
-		myPokemonsBGRA[i] = croppedsBGRA[i].clone();
+		if (shouldUpdate[i]) {
+			blog(LOG_INFO, "shouldUpdate: %d", i);
+			myPokemonsBGRA[i] = croppedBGRA[i].clone();
+		}
 	}
 
 	for (int i = 0; i < N_POKEMONS; i++) {
