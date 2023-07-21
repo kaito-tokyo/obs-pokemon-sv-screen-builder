@@ -185,7 +185,8 @@ static void addBrowserSourceToSceneIfNotExists(obs_scene_t *scene,
 
 	obs_data_t *settings = obs_data_create();
 	char *localFile = obs_module_file(moduleFileName);
-	std::filesystem::path localFileAbs = std::filesystem::absolute(localFile);
+	std::filesystem::path localFileAbs =
+		std::filesystem::absolute(localFile);
 	bfree(localFile);
 	std::string localFileString = localFileAbs.string<char>();
 
