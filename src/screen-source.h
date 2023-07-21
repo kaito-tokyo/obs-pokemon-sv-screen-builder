@@ -10,11 +10,11 @@
 #include "modules/SceneDetector.h"
 #include "modules/SelectionRecognizer.h"
 #include "modules/Logger.hpp"
-#include "state-machine.h"
 #include "modules/DefaultLayoutCreatedDialog.hpp"
 #include "modules/PokemonRecognizer.h"
 #include "modules/MyRankExtractor.h"
 #include "Croppers/MyPokemonCropper.hpp"
+#include "ScreenBuilder/Automaton.hpp"
 
 const HistClassifier classifier_lobby_my_select = {{149, 811}, {139, 842}, 0,
 						   30,         17,         0.5};
@@ -75,6 +75,9 @@ struct screen_context {
 	PokemonRecognizer pokemonRecognizer;
 	MyRankExtractor myRankExtractor;
 
+	ActionHandler actionHandler;
+	Automaton automaton;
+
 	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
 
 	DefaultLayoutCreatedDialog defaultLayoutCreatedDialog;
@@ -86,7 +89,12 @@ struct screen_context {
 		  opponentPokemonCropper(opponent_col_range,
 					 opponent_row_range),
 		  selectionOrderCropper(selectionOrderColRange,
-					selectionOrderRowRange)
+					selectionOrderRowRange),
+		  actionHandler(myRankExtractor, opponentRankExtractor, logger,
+				pokemonRecognizer, opponentPokemonCropper,
+				selectionOrderCropper, selectionRecognizer,
+				myPokemonCropper),
+		  automaton(actionHandler, sceneDetector)
 	{
 	}
 };

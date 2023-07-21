@@ -6,7 +6,7 @@
 #ifdef __APPLE__
 std::string recognizeText(const cv::Mat &imageBGR);
 #else
-std::string recognizeText(const cv::Mat &imageBGRA)
+static std::string recognizeText(const cv::Mat &imageBGRA)
 {
 	UNUSED_PARAMETER(imageBGRA);
 	return std::string("N/A");

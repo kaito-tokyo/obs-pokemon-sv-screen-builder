@@ -4,7 +4,7 @@
 #include <vector>
 
 namespace Base64 {
-std::string encode(const std::vector<unsigned char> input)
+static std::string encode(const std::vector<unsigned char> input)
 {
 	const char table[] =
 		"ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";

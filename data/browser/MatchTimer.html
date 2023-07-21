@@ -46,7 +46,7 @@
 
         window.addEventListener("obsPokemonSvScreenBuilderMatchStarted", ({ detail: { durationMins } }) => {
             running = true;
-            duration = durationMins * 60000 / 20;
+            duration = durationMins * 60000;
             matchStart = Date.now();
             document.body.classList.remove("stopped")
             window.requestAnimationFrame(tick);
