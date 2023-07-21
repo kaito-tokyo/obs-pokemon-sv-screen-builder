@@ -57,7 +57,7 @@ target_sources(
           src/update-checker/update-checker.cpp)
 
 if(APPLE)
-  target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/modules/macos/VisionTextRecognizer.mm)
+  target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/TextRecognizer/VisionTextRecognizer/VisionTextRecognizer.mm)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-framework Vision" "-framework CoreVideo"
                                                       "-framework VideoToolbox")
 endif()
