@@ -34,13 +34,15 @@ static void dispatchOpponentTeamShown(const std::vector<cv::Mat> &images)
 	for (size_t i = 0; i < images.size(); i++) {
 		std::vector<uchar> pngImage;
 		cv::imencode(".png", images[i], pngImage);
-		imageUrls.push_back(
-			"data:image/png;base64," + Base64::encode(pngImage));
+		imageUrls.push_back("data:image/png;base64," +
+				    Base64::encode(pngImage));
 	}
 
 	nlohmann::json json{{"imageUrls", imageUrls}};
 	std::string jsonString = json.dump();
-	sendEventToAllBrowserSources("obsPokemonSvScreenBuilderOpponentTeamShown", jsonString.c_str());
+	sendEventToAllBrowserSources(
+		"obsPokemonSvScreenBuilderOpponentTeamShown",
+		jsonString.c_str());
 }
 
 void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
@@ -72,7 +74,8 @@ void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
 		opponentRankExtractor.extract(opponentRankBinary);
 	if (opponentRankRect.empty()) {
 		obs_log(LOG_INFO, "Failed to extract the opponent rank!");
-		logger.writeScreenshot(prefix, "OpponentRankFailed", gameplayBinary);
+		logger.writeScreenshot(prefix, "OpponentRankFailed",
+				       gameplayBinary);
 	} else {
 		cv::Mat rankImage = ~gameplayBinary(opponentRankRect);
 		logger.writeOpponentRankImage(prefix, rankImage);
@@ -86,8 +89,7 @@ void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
 }
 
 void ActionHandler::handleEnteringSelectPokemon(
-	const cv::Mat &gameplayBGRA,
-	bool canEnterToSelectPokemon,
+	const cv::Mat &gameplayBGRA, bool canEnterToSelectPokemon,
 	std::array<int, N_POKEMONS> &mySelectionOrderMap) const
 {
 	if (canEnterToSelectPokemon) {
@@ -111,7 +113,6 @@ void ActionHandler::handleEnteringSelectPokemon(
 		logger.writeOpponentTeamText(logger.getPrefix(), pokemonNames);
 	}
 }
-
 
 static bool
 detectSelectionOrderChange(EntityCropper &selectionOrderCropper,
@@ -178,10 +179,10 @@ drawMyPokemons(const MyPokemonCropper &myPokemonCropper,
 	sendEventToAllBrowserSources(eventName, jsonString.c_str());
 }
 
-
-void ActionHandler::handleSelectPokemon(const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHsv,
-		    std::array<int, N_POKEMONS> &mySelectionOrderMap,
-		    std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA) const
+void ActionHandler::handleSelectPokemon(
+	const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHsv,
+	std::array<int, N_POKEMONS> &mySelectionOrderMap,
+	std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA) const
 {
 	if (detectSelectionOrderChange(selectionOrderCropper, gameplayBGRA,
 				       selectionRecognizer,
@@ -195,9 +196,9 @@ void ActionHandler::handleEnteringMatch(bool canEnterToMatch) const
 {
 	if (canEnterToMatch) {
 		nlohmann::json json{{"durationMins", 20}};
-	std::string jsonString(json.dump());
-	sendEventToAllBrowserSources(
-		"obsPokemonSvScreenBuilderMatchStarted",
-		jsonString.c_str());
+		std::string jsonString(json.dump());
+		sendEventToAllBrowserSources(
+			"obsPokemonSvScreenBuilderMatchStarted",
+			jsonString.c_str());
 	}
 }

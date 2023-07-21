@@ -97,8 +97,10 @@ ScreenState Automaton::computeRankShown(SceneDetector::Scene scene)
 
 ScreenState Automaton::computeEnteringSelectPokemon(void)
 {
-	bool canEnterToSelectPokemon = elapsedNsFromLastStateChange > 1000000000;
-	actionHandler.handleEnteringSelectPokemon(gameplayBGRA, canEnterToSelectPokemon, mySelectionOrderMap);
+	bool canEnterToSelectPokemon = elapsedNsFromLastStateChange >
+				       1000000000;
+	actionHandler.handleEnteringSelectPokemon(
+		gameplayBGRA, canEnterToSelectPokemon, mySelectionOrderMap);
 	if (canEnterToSelectPokemon) {
 		return ScreenState::SELECT_POKEMON;
 	} else {
@@ -108,7 +110,8 @@ ScreenState Automaton::computeEnteringSelectPokemon(void)
 
 ScreenState Automaton::computeSelectPokemon(SceneDetector::Scene scene)
 {
-	actionHandler.handleSelectPokemon(gameplayBGRA, gameplayHSV, mySelectionOrderMap, myPokemonsBGRA);
+	actionHandler.handleSelectPokemon(gameplayBGRA, gameplayHSV,
+					  mySelectionOrderMap, myPokemonsBGRA);
 	if (scene != SceneDetector::SCENE_SELECT_POKEMON) {
 		return ScreenState::LEAVING_SELECT_POKEMON;
 	} else {
@@ -159,8 +162,9 @@ ScreenState Automaton::computeConfirmPokemon(SceneDetector::Scene scene)
 
 ScreenState Automaton::computeEnteringMatch(SceneDetector::Scene scene)
 {
-	bool canEnterToMatch = prevScene != SceneDetector::SCENE_BLACK_TRANSITION &&
-	    scene == SceneDetector::SCENE_BLACK_TRANSITION;
+	bool canEnterToMatch = prevScene !=
+				       SceneDetector::SCENE_BLACK_TRANSITION &&
+			       scene == SceneDetector::SCENE_BLACK_TRANSITION;
 	actionHandler.handleEnteringMatch(canEnterToMatch);
 	if (canEnterToMatch) {
 		return ScreenState::MATCH;
