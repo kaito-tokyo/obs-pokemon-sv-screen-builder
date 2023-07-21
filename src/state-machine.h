@@ -10,25 +10,11 @@
 #include "modules/TextRecognizer.h"
 #include "modules/PokemonRecognizer.h"
 #include "Croppers/MyPokemonCropper.hpp"
+#include "ScreenBuilder/Automaton.hpp"
 
 #include "constants.h"
 #include "renderers.h"
 #include "obs-browser-api.h"
-
-enum class ScreenState {
-	UNKNOWN,
-	ENTERING_RANK_SHOWN,
-	RANK_SHOWN,
-	ENTERING_SELECT_POKEMON,
-	SELECT_POKEMON,
-	LEAVING_SELECT_POKEMON,
-	ENTERING_CONFIRM_POKEMON,
-	CONFIRM_POKEMON,
-	ENTERING_MATCH,
-	MATCH,
-	ENTERING_RESULT,
-	RESULT,
-};
 
 const std::map<ScreenState, const char *> ScreenStateNames = {
 	{ScreenState::UNKNOWN, "UNKNOWN"},

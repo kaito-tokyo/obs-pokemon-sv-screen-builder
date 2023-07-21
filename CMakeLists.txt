@@ -38,6 +38,8 @@ target_sources(
   ${CMAKE_PROJECT_NAME}
   PRIVATE src/plugin-main.c
           src/screen-source.cpp
+          src/ScreenBuilder/ActionHandler.cpp
+          src/ScreenBuilder/Automaton.cpp
           src/modules/DefaultLayoutCreatedDialog.cpp
           src/modules/EntityCropper.cpp
           src/modules/Logger.cpp
