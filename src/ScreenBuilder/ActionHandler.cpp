@@ -5,7 +5,7 @@
 #include "plugin-support.h"
 
 #include "ActionHandler.hpp"
-#include "modules/TextRecognizer.h"
+#include "TextRecognizer/TextRecognizer.h"
 #include "modules/EntityCropper.h"
 #include "obs-browser-api.h"
 #include "constants.h"
