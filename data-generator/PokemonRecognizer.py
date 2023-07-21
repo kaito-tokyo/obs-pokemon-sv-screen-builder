@@ -8,7 +8,6 @@ descriptorSize = 16
 height = 196
 algorithm = cv2.AKAZE_create(cv2.AKAZE_DESCRIPTOR_MLDB, descriptorSize)
 
-descriptorSizes = []
 pokemonNames = []
 data = []
 
@@ -21,14 +20,13 @@ for file in glob('./assets/PokemonRecognizer/*/*.png'):
 
     descriptors = algorithm.detectAndCompute(targetBGR, mask)[1]
     data.append(np.ravel(descriptors).tolist())
-    descriptorSizes.append((descriptorSize + 7) // 8)
     _, pokemonName = name.split(' ')
     pokemonNames.append(pokemonName)
 
 with open('data/config/PokemonRecognizer.cbor', 'wb') as fp:
     dump({
-        "data": data,
-        "descriptorSizes": descriptorSizes,
         "height": height,
+        "descriptorSize": descriptorSize,
+        "data": data,
         "pokemonNames": pokemonNames,
     }, fp)
