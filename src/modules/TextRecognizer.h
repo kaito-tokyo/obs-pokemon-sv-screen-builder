@@ -10,7 +10,9 @@ std::string recognizeTextImpl(const unsigned char *data, int width, int height);
 
 static std::string recognizeText(const cv::Mat &imageBGRA)
 {
-	return recognizeTextImpl(imageBGRA.data, imageBGRA.cols, imageBGRA.rows);
+	cv::Mat padImage;
+	cv::copyMakeBorder(imageBGRA, padImage, 200, 200, 200, 200, cv::BORDER_CONSTANT, cv::Scalar(255));
+	return recognizeTextImpl(padImage.data, padImage.cols, padImage.rows);
 }
 #else
 static std::string recognizeText(const cv::Mat &imageBGRA)
