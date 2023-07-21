@@ -10,7 +10,6 @@
 #include "modules/SceneDetector.h"
 #include "modules/SelectionRecognizer.h"
 #include "modules/Logger.hpp"
-#include "state-machine.h"
 #include "modules/DefaultLayoutCreatedDialog.hpp"
 #include "modules/PokemonRecognizer.h"
 #include "modules/MyRankExtractor.h"

@@ -312,62 +312,8 @@ extern "C" void screen_video_tick(void *data, float seconds)
 		     cv::COLOR_BGRA2GRAY);
 	cv::threshold(gameplay_gray, gameplay_binary, 200, 255,
 		      cv::THRESH_BINARY);
-	// SceneDetector::Scene scene = context->sceneDetector.detectScene(
-	// 	gameplay_hsv, gameplay_binary);
 
 	context->automaton(context->gameplay_bgra);
-
-	// ScreenState nextState = ScreenState::UNKNOWN;
-	// if (context->state == ScreenState::UNKNOWN) {
-	// 	nextState = handleUnknown(scene);
-	// } else if (context->state == ScreenState::ENTERING_RANK_SHOWN) {
-	// 	context->logger.writeScreenshot(context->logger.getPrefix(),
-	// 					"RankShownScreenshot",
-	// 					context->gameplay_bgra);
-	// 	nextState = handleEnteringRankShown(
-	// 		context->opponentRankExtractor,
-	// 		context->myRankExtractor, gameplay_binary,
-	// 		context->gameplay_bgra, context->logger);
-	// } else if (context->state == ScreenState::RANK_SHOWN) {
-	// 	nextState = handleRankShown(scene);
-	// } else if (context->state == ScreenState::ENTERING_SELECT_POKEMON) {
-	// 	nextState = handleEnteringSelectPokemon(
-	// 		context->last_state_change_ns, context->gameplay_bgra,
-	// 		context->opponentPokemonCropper,
-	// 		context->my_selection_order_map,
-	// 		context->pokemonRecognizer, context->logger);
-	// } else if (context->state == ScreenState::SELECT_POKEMON) {
-	// 	nextState = handleSelectPokemon(
-	// 		scene, context->selectionOrderCropper,
-	// 		context->gameplay_bgra, gameplay_hsv,
-	// 		context->selectionRecognizer,
-	// 		context->my_selection_order_map,
-	// 		context->myPokemonCropper, context->myPokemonsBGRA);
-	// } else if (context->state == ScreenState::LEAVING_SELECT_POKEMON) {
-	// 	nextState = handleLeavingSelectPokemon(
-	// 		scene, context->myPokemonsBGRA, context->logger);
-	// } else if (context->state == ScreenState::ENTERING_CONFIRM_POKEMON) {
-	// 	nextState = handleEnteringConfirmPokemon(
-	// 		scene, context->last_state_change_ns);
-	// } else if (context->state == ScreenState::CONFIRM_POKEMON) {
-	// 	nextState = handleConfirmPokemon(scene);
-	// } else if (context->state == ScreenState::ENTERING_MATCH) {
-	// 	nextState = handleEnteringMatch(scene, context->prev_scene);
-	// } else if (context->state == ScreenState::MATCH) {
-	// 	nextState = handleMatch(scene, context->prev_scene);
-	// } else if (context->state == ScreenState::ENTERING_RESULT) {
-	// 	nextState = handleEnteringResult();
-	// } else if (context->state == ScreenState::RESULT) {
-	// 	nextState = handleResult(scene, context->last_state_change_ns);
-	// }
-	// if (nextState != context->state) {
-	// 	context->last_state_change_ns = os_gettime_ns();
-	// 	blog(LOG_INFO, "State: %s to %s",
-	// 	     ScreenStateNames.at(context->state),
-	// 	     ScreenStateNames.at(nextState));
-	// 	context->state = nextState;
-	// }
-	// context->prev_scene = scene;
 
 	UNUSED_PARAMETER(seconds);
 }
