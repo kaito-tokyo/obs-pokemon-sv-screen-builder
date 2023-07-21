@@ -64,6 +64,8 @@ ScreenState Automaton::compute(SceneDetector::Scene scene)
 		return computeEnteringResult();
 	case ScreenState::RESULT:
 		return computeResult(scene);
+	default:
+		return ScreenState::UNKNOWN;
 	}
 }
 
