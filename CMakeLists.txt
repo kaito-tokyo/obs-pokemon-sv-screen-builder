@@ -67,5 +67,6 @@ include(cmake/BuildMyCurl.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libcurl)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nameof/include)
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
