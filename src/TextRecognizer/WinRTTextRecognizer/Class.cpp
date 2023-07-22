@@ -2,7 +2,6 @@
 #include "Class.h"
 #include "Class.g.cpp"
 
-
 using winrt::Windows::Media::Ocr::OcrEngine;
 using winrt::Windows::Media::Ocr::OcrResult;
 using winrt::Windows::Globalization::Language;
