@@ -2,14 +2,6 @@
 #include "Class.h"
 #include "Class.g.cpp"
 
-#include <winrt/Windows.Media.Ocr.h>
-#include <winrt/Windows.Graphics.Imaging.h>
-#include <winrt/Windows.Storage.Streams.h>
-#include <winrt/Windows.Foundation.h>
-#include <MemoryBuffer.h>
-#include <winrt/Windows.Globalization.h>
-
-#include <string>
 
 using winrt::Windows::Media::Ocr::OcrEngine;
 using winrt::Windows::Media::Ocr::OcrResult;
