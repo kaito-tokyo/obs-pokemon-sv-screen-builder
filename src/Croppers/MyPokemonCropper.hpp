@@ -6,13 +6,14 @@
 
 class MyPokemonCropper {
 public:
-	const std::vector<cv::Rect> rects = {
-		{182, 147, 529, 107}, {182, 263, 529, 107},
-		{182, 379, 529, 107}, {182, 496, 529, 107},
-		{182, 612, 529, 107}, {182, 727, 529, 107},
-	};
-	const uchar backgroundValueThreshold = 128;
-	const cv::Point backgroundPoint = {0, 0};
+	MyPokemonCropper(std::vector<cv::Rect> _rects,
+			 uchar _backgroundValueThreshold,
+			 cv::Point _backgroundPoint)
+		: rects(_rects),
+		  backgroundValueThreshold(_backgroundValueThreshold),
+		  backgroundPoint(_backgroundPoint)
+	{
+	}
 
 	std::vector<cv::Mat> crop(const cv::Mat &input) const
 	{
@@ -33,4 +34,9 @@ public:
 		}
 		return output;
 	}
+
+private:
+	const std::vector<cv::Rect> rects;
+	const uchar backgroundValueThreshold;
+	const cv::Point backgroundPoint;
 };

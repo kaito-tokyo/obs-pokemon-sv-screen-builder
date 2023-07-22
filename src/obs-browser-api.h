@@ -14,7 +14,6 @@ static bool sendEventToAllBrowserSourcesHandler(void *data,
 {
 	auto *param = static_cast<SendEventToAllBrowserSourcesParam *>(data);
 	auto *id = obs_source_get_id(source);
-	blog(LOG_INFO, "ID: %s", id);
 	if (std::strcmp(id, "browser_source") != 0)
 		return true;
 	proc_handler_t *ph = obs_source_get_proc_handler(source);
