@@ -75,7 +75,7 @@ if(MSVC)
   include_external_msproject(WinRTTextRecognizer "${WinRTTextRecognizer_DIR}/WinRTTextRecognizer.vcxproj")
   target_link_libraries(
     ${CMAKE_PROJECT_NAME}
-    PRIVATE "${WinRTTextRecognizer_DIR}/x64/${CMAKE_BUILD_TYPE}/WinRTTextRecognizer/WinRTTextRecognizer.lib")
+    PRIVATE "${WinRTTextRecognizer_DIR}/x64/$<CONFIG>/WinRTTextRecognizer/WinRTTextRecognizer.lib")
   add_dependencies(${CMAKE_PROJECT_NAME} WinRTTextRecognizer)
 endif()
 
