@@ -6,6 +6,7 @@
 !/build-aux
 !/cmake
 !/data
+!/data-generator
 !/src
 !/src-generator
 !/vendor

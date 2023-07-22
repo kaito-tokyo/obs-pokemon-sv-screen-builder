@@ -52,7 +52,6 @@ target_sources(
           src/modules/SelectionRecognizer.cpp
           src/modules/SelectionRecognizerGenerated.cpp
           src/modules/PokemonRecognizer.cpp
-          src/modules/PokemonRecognizerGenerated.cpp
           src/update-checker/UpdateDialog.cpp
           src/update-checker/update-checker.cpp)
 

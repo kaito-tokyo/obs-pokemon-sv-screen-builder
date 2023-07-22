@@ -15,6 +15,7 @@
 #include "modules/MyRankExtractor.h"
 #include "Croppers/MyPokemonCropper.hpp"
 #include "ScreenBuilder/Automaton.hpp"
+#include "factory.hpp"
 
 const HistClassifier classifier_lobby_my_select = {{149, 811}, {139, 842}, 0,
 						   30,         17,         0.5};
@@ -94,6 +95,7 @@ struct screen_context {
 				pokemonRecognizer, opponentPokemonCropper,
 				selectionOrderCropper, selectionRecognizer,
 				myPokemonCropper),
+		  pokemonRecognizer(factory::newPokemonRecognizer()),
 		  automaton(actionHandler, sceneDetector)
 	{
 	}

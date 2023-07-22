@@ -28,10 +28,9 @@ std::string PokemonRecognizer::recognizePokemon(const cv::Mat &imageBGRA) const
 
 	auto matcher = cv::DescriptorMatcher::create("BruteForce");
 	std::vector<double> results;
-	for (int i = 0; i < static_cast<int>(POKEMON_DESCRIPTORS.size()); i++) {
+	for (int i = 0; i < static_cast<int>(DESCRIPTORS.size()); i++) {
 		std::vector<cv::DMatch> matches;
-		const cv::Mat candidateDescriptor =
-			POKEMON_DESCRIPTORS[i % POKEMON_DESCRIPTORS.size()];
+		const cv::Mat candidateDescriptor = DESCRIPTORS[i];
 		matcher->match(targetDescriptors, candidateDescriptor, matches);
 
 		double sum = 0.0;
