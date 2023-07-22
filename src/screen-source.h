@@ -96,6 +96,7 @@ struct screen_context {
 				selectionOrderCropper, selectionRecognizer,
 				myPokemonCropper),
 		  pokemonRecognizer(factory::newPokemonRecognizer()),
+		  myPokemonCropper(factory::newMyPokemonCropper()),
 		  automaton(actionHandler, sceneDetector)
 	{
 	}
