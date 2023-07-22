@@ -50,7 +50,7 @@ static std::filesystem::path getConfigPath(const char *file)
 static PokemonRecognizer newPokemonRecognizer(void)
 {
 	auto path = getConfigPath("config/PokemonRecognizer.cbor");
-	std::ifstream ifs(path);
+	std::ifstream ifs(path, std::ios_base::binary);
 	nlohmann::json json = nlohmann::json::from_cbor(ifs);
 	return {
 		json["height"].template get<int>(),
