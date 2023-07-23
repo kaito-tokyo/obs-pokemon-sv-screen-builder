@@ -19,13 +19,6 @@
 #include "ScreenBuilder/TemplateClassifier.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
 
-// const HistClassifier classifier_lobby_my_select = {{149, 811}, {139, 842}, 0,
-// 						   30,         17,         0.5};
-// const HistClassifier classifier_lobby_opponent_select = {
-// 	{1229, 1649}, {227, 836}, 0, 30, 0, 0.8};
-// const HistClassifier classifier_black_transition = {
-// 	{400, 600}, {400, 600}, 2, 8, 0, 0.8};
-
 const std::array<int, 2> opponent_col_range{1239, 1337};
 const std::vector<std::array<int, 2>> opponent_row_range{{{228, 326},
 							  {330, 428},
