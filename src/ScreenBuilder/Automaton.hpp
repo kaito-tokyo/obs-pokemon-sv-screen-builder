@@ -1,14 +1,14 @@
 #pragma once
 
 #include "ScreenState.hpp"
-#include "modules/SceneDetector.h"
+#include "GameplayScene.hpp"
+#include "SceneDetector.hpp"
 #include "ActionHandler.hpp"
 #include "constants.h"
 
 class Automaton {
 public:
 	ActionHandler actionHandler;
-
 	SceneDetector sceneDetector;
 
 	Automaton(ActionHandler _actionHandler, SceneDetector _sceneDetector)
@@ -18,22 +18,22 @@ public:
 
 	void operator()(const cv::Mat &gameplayBGRA);
 
-	ScreenState compute(SceneDetector::Scene scene);
-	ScreenState computeUnknown(SceneDetector::Scene scene);
+	ScreenState compute(GameplayScene scene);
+	ScreenState computeUnknown(GameplayScene scene);
 	ScreenState computeEnteringRankShown(void);
-	ScreenState computeRankShown(SceneDetector::Scene scene);
+	ScreenState computeRankShown(GameplayScene scene);
 	ScreenState computeEnteringSelectPokemon(void);
-	ScreenState computeSelectPokemon(SceneDetector::Scene scene);
-	ScreenState computeLeavingSelectPokemon(SceneDetector::Scene scene);
-	ScreenState computeEnteringConfirmPokemon(SceneDetector::Scene scene);
-	ScreenState computeConfirmPokemon(SceneDetector::Scene scene);
-	ScreenState computeEnteringMatch(SceneDetector::Scene scene);
-	ScreenState computeMatch(SceneDetector::Scene scene);
+	ScreenState computeSelectPokemon(GameplayScene scene);
+	ScreenState computeLeavingSelectPokemon(GameplayScene scene);
+	ScreenState computeEnteringConfirmPokemon(GameplayScene scene);
+	ScreenState computeConfirmPokemon(GameplayScene scene);
+	ScreenState computeEnteringMatch(GameplayScene scene);
+	ScreenState computeMatch(GameplayScene scene);
 	ScreenState computeEnteringResult(void);
-	ScreenState computeResult(SceneDetector::Scene scene);
+	ScreenState computeResult(GameplayScene scene);
 
 private:
-	SceneDetector::Scene prevScene = SceneDetector::SCENE_UNDEFINED;
+	GameplayScene prevScene = GameplayScene::UNKNOWN;
 	ScreenState state = ScreenState::UNKNOWN;
 	cv::Mat gameplayBGRA;
 	cv::Mat gameplayBGR;
