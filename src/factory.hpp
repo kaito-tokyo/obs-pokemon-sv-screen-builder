@@ -11,6 +11,8 @@
 
 #include "modules/PokemonRecognizer.h"
 #include "Croppers/MyPokemonCropper.hpp"
+#include "ScreenBuilder/HistClassifier.hpp"
+#include "ScreenBuilder/TemplateClassifier.hpp"
 
 namespace nlohmann {
 template<> struct adl_serializer<cv::Rect> {
@@ -32,16 +34,16 @@ template<> struct adl_serializer<cv::Point> {
 
 namespace factory {
 
-static std::filesystem::path getConfigPath(const char *file)
+static std::filesystem::path getConfigPath(std::string file)
 {
-	char *moduleConfigDstr = obs_module_config_path(file);
+	char *moduleConfigDstr = obs_module_config_path(file.c_str());
 	std::filesystem::path moduleConfigPath(moduleConfigDstr);
 	bfree(moduleConfigDstr);
 	if (std::filesystem::exists(moduleConfigPath)) {
 		return moduleConfigPath;
 	}
 
-	char *moduleFileDstr = obs_module_file(file);
+	char *moduleFileDstr = obs_module_file(file.c_str());
 	std::filesystem::path moduleFilePath = moduleFileDstr;
 	bfree(moduleFileDstr);
 	return moduleFilePath;
@@ -70,6 +72,37 @@ static MyPokemonCropper newMyPokemonCropper(void)
 		json["rects"].template get<std::vector<cv::Rect>>(),
 		json["backgroundValueThreshold"].template get<uchar>(),
 		json["backgroundPoint"].template get<cv::Point>(),
+	};
+}
+
+static HistClassifier newHistClassifier(std::string name)
+{
+	auto path = getConfigPath("config/" + name);
+	std::ifstream ifs(path);
+	nlohmann::json json;
+	ifs >> json;
+
+	return {
+		json["rects"].template get<cv::Rect>(),
+		json["channel"].template get<int>(),
+		json["nBins"].template get<int>(),
+		json["maxIndex"].template get<int>(),
+		json["ratio"].template get<double>(),
+	};
+}
+
+static TemplateClassifier newTemplateClassifier(std::string name)
+{
+	auto path = getConfigPath("config/" + name);
+	std::ifstream ifs(path, std::ios_base::binary);
+	nlohmann::json json = nlohmann::json::from_cbor(ifs);
+
+	return {
+		json["rects"].template get<cv::Rect>(),
+		json["threshold"].template get<int>(),
+		json["ratio"].template get<double>(),
+		json["cols"].template get<std::vector<int>>(),
+		json["data"].template get<std::vector<std::vector<uchar>>>(),
 	};
 }
 }

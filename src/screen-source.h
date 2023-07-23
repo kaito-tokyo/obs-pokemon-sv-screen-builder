@@ -7,7 +7,6 @@
 
 #include "modules/EntityCropper.h"
 #include "modules/OpponentRankExtractor.h"
-#include "modules/SceneDetector.h"
 #include "modules/SelectionRecognizer.h"
 #include "modules/Logger.hpp"
 #include "modules/DefaultLayoutCreatedDialog.hpp"
@@ -16,13 +15,16 @@
 #include "Croppers/MyPokemonCropper.hpp"
 #include "ScreenBuilder/Automaton.hpp"
 #include "factory.hpp"
+#include "ScreenBuilder/SceneDetector.hpp"
+#include "ScreenBuilder/TemplateClassifier.hpp"
+#include "ScreenBuilder/HistClassifier.hpp"
 
-const HistClassifier classifier_lobby_my_select = {{149, 811}, {139, 842}, 0,
-						   30,         17,         0.5};
-const HistClassifier classifier_lobby_opponent_select = {
-	{1229, 1649}, {227, 836}, 0, 30, 0, 0.8};
-const HistClassifier classifier_black_transition = {
-	{400, 600}, {400, 600}, 2, 8, 0, 0.8};
+// const HistClassifier classifier_lobby_my_select = {{149, 811}, {139, 842}, 0,
+// 						   30,         17,         0.5};
+// const HistClassifier classifier_lobby_opponent_select = {
+// 	{1229, 1649}, {227, 836}, 0, 30, 0, 0.8};
+// const HistClassifier classifier_black_transition = {
+// 	{400, 600}, {400, 600}, 2, 8, 0, 0.8};
 
 const std::array<int, 2> opponent_col_range{1239, 1337};
 const std::vector<std::array<int, 2>> opponent_row_range{{{228, 326},
@@ -60,12 +62,10 @@ struct screen_context {
 	cv::Mat gameplayBinary;
 
 	uint64_t next_tick = 0;
-	SceneDetector sceneDetector;
 
 	ScreenState state = ScreenState::UNKNOWN;
 	uint64_t last_state_change_ns = 0;
 	std::array<int, N_POKEMONS> my_selection_order_map;
-	SceneDetector::Scene prev_scene;
 
 	EntityCropper opponentPokemonCropper;
 	MyPokemonCropper myPokemonCropper;
@@ -76,6 +76,11 @@ struct screen_context {
 	PokemonRecognizer pokemonRecognizer;
 	MyRankExtractor myRankExtractor;
 
+	TemplateClassifier lobbyRankShown;
+	HistClassifier lobbyMySelect;
+	HistClassifier lobbyOpponentSelect;
+	HistClassifier blackTransition;
+	SceneDetector sceneDetector;
 	ActionHandler actionHandler;
 	Automaton automaton;
 
@@ -84,10 +89,7 @@ struct screen_context {
 	DefaultLayoutCreatedDialog defaultLayoutCreatedDialog;
 
 	screen_context()
-		: sceneDetector(classifier_lobby_my_select,
-				classifier_lobby_opponent_select,
-				classifier_black_transition),
-		  opponentPokemonCropper(opponent_col_range,
+		: opponentPokemonCropper(opponent_col_range,
 					 opponent_row_range),
 		  selectionOrderCropper(selectionOrderColRange,
 					selectionOrderRowRange),
@@ -97,6 +99,16 @@ struct screen_context {
 				myPokemonCropper),
 		  pokemonRecognizer(factory::newPokemonRecognizer()),
 		  myPokemonCropper(factory::newMyPokemonCropper()),
+		  lobbyRankShown(factory::newTemplateClassifier(
+			  "SceneDetector_lobbyRankShown.cbor")),
+		  lobbyMySelect(factory::newHistClassifier(
+			  "SceneDetector_lobbyMySelect.json")),
+		  lobbyOpponentSelect(factory::newHistClassifier(
+			  "SceneDetector_lobbyOpponentSelect.json")),
+		  blackTransition(factory::newHistClassifier(
+			  "SceneDetector_blackTransition.json")),
+		  sceneDetector(lobbyRankShown, lobbyMySelect,
+				lobbyOpponentSelect, blackTransition),
 		  automaton(actionHandler, sceneDetector)
 	{
 	}
