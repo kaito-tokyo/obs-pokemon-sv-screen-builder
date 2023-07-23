@@ -8,11 +8,6 @@
 
 class SceneDetector {
 public:
-	const TemplateClassifier &lobbyRankShown;
-	const HistClassifier &lobbyMySelect;
-	const HistClassifier &lobbyOpponentSelect;
-	const HistClassifier &blackTransition;
-
 	SceneDetector(const TemplateClassifier &_lobbyRankShown,
 		      const HistClassifier &_lobbyMySelect_,
 		      const HistClassifier &_lobbyOpponentSelect,
@@ -54,4 +49,10 @@ public:
 	{
 		return lobbyRankShown(gameplayGray);
 	}
+
+private:
+	const TemplateClassifier &lobbyRankShown;
+	const HistClassifier &lobbyMySelect;
+	const HistClassifier &lobbyOpponentSelect;
+	const HistClassifier &blackTransition;
 };
