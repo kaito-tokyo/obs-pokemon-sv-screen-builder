@@ -83,7 +83,7 @@ static HistClassifier newHistClassifier(std::string name)
 	ifs >> json;
 
 	return {
-		json["rects"].template get<cv::Rect>(),
+		json["rect"].template get<cv::Rect>(),
 		json["channel"].template get<int>(),
 		json["nBins"].template get<int>(),
 		json["maxIndex"].template get<int>(),
@@ -98,7 +98,7 @@ static TemplateClassifier newTemplateClassifier(std::string name)
 	nlohmann::json json = nlohmann::json::from_cbor(ifs);
 
 	return {
-		json["rects"].template get<cv::Rect>(),
+		json["rect"].template get<cv::Rect>(),
 		json["threshold"].template get<int>(),
 		json["ratio"].template get<double>(),
 		json["cols"].template get<std::vector<int>>(),
