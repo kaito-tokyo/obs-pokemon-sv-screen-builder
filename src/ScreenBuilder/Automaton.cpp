@@ -17,10 +17,8 @@ void Automaton::operator()(const cv::Mat &_gameplayBGRA)
 	cv::cvtColor(gameplayBGRA, gameplayBGR, cv::COLOR_BGRA2BGR);
 	cv::cvtColor(gameplayBGR, gameplayHSV, cv::COLOR_BGR2HSV);
 	cv::cvtColor(gameplayBGRA, gameplayGray, cv::COLOR_BGRA2GRAY);
-	cv::threshold(gameplayGray, gameplayBinary, 200, 255,
-		      cv::THRESH_BINARY);
 	GameplayScene currentScene =
-		sceneDetector.detectScene(gameplayHSV, gameplayBinary);
+		sceneDetector.detectScene(gameplayHSV, gameplayGray);
 
 	uint64_t nowNs = os_gettime_ns();
 	elapsedNsFromLastStateChange = nowNs - lastStateChangeNs;

@@ -44,8 +44,8 @@ private:
 	std::vector<cv::Mat> templates;
 
 	static std::vector<cv::Mat>
-	generateMatVector(const std::vector<std::vector<uchar>> data,
-			  const std::vector<int> cols, const int type)
+	generateMatVector(const std::vector<std::vector<uchar>> &data,
+			  const std::vector<int> &cols, const int type)
 	{
 		std::vector<cv::Mat> vector(data.size());
 		for (size_t i = 0; i < data.size(); i++) {

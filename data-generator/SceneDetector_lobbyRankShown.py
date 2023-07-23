@@ -5,7 +5,7 @@ from os import path
 from cbor2 import dump
 
 rect = [542, 894, 119, 37]
-threshold = 128
+threshold = 200
 data = []
 cols = []
 for file in glob('./assets/screenshots/SceneDetector/*.png'):
