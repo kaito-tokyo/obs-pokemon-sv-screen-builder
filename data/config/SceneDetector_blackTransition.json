@@ -1,0 +1,7 @@
+{
+    "rect": [400, 400, 200, 200],
+    "channel": 2,
+    "nBins": 8,
+    "maxIndex": 0,
+    "ratio": 0.8
+}
