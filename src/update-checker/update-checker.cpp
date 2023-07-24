@@ -69,7 +69,7 @@ void update_checker_check_update(const char *latest_release_url,
 	}
 
 	updateDialog =
-		new UpdateDialog(result.version, result.body, config,
+		new UpdateDialog(result.version, result.body, checkUpdateConfig,
 				 (QWidget *)obs_frontend_get_main_window());
 	QTimer::singleShot(2000, updateDialog, &UpdateDialog::exec);
 }
