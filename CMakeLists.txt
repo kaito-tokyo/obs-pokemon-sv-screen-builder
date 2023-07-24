@@ -38,6 +38,7 @@ target_sources(
   ${CMAKE_PROJECT_NAME}
   PRIVATE src/plugin-main.c
           src/screen-source.cpp
+          src/factory.cpp
           src/ScreenBuilder/ActionHandler.cpp
           src/ScreenBuilder/Automaton.cpp
           src/modules/EntityCropper.cpp
