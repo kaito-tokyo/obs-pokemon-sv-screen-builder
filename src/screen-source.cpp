@@ -113,7 +113,7 @@ extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 	try {
 		context = new (rawContext) screen_context();
 	} catch (const std::exception &e) {
-		bfree(context);
+		bfree(rawContext);
 
 		obs_log(LOG_ERROR, "Plugin load failed: %s", e.what());
 
