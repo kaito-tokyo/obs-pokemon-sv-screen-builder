@@ -11,7 +11,7 @@ namespace factory {
 
 class PresetFileNotFoundError : public std::runtime_error {
 public:
-    PresetFileNotFoundError(const char *name);
+	PresetFileNotFoundError(const char *name);
 };
 
 PokemonRecognizer newPokemonRecognizer(const char *name);

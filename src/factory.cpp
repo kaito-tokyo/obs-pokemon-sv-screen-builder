@@ -30,40 +30,43 @@ template<> struct adl_serializer<cv::Point> {
 
 static fs::path getPresetPath(const char *name)
 {
-    char *moduleConfigDstr = obs_module_config_path(name);
-    if (moduleConfigDstr) {
-        fs::path moduleConfigPath(moduleConfigDstr);
-        bfree(moduleConfigDstr);
-        if (fs::exists(moduleConfigPath)) {
-            return moduleConfigPath;
-        }
-    }
+	char *moduleConfigDstr = obs_module_config_path(name);
+	if (moduleConfigDstr) {
+		fs::path moduleConfigPath(moduleConfigDstr);
+		bfree(moduleConfigDstr);
+		if (fs::exists(moduleConfigPath)) {
+			return moduleConfigPath;
+		}
+	}
 
 	char *moduleFileDstr = obs_module_file(name);
-    if (moduleFileDstr) {
-        fs::path moduleFilePath(moduleFileDstr);
-        bfree(moduleFileDstr);
-        return moduleFilePath;
-    }
+	if (moduleFileDstr) {
+		fs::path moduleFilePath(moduleFileDstr);
+		bfree(moduleFileDstr);
+		return moduleFilePath;
+	}
 
-    return {};
+	return {};
 }
 
 namespace factory {
 
 static std::string generateWhatString(const char *name)
 {
-    return "Preset file " + std::string(name) + " was not found!";
+	return "Preset file " + std::string(name) + " was not found!";
 }
 
-PresetFileNotFoundError::PresetFileNotFoundError(const char *name) : std::runtime_error(generateWhatString(name)) {}
+PresetFileNotFoundError::PresetFileNotFoundError(const char *name)
+	: std::runtime_error(generateWhatString(name))
+{
+}
 
 PokemonRecognizer newPokemonRecognizer(const char *name)
 {
 	fs::path path = getPresetPath(name);
-    if (path.empty()) {
-        throw PresetFileNotFoundError(name);
-    }
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
 	std::ifstream ifs(path, std::ios_base::binary);
 	nlohmann::json json = nlohmann::json::from_cbor(ifs);
 	return {
@@ -77,9 +80,9 @@ PokemonRecognizer newPokemonRecognizer(const char *name)
 MyPokemonCropper newMyPokemonCropper(const char *name)
 {
 	fs::path path = getPresetPath(name);
-    if (path.empty()) {
-        throw PresetFileNotFoundError(name);
-    }
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
 	std::ifstream ifs(path);
 	nlohmann::json json;
 	ifs >> json;
@@ -93,9 +96,9 @@ MyPokemonCropper newMyPokemonCropper(const char *name)
 HistClassifier newHistClassifier(const char *name)
 {
 	fs::path path = getPresetPath(name);
-    if (path.empty()) {
-        throw PresetFileNotFoundError(name);
-    }
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
 	std::ifstream ifs(path);
 	nlohmann::json json;
 	ifs >> json;

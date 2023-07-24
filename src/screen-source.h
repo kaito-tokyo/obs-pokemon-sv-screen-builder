@@ -87,8 +87,10 @@ struct screen_context {
 				pokemonRecognizer, opponentPokemonCropper,
 				selectionOrderCropper, selectionRecognizer,
 				myPokemonCropper),
-		  pokemonRecognizer(factory::newPokemonRecognizer("preset/PokemonRecognizer.cbor")),
-		  myPokemonCropper(factory::newMyPokemonCropper("preset/MyPokemonCropper.json")),
+		  pokemonRecognizer(factory::newPokemonRecognizer(
+			  "preset/PokemonRecognizer.cbor")),
+		  myPokemonCropper(factory::newMyPokemonCropper(
+			  "preset/MyPokemonCropper.json")),
 		  lobbyRankShown(factory::newTemplateClassifier(
 			  "preset/SceneDetector_lobbyRankShown.cbor")),
 		  lobbyMySelect(factory::newHistClassifier(

@@ -18,8 +18,8 @@
 #include "screen-source.h"
 #include "plugin-support.h"
 
-static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy) try
-{
+static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
+try {
 	if (!data) {
 		return;
 	}
@@ -93,8 +93,7 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy) tr
 
 	UNUSED_PARAMETER(cx);
 	UNUSED_PARAMETER(cy);
-}
-catch (const std::exception &e) {
+} catch (const std::exception &e) {
 	obs_log(LOG_ERROR, "Error in main callback: %s", e.what());
 }
 
@@ -120,7 +119,7 @@ extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 		QMessageBox msgBox;
 		msgBox.setText(e.what());
 		msgBox.exec();
-	
+
 		return nullptr;
 	}
 
@@ -276,7 +275,7 @@ extern "C" obs_properties_t *screen_properties(void *data)
 	if (!data) {
 		return nullptr;
 	}
-	
+
 	obs_properties_t *props = obs_properties_create();
 
 	obs_properties_add_button(
@@ -326,7 +325,7 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 }
 
 extern "C" void screen_video_tick(void *data, float seconds)
-{
+try {
 	if (!data) {
 		return;
 	}
@@ -353,4 +352,6 @@ extern "C" void screen_video_tick(void *data, float seconds)
 	context->automaton(context->gameplay_bgra);
 
 	UNUSED_PARAMETER(seconds);
+} catch (const std::exception &e) {
+	obs_log(LOG_ERROR, "Error in video tick: %s", e.what());
 }
