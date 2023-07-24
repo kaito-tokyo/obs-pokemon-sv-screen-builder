@@ -105,20 +105,26 @@ extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 {
 	UNUSED_PARAMETER(settings);
 
+	void *rawContext = bmalloc(sizeof(screen_context));
+	screen_context *context;
 	try {
-		void *rawContext = bmalloc(sizeof(screen_context));
-		screen_context *context = new (rawContext) screen_context();
-		context->source = source;
-		context->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
-		obs_add_main_render_callback(screen_main_render_callback, context);
-		return context;
+		context = new (rawContext) screen_context();
 	} catch (std::exception &e) {
+		bfree(context);
+
+		obs_log(LOG_ERROR, "Plugin load failed: %s", e.what());
+
 		QMessageBox msgBox;
 		msgBox.setText(e.what());
 		msgBox.exec();
+	
+		return nullptr;
 	}
 
-	return nullptr;
+	context->source = source;
+	context->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
+	obs_add_main_render_callback(screen_main_render_callback, context);
+	return context;
 }
 
 extern "C" void screen_destroy(void *data)
