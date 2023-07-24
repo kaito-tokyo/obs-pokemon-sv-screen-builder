@@ -19,7 +19,10 @@
 #include "plugin-support.h"
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
-{
+try {
+	if (!data) {
+		return;
+	}
 	screen_context *context = static_cast<screen_context *>(data);
 
 	if (!obs_source_enabled(context->source))
@@ -90,6 +93,8 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 
 	UNUSED_PARAMETER(cx);
 	UNUSED_PARAMETER(cy);
+} catch (const std::exception &e) {
+	obs_log(LOG_ERROR, "Error in main callback: %s", e.what());
 }
 
 extern "C" const char *screen_get_name(void *unused)
@@ -103,18 +108,32 @@ extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 	UNUSED_PARAMETER(settings);
 
 	void *rawContext = bmalloc(sizeof(screen_context));
-	screen_context *context = new (rawContext) screen_context();
+	screen_context *context;
+	try {
+		context = new (rawContext) screen_context();
+	} catch (const std::exception &e) {
+		bfree(rawContext);
+
+		obs_log(LOG_ERROR, "Plugin load failed: %s", e.what());
+
+		QMessageBox msgBox;
+		msgBox.setText(e.what());
+		msgBox.exec();
+
+		return nullptr;
+	}
+
 	context->source = source;
-
 	context->texrender = gs_texrender_create(GS_BGRA, GS_ZS_NONE);
-
 	obs_add_main_render_callback(screen_main_render_callback, context);
-
 	return context;
 }
 
 extern "C" void screen_destroy(void *data)
 {
+	if (!data) {
+		return;
+	}
 	screen_context *context = static_cast<screen_context *>(data);
 
 	obs_enter_graphics();
@@ -253,7 +272,10 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 
 extern "C" obs_properties_t *screen_properties(void *data)
 {
-	UNUSED_PARAMETER(data);
+	if (!data) {
+		return nullptr;
+	}
+
 	obs_properties_t *props = obs_properties_create();
 
 	obs_properties_add_button(
@@ -279,6 +301,9 @@ extern "C" obs_properties_t *screen_properties(void *data)
 
 extern "C" void screen_update(void *data, obs_data_t *settings)
 {
+	if (!data) {
+		return;
+	}
 	screen_context *context = static_cast<screen_context *>(data);
 	bool logEnabled = obs_data_get_bool(settings, "log_enabled");
 	if (logEnabled) {
@@ -300,7 +325,10 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 }
 
 extern "C" void screen_video_tick(void *data, float seconds)
-{
+try {
+	if (!data) {
+		return;
+	}
 	screen_context *context = static_cast<screen_context *>(data);
 	uint64_t cur_time = os_gettime_ns();
 
@@ -324,4 +352,6 @@ extern "C" void screen_video_tick(void *data, float seconds)
 	context->automaton(context->gameplay_bgra);
 
 	UNUSED_PARAMETER(seconds);
+} catch (const std::exception &e) {
+	obs_log(LOG_ERROR, "Error in video tick: %s", e.what());
 }
