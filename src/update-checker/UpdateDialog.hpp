@@ -6,9 +6,8 @@
 class UpdateDialog : public QDialog {
 	Q_OBJECT
 public:
-	UpdateDialog(const char *pluginName, const char *latestVersion,
-		     const char *latestChangelog, config_t *config,
-		     QWidget *parent);
+	UpdateDialog(std::string latestVersion, std::string latestChangelog,
+		     config_t *config, QWidget *parent);
 
 private:
 	QVBoxLayout *layout;
