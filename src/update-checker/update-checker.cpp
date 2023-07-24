@@ -11,7 +11,7 @@
 
 #include "update-checker.h"
 
-config_t *config;
+config_t *checkUpdateConfig;
 UpdateDialog *updateDialog;
 
 static bool getIsSkipping(config_t *config, std::string latestVersion)
@@ -55,14 +55,14 @@ void update_checker_check_update(const char *latest_release_url,
 	bfree(configDirDstr);
 
 	char *configDstr = obs_module_config_path("update-checker.ini");
-	int configResult = config_open(&config, configDstr, CONFIG_OPEN_ALWAYS);
+	int configResult = config_open(&checkUpdateConfig, configDstr, CONFIG_OPEN_ALWAYS);
 	bfree(configDstr);
 	if (configResult != CONFIG_SUCCESS) {
 		blog(LOG_ERROR, "[%s] Update checker config cennot be opened!",
 		     plugin_name);
 		return;
 	}
-	if (getIsSkipping(config, result.version.c_str())) {
+	if (getIsSkipping(checkUpdateConfig, result.version.c_str())) {
 		blog(LOG_INFO, "[%s] Checking update skipped!", plugin_name);
 		return;
 	}
@@ -75,6 +75,6 @@ void update_checker_check_update(const char *latest_release_url,
 
 void update_checker_close(void)
 {
-	config_close(config);
+	config_close(checkUpdateConfig);
 	delete updateDialog;
 }
