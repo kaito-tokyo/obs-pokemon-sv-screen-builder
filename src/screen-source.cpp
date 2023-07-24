@@ -18,7 +18,7 @@
 #include "screen-source.h"
 #include "plugin-support.h"
 
-static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
+static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy) try
 {
 	if (!data) {
 		return;
@@ -94,6 +94,9 @@ static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 	UNUSED_PARAMETER(cx);
 	UNUSED_PARAMETER(cy);
 }
+catch (const std::exception &e) {
+	obs_log(LOG_ERROR, "Error in main callback: %s", e.what());
+}
 
 extern "C" const char *screen_get_name(void *unused)
 {
@@ -109,7 +112,7 @@ extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 	screen_context *context;
 	try {
 		context = new (rawContext) screen_context();
-	} catch (std::exception &e) {
+	} catch (const std::exception &e) {
 		bfree(context);
 
 		obs_log(LOG_ERROR, "Plugin load failed: %s", e.what());
