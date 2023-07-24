@@ -67,7 +67,7 @@ std::string VisionTextRecognizer::recognizeByVision(CGImageRef image)
 				resultText += [nsString UTF8String];
 			}
 		}];
-	request.recognitionLanguages = @[@"ja"];
+	request.recognitionLanguages = @[@"ja-JP"];
 	NSError *_Nullable error;
 	[requestHandler performRequests:@[request] error:&error];
 	return resultText;
