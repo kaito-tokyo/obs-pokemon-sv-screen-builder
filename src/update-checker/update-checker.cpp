@@ -11,6 +11,7 @@
 
 #include "update-checker.h"
 
+config_t *config;
 UpdateDialog *updateDialog;
 
 static bool getIsSkipping(config_t *config, std::string latestVersion)
@@ -53,7 +54,6 @@ void update_checker_check_update(const char *latest_release_url,
 	std::filesystem::create_directories(configDirDstr);
 	bfree(configDirDstr);
 
-	config_t *config;
 	char *configDstr = obs_module_config_path("update-checker.ini");
 	int configResult = config_open(&config, configDstr, CONFIG_OPEN_ALWAYS);
 	bfree(configDstr);
@@ -71,4 +71,10 @@ void update_checker_check_update(const char *latest_release_url,
 		new UpdateDialog(result.version, result.body, config,
 				 (QWidget *)obs_frontend_get_main_window());
 	QTimer::singleShot(2000, updateDialog, &UpdateDialog::exec);
+}
+
+void update_checker_close(void)
+{
+	config_close(config);
+	delete updateDialog;
 }
