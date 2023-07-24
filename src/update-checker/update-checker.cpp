@@ -55,7 +55,8 @@ void update_checker_check_update(const char *latest_release_url,
 	bfree(configDirDstr);
 
 	char *configDstr = obs_module_config_path("update-checker.ini");
-	int configResult = config_open(&checkUpdateConfig, configDstr, CONFIG_OPEN_ALWAYS);
+	int configResult =
+		config_open(&checkUpdateConfig, configDstr, CONFIG_OPEN_ALWAYS);
 	bfree(configDstr);
 	if (configResult != CONFIG_SUCCESS) {
 		blog(LOG_ERROR, "[%s] Update checker config cennot be opened!",
