@@ -9,7 +9,6 @@
 #include "modules/OpponentRankExtractor.h"
 #include "modules/SelectionRecognizer.h"
 #include "modules/Logger.hpp"
-#include "modules/DefaultLayoutCreatedDialog.hpp"
 #include "modules/PokemonRecognizer.h"
 #include "modules/MyRankExtractor.h"
 #include "Croppers/MyPokemonCropper.hpp"
@@ -78,8 +77,6 @@ struct screen_context {
 	Automaton automaton;
 
 	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
-
-	DefaultLayoutCreatedDialog defaultLayoutCreatedDialog;
 
 	screen_context()
 		: opponentPokemonCropper(opponent_col_range,
