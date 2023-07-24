@@ -20,6 +20,9 @@
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 {
+	if (!data) {
+		return;
+	}
 	screen_context *context = static_cast<screen_context *>(data);
 
 	if (!obs_source_enabled(context->source))
@@ -120,6 +123,9 @@ extern "C" void *screen_create(obs_data_t *settings, obs_source_t *source)
 
 extern "C" void screen_destroy(void *data)
 {
+	if (!data) {
+		return;
+	}
 	screen_context *context = static_cast<screen_context *>(data);
 
 	obs_enter_graphics();
@@ -258,7 +264,10 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 
 extern "C" obs_properties_t *screen_properties(void *data)
 {
-	UNUSED_PARAMETER(data);
+	if (!data) {
+		return nullptr;
+	}
+	
 	obs_properties_t *props = obs_properties_create();
 
 	obs_properties_add_button(
@@ -284,6 +293,9 @@ extern "C" obs_properties_t *screen_properties(void *data)
 
 extern "C" void screen_update(void *data, obs_data_t *settings)
 {
+	if (!data) {
+		return;
+	}
 	screen_context *context = static_cast<screen_context *>(data);
 	bool logEnabled = obs_data_get_bool(settings, "log_enabled");
 	if (logEnabled) {
@@ -306,6 +318,9 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 
 extern "C" void screen_video_tick(void *data, float seconds)
 {
+	if (!data) {
+		return;
+	}
 	screen_context *context = static_cast<screen_context *>(data);
 	uint64_t cur_time = os_gettime_ns();
 
