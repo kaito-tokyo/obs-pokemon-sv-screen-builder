@@ -47,9 +47,9 @@ target_sources(
           src/modules/OpponentRankExtractorGenerated.cpp
           src/modules/MyRankExtractor.cpp
           src/modules/MyRankExtractorGenerated.cpp
-          src/modules/SelectionRecognizer.cpp
-          src/modules/SelectionRecognizerGenerated.cpp
-          src/modules/PokemonRecognizer.cpp
+          src/Recognizers/SelectionRecognizer.cpp
+          src/Recognizers/SelectionRecognizerGenerated.cpp
+          src/Recognizers/PokemonRecognizer.cpp
           src/update-checker/UpdateDialog.cpp
           src/update-checker/update-checker.cpp)
 
