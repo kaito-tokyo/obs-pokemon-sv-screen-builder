@@ -125,8 +125,10 @@ detectSelectionOrderChange(EntityCropper &selectionOrderCropper,
 	std::array<int, N_POKEMONS> orders;
 	bool change_detected = false;
 	for (int i = 0; i < N_POKEMONS; i++) {
-		orders[i] = selectionRecognizer.recognizeSelection(
-			selectionOrderCropper.imagesBGR[i]);
+		const cv::Mat &imageBGR = selectionOrderCropper.imagesBGR[i];
+		cv::Mat imageGray;
+		cv::cvtColor(imageBGR, imageGray, cv::COLOR_BGR2GRAY);
+		orders[i] = selectionRecognizer(imageBGR, imageGray);
 		if (orders[i] > 0 &&
 		    mySelectionOrderMap[orders[i] - 1] != i + 1) {
 			mySelectionOrderMap[orders[i] - 1] = i + 1;

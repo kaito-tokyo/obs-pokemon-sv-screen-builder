@@ -1,25 +1,56 @@
-#include "SelectionRecognizer.h"
+#include "SelectionRecognizer.hpp"
+#include <obs.h>
 
-static constexpr int BLUE_THRESHOLD = 200;
-
-int SelectionRecognizer::recognizeSelection(const cv::Mat &imageBGR) const
+static const std::vector<cv::Mat>
+generateMatVector(const std::vector<std::vector<uchar>> &data,
+		  const std::vector<int> &cols, int type)
 {
-	if (imageBGR.at<cv::Vec3b>(0, 0)[0] < BLUE_THRESHOLD)
+	std::vector<cv::Mat> vector(data.size());
+	for (size_t i = 0; i < data.size(); i++) {
+		int rows = static_cast<int>(data[i].size()) / cols[i];
+		uchar *buf = const_cast<uchar *>(data[i].data());
+		vector[i] = {rows, cols[i], type, buf};
+	}
+	return vector;
+}
+
+SelectionRecognizer::SelectionRecognizer(
+	int _blueThreshold, int _binaryThreshould, double _ratio,
+	const std::vector<int> &_indices, const std::vector<int> &_cols,
+	const std::vector<std::vector<uchar>> &_data)
+	: blueThreshold(_blueThreshold),
+	  binaryThreshold(_binaryThreshould),
+	  ratio(_ratio),
+	  indices(_indices),
+	  cols(_cols),
+	  data(_data),
+	  templates(generateMatVector(data, cols, CV_8U))
+{
+}
+
+int SelectionRecognizer::operator()(const cv::Mat &imageBGR,
+				    const cv::Mat &imageGray) const
+{
+	if (imageBGR.at<cv::Vec3b>(0, 0)[0] < blueThreshold)
 		return 0;
 
-	cv::Mat image;
-	cv::cvtColor(imageBGR, image, cv::COLOR_BGR2GRAY);
-	cv::threshold(image, image, BINARY_THRESHOLD, 255, cv::THRESH_BINARY);
-
-	std::vector<double> results;
-	for (size_t i = 0; i < SELECTION_TEMPLATES.size(); i++) {
-		const cv::Mat &resultImage = image & SELECTION_TEMPLATES[i];
-		const auto target = cv::sum(SELECTION_TEMPLATES[i] / 255);
-		const auto actual = cv::sum(resultImage / 255);
-		if (cv::abs(actual[0] - target[0]) < target[0] * 0.2) {
-			return SELECTION_INDEX[i];
+	cv::Mat imageBinary;
+	cv::threshold(imageGray, imageBinary, binaryThreshold, 255,
+		      cv::THRESH_BINARY);
+	int minIndex = -1;
+	double minValue = static_cast<double>(imageBinary.total());
+	for (size_t i = 0; i < templates.size(); i++) {
+		const cv::Mat &templ = templates[i];
+		const cv::Mat resultImage = imageBinary ^ templ;
+		const double difference = cv::sum(resultImage)[0] / 255.0;
+		if (difference < minValue) {
+			minIndex = static_cast<int>(i);
+			minValue = difference;
 		}
 	}
-
-	return 0;
+	if (minValue < static_cast<double>(imageBinary.total()) * ratio) {
+		return indices[minIndex];
+	} else {
+		return 0;
+	}
 }

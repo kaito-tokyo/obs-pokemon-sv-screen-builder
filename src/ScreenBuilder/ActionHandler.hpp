@@ -6,7 +6,7 @@
 #include "Recognizers/PokemonRecognizer.h"
 #include "modules/EntityCropper.h"
 #include "constants.h"
-#include "Recognizers/SelectionRecognizer.h"
+#include "Recognizers/SelectionRecognizer.hpp"
 #include "Croppers/MyPokemonCropper.hpp"
 
 class ActionHandler {

@@ -48,7 +48,6 @@ target_sources(
           src/modules/MyRankExtractor.cpp
           src/modules/MyRankExtractorGenerated.cpp
           src/Recognizers/SelectionRecognizer.cpp
-          src/Recognizers/SelectionRecognizerGenerated.cpp
           src/Recognizers/PokemonRecognizer.cpp
           src/update-checker/UpdateDialog.cpp
           src/update-checker/update-checker.cpp)
