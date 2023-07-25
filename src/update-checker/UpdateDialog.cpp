@@ -12,20 +12,15 @@ static QString dialogContent =
 	"<p><a href=\"https://github.com/umireon/obs-pokemon-sv-screen-builder/releases\">https://github.com/umireon/obs-pokemon-sv-screen-builder/releases</a></p>"
 	"<h2>更新履歴</h2>";
 
-UpdateDialog::UpdateDialog(const char *_pluginName, const char *_pluginVersion,
-			   const char *latestVersion,
-			   const char *latestChangelog, config_t *_config,
+UpdateDialog::UpdateDialog(std::string latestVersion,
+			   std::string latestChangelog, config_t *config,
 			   QWidget *parent = nullptr)
-	: QDialog(parent),
-	  layout(new QVBoxLayout),
-	  config(_config),
-	  pluginName(_pluginName),
-	  pluginVersion(_pluginVersion)
+	: QDialog(parent), layout(new QVBoxLayout)
 {
 	setWindowTitle("ポケモンSVスクリーンビルダー - 更新が利用可能！");
 	setLayout(layout);
-	QLabel *label = new QLabel(
-		dialogContent.replace(QString("{version}"), latestVersion));
+	QLabel *label = new QLabel(dialogContent.replace(
+		QString("{version}"), latestVersion.c_str()));
 	label->setOpenExternalLinks(true);
 	label->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	label->setTextFormat(Qt::RichText);
@@ -33,7 +28,7 @@ UpdateDialog::UpdateDialog(const char *_pluginName, const char *_pluginVersion,
 	layout->addWidget(label);
 
 	QScrollArea *scrollArea = new QScrollArea;
-	QLabel *scrollAreaLabel = new QLabel(latestChangelog);
+	QLabel *scrollAreaLabel = new QLabel(latestChangelog.c_str());
 	scrollAreaLabel->setOpenExternalLinks(true);
 	scrollAreaLabel->setTextInteractionFlags(Qt::TextBrowserInteraction);
 	scrollAreaLabel->setTextFormat(Qt::MarkdownText);
@@ -45,14 +40,15 @@ UpdateDialog::UpdateDialog(const char *_pluginName, const char *_pluginVersion,
 	// Add a checkbox to disable update checks
 	QCheckBox *disableCheckbox = new QCheckBox("更新通知をオフにする");
 	layout->addWidget(disableCheckbox);
-	connect(disableCheckbox, &QCheckBox::stateChanged, [this](int state) {
-		config_set_bool(config, pluginName.c_str(), "check_update_skip",
-				state != Qt::Unchecked);
-		config_set_string(config, pluginName.c_str(),
-				  "check_update_skip_version",
-				  pluginVersion.c_str());
-		config_save_safe(config, "tmp", nullptr);
-	});
+	connect(disableCheckbox, &QCheckBox::stateChanged,
+		[this, latestVersion, config](int state) {
+			config_set_bool(config, "check-update", "skip",
+					state != Qt::Unchecked);
+			config_set_string(config, "check-update",
+					  "skip-version",
+					  latestVersion.c_str());
+			config_save_safe(config, "tmp", nullptr);
+		});
 
 	// Add a button to close the dialog
 	QPushButton *closeButton = new QPushButton("Close");
