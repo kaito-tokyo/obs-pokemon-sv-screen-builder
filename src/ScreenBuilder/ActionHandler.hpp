@@ -3,10 +3,10 @@
 #include "modules/Logger.hpp"
 #include "modules/OpponentRankExtractor.h"
 #include "modules/MyRankExtractor.h"
-#include "modules/PokemonRecognizer.h"
+#include "Recognizers/PokemonRecognizer.h"
 #include "modules/EntityCropper.h"
 #include "constants.h"
-#include "modules/SelectionRecognizer.h"
+#include "Recognizers/SelectionRecognizer.h"
 #include "Croppers/MyPokemonCropper.hpp"
 
 class ActionHandler {

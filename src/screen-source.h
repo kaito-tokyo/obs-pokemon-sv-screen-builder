@@ -5,18 +5,18 @@
 
 #include <obs.h>
 
-#include "modules/EntityCropper.h"
-#include "modules/OpponentRankExtractor.h"
-#include "modules/SelectionRecognizer.h"
-#include "modules/Logger.hpp"
-#include "modules/PokemonRecognizer.h"
-#include "modules/MyRankExtractor.h"
 #include "Croppers/MyPokemonCropper.hpp"
-#include "ScreenBuilder/Automaton.hpp"
 #include "factory.hpp"
+#include "modules/EntityCropper.h"
+#include "modules/Logger.hpp"
+#include "modules/MyRankExtractor.h"
+#include "modules/OpponentRankExtractor.h"
+#include "Recognizers/PokemonRecognizer.h"
+#include "Recognizers/SelectionRecognizer.h"
+#include "ScreenBuilder/Automaton.hpp"
+#include "ScreenBuilder/HistClassifier.hpp"
 #include "ScreenBuilder/SceneDetector.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
-#include "ScreenBuilder/HistClassifier.hpp"
 
 const std::array<int, 2> opponent_col_range{1239, 1337};
 const std::vector<std::array<int, 2>> opponent_row_range{{{228, 326},

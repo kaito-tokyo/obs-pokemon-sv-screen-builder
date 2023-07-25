@@ -2,8 +2,8 @@
 
 #include <stdexcept>
 
-#include "modules/PokemonRecognizer.h"
 #include "Croppers/MyPokemonCropper.hpp"
+#include "Recognizers/PokemonRecognizer.h"
 #include "ScreenBuilder/HistClassifier.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
 
