@@ -6,7 +6,6 @@
 
 #include "ActionHandler.hpp"
 #include "TextRecognizer/TextRecognizer.h"
-#include "modules/EntityCropper.h"
 #include "obs-browser-api.h"
 #include "constants.h"
 #include "modules/Base64.hpp"

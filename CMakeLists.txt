@@ -41,7 +41,6 @@ target_sources(
           src/factory.cpp
           src/ScreenBuilder/ActionHandler.cpp
           src/ScreenBuilder/Automaton.cpp
-          src/modules/EntityCropper.cpp
           src/modules/Logger.cpp
           src/modules/OpponentRankExtractor.cpp
           src/modules/OpponentRankExtractorGenerated.cpp
