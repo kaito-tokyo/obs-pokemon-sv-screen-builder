@@ -11,8 +11,8 @@
 
 #include "update-checker.h"
 
-config_t *checkUpdateConfig;
-UpdateDialog *updateDialog;
+config_t *checkUpdateConfig = nullptr;
+UpdateDialog *updateDialog = nullptr;
 
 static bool getIsSkipping(config_t *config, std::string latestVersion)
 {
@@ -76,6 +76,10 @@ void update_checker_check_update(const char *latest_release_url,
 
 void update_checker_close(void)
 {
-	config_close(checkUpdateConfig);
-	delete updateDialog;
+	if (checkUpdateConfig) {
+		config_close(checkUpdateConfig);
+	}
+	if (updateDialog) {
+		delete updateDialog;
+	}
 }
