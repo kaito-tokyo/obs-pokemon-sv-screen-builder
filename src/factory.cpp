@@ -26,6 +26,14 @@ template<> struct adl_serializer<cv::Point> {
 		opt = {list[0], list[1]};
 	}
 };
+
+template<> struct adl_serializer<cv::Scalar> {
+	static void from_json(const json &j, cv::Scalar &opt)
+	{
+		auto list = j.template get<std::vector<double>>();
+		opt = {list[0], list[1], list[2], list[3]};
+	}
+};
 }
 
 static fs::path getPresetPath(const char *name)
@@ -108,6 +116,23 @@ MyPokemonCropper newMyPokemonCropper(const char *name)
 		json["rects"].template get<std::vector<cv::Rect>>(),
 		json["backgroundValueThreshold"].template get<uchar>(),
 		json["backgroundPoint"].template get<cv::Point>(),
+	};
+}
+
+OpponentPokemonCropper newOpponentPokemonCropper(const char *name)
+{
+	fs::path path = getPresetPath(name);
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
+	std::ifstream ifs(path);
+	nlohmann::json json;
+	ifs >> json;
+	return {
+		json["rects"].template get<std::vector<cv::Rect>>(),
+		json["seed"].template get<cv::Point>(),
+		json["loDiff"].template get<cv::Scalar>(),
+		json["upDiff"].template get<cv::Scalar>(),
 	};
 }
 

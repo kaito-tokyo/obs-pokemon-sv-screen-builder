@@ -98,8 +98,9 @@ ScreenState Automaton::computeEnteringSelectPokemon(void)
 {
 	bool canEnterToSelectPokemon = elapsedNsFromLastStateChange >
 				       1000000000;
-	actionHandler.handleEnteringSelectPokemon(
-		gameplayBGRA, canEnterToSelectPokemon, mySelectionOrderMap);
+	actionHandler.handleEnteringSelectPokemon(gameplayBGRA, gameplayBGR,
+						  canEnterToSelectPokemon,
+						  mySelectionOrderMap);
 	if (canEnterToSelectPokemon) {
 		return ScreenState::SELECT_POKEMON;
 	} else {
