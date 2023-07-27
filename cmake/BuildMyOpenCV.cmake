@@ -17,6 +17,11 @@ if(MSVC)
     set(OpenCV_LIB_PATH x64/vc17/staticlib)
     set(OpenCV_LIB_PATH_3RD x64/vc17/staticlib)
     set(OpenCV_LIB_SUFFIX 470)
+    if(CCACHE_EXE)
+      set(OpenCV_PLATFORM_CMAKE_ARGS
+          -DCMAKE_VS_GLOBALS=CLToolExe=cl.exe$<SEMICOLON>CLToolPath=${CMAKE_BINARY_DIR}$<SEMICOLON>TrackFileAccess=false$<SEMICOLON>UseMultiToolTask=true$<SEMICOLON>DebugInformationFormat=OldStyle
+      )
+    endif()
   else()
     message(FATAL_ERROR "Unsupported MSVC!")
   endif()
@@ -24,7 +29,6 @@ else()
   set(OpenCV_LIB_PATH lib)
   set(OpenCV_LIB_PATH_3RD lib/opencv4/3rdparty)
   set(OpenCV_LIB_SUFFIX "")
-  set(OpenCV_INSTALL_CCACHE ":")
   set(OpenCV_PLATFORM_CMAKE_ARGS -DOPENCV_LIB_INSTALL_PATH=lib -DOPENCV_PYTHON_SKIP_DETECTION=ON)
 endif()
 
@@ -43,7 +47,6 @@ ExternalProject_Add(
   DOWNLOAD_EXTRACT_TIMESTAMP true
   URL ${OPENCV_URL}
   URL_HASH MD5=${OPENCV_MD5}
-  PATCH_COMMAND ${OpenCV_INSTALL_CCACHE}
   BUILD_COMMAND ${CMAKE_COMMAND} --build <BINARY_DIR> --config ${OpenCV_BUILD_TYPE}
   BUILD_BYPRODUCTS
     <INSTALL_DIR>/${OpenCV_LIB_PATH}/${CMAKE_STATIC_LIBRARY_PREFIX}opencv_core${OpenCV_LIB_SUFFIX}${CMAKE_STATIC_LIBRARY_SUFFIX}
