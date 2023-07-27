@@ -18,14 +18,6 @@
 #include "ScreenBuilder/SceneDetector.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
 
-const std::array<int, 2> selectionOrderColRange{795, 827};
-const std::vector<std::array<int, 2>> selectionOrderRowRange{{{154, 186},
-							      {271, 303},
-							      {388, 420},
-							      {503, 535},
-							      {619, 651},
-							      {735, 767}}};
-
 struct screen_context {
 	obs_source_t *source = nullptr;
 	obs_source_t *gameplaySource = nullptr;
@@ -45,7 +37,7 @@ struct screen_context {
 
 	OpponentPokemonCropper opponentPokemonCropper;
 	MyPokemonCropper myPokemonCropper;
-	EntityCropper selectionOrderCropper;
+	SelectionOrderCropper selectionOrderCropper;
 	SelectionRecognizer selectionRecognizer;
 	OpponentRankExtractor opponentRankExtractor;
 	Logger logger;
@@ -65,8 +57,8 @@ struct screen_context {
 	screen_context()
 		: opponentPokemonCropper(factory::newOpponentPokemonCropper(
 			  "preset/OpponentPokemonCropper.json")),
-		  selectionOrderCropper(selectionOrderColRange,
-					selectionOrderRowRange),
+		  selectionOrderCropper(factory::newSelectionOrderCropper(
+			  "preset/SelectionOrderCropper.json")),
 		  actionHandler(myRankExtractor, opponentRankExtractor, logger,
 				pokemonRecognizer, selectionOrderCropper,
 				selectionRecognizer, myPokemonCropper,

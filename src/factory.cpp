@@ -136,6 +136,20 @@ OpponentPokemonCropper newOpponentPokemonCropper(const char *name)
 	};
 }
 
+SelectionOrderCropper newSelectionOrderCropper(const char *name)
+{
+	fs::path path = getPresetPath(name);
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
+	std::ifstream ifs(path);
+	nlohmann::json json;
+	ifs >> json;
+	return {
+		json["rects"].template get<std::vector<cv::Rect>>(),
+	};
+}
+
 HistClassifier newHistClassifier(const char *name)
 {
 	fs::path path = getPresetPath(name);

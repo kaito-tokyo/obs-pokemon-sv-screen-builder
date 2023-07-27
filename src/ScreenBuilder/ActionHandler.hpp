@@ -9,6 +9,7 @@
 #include "Recognizers/SelectionRecognizer.hpp"
 #include "Croppers/MyPokemonCropper.hpp"
 #include "Croppers/OpponentPokemonCropper.hpp"
+#include "Croppers/SelectionOrderCropper.hpp"
 
 class ActionHandler {
 public:
@@ -16,7 +17,7 @@ public:
 	const OpponentRankExtractor &opponentRankExtractor;
 	const PokemonRecognizer &pokemonRecognizer;
 	const Logger &logger;
-	EntityCropper &selectionOrderCropper;
+	const SelectionOrderCropper &selectionOrderCropper;
 	const SelectionRecognizer &selectionRecognizer;
 	const MyPokemonCropper &myPokemonCropper;
 	const OpponentPokemonCropper &opponentPokemonCropper;
@@ -25,7 +26,7 @@ public:
 		      const OpponentRankExtractor &_opponentRankExtractor,
 		      const Logger &_logger,
 		      const PokemonRecognizer &_pokemonRecognizer,
-		      EntityCropper &_selectionOrderCropper,
+		      const SelectionOrderCropper &_selectionOrderCropper,
 		      const SelectionRecognizer &_selectionRecognizer,
 		      const MyPokemonCropper &_myPokemonCropper,
 		      const OpponentPokemonCropper &_opponentPokemonCropper)
@@ -46,8 +47,18 @@ public:
 		bool canEnterToSelectPokemon,
 		std::array<int, N_POKEMONS> &mySelectionOrderMap) const;
 	void handleSelectPokemon(
-		const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHsv,
+		const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
+		const cv::Mat &gameplayHsv, const cv::Mat &gameplayGray,
 		std::array<int, N_POKEMONS> &mySelectionOrderMap,
 		std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA) const;
 	void handleEnteringMatch(bool canEnterToMatch) const;
+
+private:
+	bool detectSelectionOrderChange(
+		const cv::Mat &gameplayBGR, const cv::Mat &gameplayGray,
+		std::array<int, N_POKEMONS> &mySelectionOrderMap) const;
+	void drawMyPokemons(
+		const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHSV,
+		std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA,
+		const std::array<int, N_POKEMONS> &mySelectionOrderMap) const;
 };

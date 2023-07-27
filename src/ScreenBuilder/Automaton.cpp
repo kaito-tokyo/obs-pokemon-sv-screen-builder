@@ -110,7 +110,7 @@ ScreenState Automaton::computeEnteringSelectPokemon(void)
 
 ScreenState Automaton::computeSelectPokemon(GameplayScene scene)
 {
-	actionHandler.handleSelectPokemon(gameplayBGRA, gameplayHSV,
+	actionHandler.handleSelectPokemon(gameplayBGRA, gameplayBGR, gameplayHSV, gameplayGray,
 					  mySelectionOrderMap, myPokemonsBGRA);
 	if (scene != GameplayScene::SELECT_POKEMON) {
 		return ScreenState::LEAVING_SELECT_POKEMON;
