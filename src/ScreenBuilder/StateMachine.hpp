@@ -6,12 +6,12 @@
 #include "ActionHandler.hpp"
 #include "constants.h"
 
-class Automaton {
+class StateMachine {
 public:
 	ActionHandler actionHandler;
 	SceneDetector sceneDetector;
 
-	Automaton(ActionHandler _actionHandler, SceneDetector _sceneDetector)
+	StateMachine(ActionHandler _actionHandler, SceneDetector _sceneDetector)
 		: actionHandler(_actionHandler), sceneDetector(_sceneDetector)
 	{
 	}
