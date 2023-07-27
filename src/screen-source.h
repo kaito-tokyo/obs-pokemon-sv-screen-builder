@@ -18,22 +18,6 @@
 #include "ScreenBuilder/SceneDetector.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
 
-const std::array<int, 2> opponent_col_range{1239, 1337};
-const std::vector<std::array<int, 2>> opponent_row_range{{{228, 326},
-							  {330, 428},
-							  {432, 530},
-							  {534, 632},
-							  {636, 734},
-							  {738, 836}}};
-
-const std::array<int, 2> myPokemonColRange{182, 711};
-const std::vector<std::array<int, 2>> myPokemonRowRange{{{147, 254},
-							 {263, 371},
-							 {379, 486},
-							 {496, 602},
-							 {612, 718},
-							 {727, 834}}};
-
 const std::array<int, 2> selectionOrderColRange{795, 827};
 const std::vector<std::array<int, 2>> selectionOrderRowRange{{{154, 186},
 							      {271, 303},
@@ -59,7 +43,7 @@ struct screen_context {
 	uint64_t last_state_change_ns = 0;
 	std::array<int, N_POKEMONS> my_selection_order_map;
 
-	EntityCropper opponentPokemonCropper;
+	OpponentPokemonCropper opponentPokemonCropper;
 	MyPokemonCropper myPokemonCropper;
 	EntityCropper selectionOrderCropper;
 	SelectionRecognizer selectionRecognizer;
@@ -79,14 +63,14 @@ struct screen_context {
 	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
 
 	screen_context()
-		: opponentPokemonCropper(opponent_col_range,
-					 opponent_row_range),
+		: opponentPokemonCropper(factory::newOpponentPokemonCropper(
+			  "preset/OpponentPokemonCropper.json")),
 		  selectionOrderCropper(selectionOrderColRange,
 					selectionOrderRowRange),
 		  actionHandler(myRankExtractor, opponentRankExtractor, logger,
-				pokemonRecognizer, opponentPokemonCropper,
-				selectionOrderCropper, selectionRecognizer,
-				myPokemonCropper),
+				pokemonRecognizer, selectionOrderCropper,
+				selectionRecognizer, myPokemonCropper,
+				opponentPokemonCropper),
 		  pokemonRecognizer(factory::newPokemonRecognizer(
 			  "preset/PokemonRecognizer.cbor")),
 		  selectionRecognizer(factory::newSelectionRecognizer(

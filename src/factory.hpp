@@ -3,6 +3,7 @@
 #include <stdexcept>
 
 #include "Croppers/MyPokemonCropper.hpp"
+#include "Croppers/OpponentPokemonCropper.hpp"
 #include "Recognizers/PokemonRecognizer.h"
 #include "Recognizers/SelectionRecognizer.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
@@ -18,6 +19,7 @@ public:
 PokemonRecognizer newPokemonRecognizer(const char *name);
 SelectionRecognizer newSelectionRecognizer(const char *name);
 MyPokemonCropper newMyPokemonCropper(const char *name);
+OpponentPokemonCropper newOpponentPokemonCropper(const char *name);
 HistClassifier newHistClassifier(const char *name);
 TemplateClassifier newTemplateClassifier(const char *name);
 TemplateClassifier newTemplateClassifier(const char *name);

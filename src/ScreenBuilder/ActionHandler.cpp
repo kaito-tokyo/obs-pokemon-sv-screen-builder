@@ -89,26 +89,33 @@ void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
 }
 
 void ActionHandler::handleEnteringSelectPokemon(
-	const cv::Mat &gameplayBGRA, bool canEnterToSelectPokemon,
+	const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
+	bool canEnterToSelectPokemon,
 	std::array<int, N_POKEMONS> &mySelectionOrderMap) const
 {
 	if (canEnterToSelectPokemon) {
-		opponentPokemonCropper.crop(gameplayBGRA);
-		opponentPokemonCropper.generateMask();
 		std::string prefix = logger.getPrefix();
+
+		std::vector<cv::Mat> imagesBGRA =
+			opponentPokemonCropper.crop(gameplayBGRA);
+		std::vector<cv::Mat> imagesBGR =
+			opponentPokemonCropper.crop(gameplayBGR);
+		std::vector<cv::Mat> masks =
+			opponentPokemonCropper.generateMask(imagesBGR);
+		std::vector<cv::Mat> resultsBGRA =
+			opponentPokemonCropper.generateTransparentImages(
+				imagesBGRA, masks);
 		for (int i = 0; i < N_POKEMONS; i++) {
-			cv::Mat &image = opponentPokemonCropper.imagesBGRA[i];
-			logger.writeOpponentPokemonImage(prefix, i, image);
+			logger.writeOpponentPokemonImage(prefix, i,
+							 resultsBGRA[i]);
 		}
-		dispatchOpponentTeamShown(opponentPokemonCropper.imagesBGRA);
+		dispatchOpponentTeamShown(resultsBGRA);
 
 		mySelectionOrderMap.fill(0);
 		std::vector<std::string> pokemonNames(N_POKEMONS);
 		for (int i = 0; i < N_POKEMONS; i++) {
-			const cv::Mat &imageBGRA =
-				opponentPokemonCropper.imagesBGRA[i];
-			pokemonNames[i] =
-				pokemonRecognizer.recognizePokemon(imageBGRA);
+			pokemonNames[i] = pokemonRecognizer.recognizePokemon(
+				resultsBGRA[i]);
 		}
 		logger.writeOpponentTeamText(logger.getPrefix(), pokemonNames);
 	}
