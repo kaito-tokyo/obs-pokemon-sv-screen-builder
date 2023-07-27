@@ -242,6 +242,28 @@ jobs:
           "pluginName=${ProductName}" >> $env:GITHUB_OUTPUT
           "pluginVersion=${ProductVersion}" >> $env:GITHUB_OUTPUT
 
+      - uses: actions/cache@v3
+        id: ccache-cache
+        with:
+          path: ${{ github.workspace }}/.ccache
+          key: ${{ runner.os }}-ccache-x86_64-${{ needs.check-event.outputs.config }}
+          restore-keys: |
+            ${{ runner.os }}-ccache-x86_64-
+
+      - name: Install ccache
+        run: |
+          Invoke-WebRequest https://github.com/ccache/ccache/releases/download/v4.7.4/ccache-4.7.4-windows-x86_64.zip -OutFile ${{ github.workspace }}/ccache-4.7.4-windows-x86_64.zip
+          Expand-Archive -Path ccache-4.7.4-windows-x86_64.zip -DestinationPath ${{ github.workspace }}
+          "${{ github.workspace }}/ccache-4.7.4-windows-x86_64" >> $Env:GITHUB_PATH
+
+      - name: Setup ccache
+        run: |
+          ccache --version
+          ccache --set-config=cache_dir="${{ github.workspace }}/.ccache"
+          ccache --set-config=max_size="4096M"
+          ccache --set-config=compression=true
+          ccache -z
+
       - name: Build Plugin 🧱
         uses: ./.github/actions/build-plugin
         with:
