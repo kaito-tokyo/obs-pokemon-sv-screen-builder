@@ -15,7 +15,8 @@ if(MSVC)
   find_program(CCACHE_EXE ccache)
   if(CCACHE_EXE)
     file(COPY_FILE ${CCACHE_EXE} ${CMAKE_BINARY_DIR}/cl.exe)
-    set(CMAKE_VS_GLOBALS CLToolExe=cl.exe CLToolPath=${CMAKE_BINARY_DIR} TrackFileAccess=false UseMultiToolTask=true DebugInformationFormat=OldStyle)
+    set(CMAKE_VS_GLOBALS CLToolExe=cl.exe CLToolPath=${CMAKE_BINARY_DIR} TrackFileAccess=false UseMultiToolTask=true
+                         DebugInformationFormat=OldStyle)
   endif()
 endif()
 
