@@ -349,7 +349,7 @@ try {
 	cv::threshold(gameplay_gray, gameplay_binary, 200, 255,
 		      cv::THRESH_BINARY);
 
-	context->automaton(context->gameplay_bgra);
+	context->StateMachine(context->gameplay_bgra);
 
 	UNUSED_PARAMETER(seconds);
 } catch (const std::exception &e) {
