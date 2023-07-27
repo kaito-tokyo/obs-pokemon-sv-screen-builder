@@ -43,16 +43,7 @@ public:
 		std::vector<cv::Mat> outputsBGRA(inputsBGRA.size());
 		for (size_t i = 0; i < inputsBGRA.size(); i++) {
 			outputsBGRA[i] = inputsBGRA[i].clone();
-			for (int y = 0; y < outputsBGRA[i].rows; y++) {
-				for (int x = 0; x < outputsBGRA[i].cols; x++) {
-					outputsBGRA[i].at<cv::Vec4b>(y, x)[3] =
-						static_cast<uchar>(
-							255 -
-							masks[i].at<uchar>(y,
-									   x) *
-								255);
-				}
-			}
+			copyMaskToBGRA(outputsBGRA[i], masks[i]);
 		}
 		return outputsBGRA;
 	}
@@ -62,4 +53,18 @@ private:
 	const cv::Point seed;
 	const cv::Scalar loDiff;
 	const cv::Scalar upDiff;
+
+	void copyMaskToBGRA(cv::Mat &imageBGRA, const cv::Mat &mask) const
+	{
+		assert(imageBGRA.rows == mask.rows &&
+		       imageBGRA.cols == mask.cols);
+
+		for (int y = 0; y < imageBGRA.rows; y++) {
+			for (int x = 0; x < imageBGRA.cols; x++) {
+				cv::Vec4b &dest = imageBGRA.at<cv::Vec4b>(y, x);
+				uchar src = mask.at<uchar>(y, x);
+				dest[3] = static_cast<uchar>((1 - src) * 255);
+			}
+		}
+	}
 };
