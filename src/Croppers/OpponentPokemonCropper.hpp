@@ -46,8 +46,10 @@ public:
 			for (int y = 0; y < outputsBGRA[i].rows; y++) {
 				for (int x = 0; x < outputsBGRA[i].cols; x++) {
 					outputsBGRA[i].at<cv::Vec4b>(y, x)[3] =
-						255 -
-						masks[i].at<uchar>(y, x) * 255;
+						(1 - static_cast<int>(
+							     masks[i].at<uchar>(
+								     y, x))) *
+						255;
 				}
 			}
 		}
