@@ -13,7 +13,7 @@
 #include "modules/OpponentRankExtractor.h"
 #include "Recognizers/PokemonRecognizer.h"
 #include "Recognizers/SelectionRecognizer.hpp"
-#include "ScreenBuilder/Automaton.hpp"
+#include "ScreenBuilder/StateMachine.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
 #include "ScreenBuilder/SceneDetector.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
@@ -50,7 +50,7 @@ struct screen_context {
 	HistClassifier blackTransition;
 	SceneDetector sceneDetector;
 	ActionHandler actionHandler;
-	Automaton automaton;
+	StateMachine StateMachine;
 
 	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
 
@@ -79,7 +79,7 @@ struct screen_context {
 			  "preset/SceneDetector_blackTransition.json")),
 		  sceneDetector(lobbyRankShown, lobbyMySelect,
 				lobbyOpponentSelect, blackTransition),
-		  automaton(actionHandler, sceneDetector)
+		  StateMachine(actionHandler, sceneDetector)
 	{
 	}
 };

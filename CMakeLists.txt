@@ -40,7 +40,7 @@ target_sources(
           src/screen-source.cpp
           src/factory.cpp
           src/ScreenBuilder/ActionHandler.cpp
-          src/ScreenBuilder/Automaton.cpp
+          src/ScreenBuilder/StateMachine.cpp
           src/modules/EntityCropper.cpp
           src/modules/Logger.cpp
           src/modules/OpponentRankExtractor.cpp

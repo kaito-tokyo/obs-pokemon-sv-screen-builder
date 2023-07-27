@@ -8,9 +8,9 @@
 
 #include "ActionHandler.hpp"
 
-#include "Automaton.hpp"
+#include "StateMachine.hpp"
 
-void Automaton::operator()(const cv::Mat &_gameplayBGRA)
+void StateMachine::operator()(const cv::Mat &_gameplayBGRA)
 {
 	gameplayBGRA = _gameplayBGRA;
 	cv::Mat gameplayBinary;
@@ -34,7 +34,7 @@ void Automaton::operator()(const cv::Mat &_gameplayBGRA)
 	}
 }
 
-ScreenState Automaton::compute(GameplayScene scene)
+ScreenState StateMachine::compute(GameplayScene scene)
 {
 	switch (state) {
 	case ScreenState::UNKNOWN:
@@ -66,7 +66,7 @@ ScreenState Automaton::compute(GameplayScene scene)
 	}
 }
 
-ScreenState Automaton::computeUnknown(GameplayScene scene)
+ScreenState StateMachine::computeUnknown(GameplayScene scene)
 {
 	switch (scene) {
 	case GameplayScene::RANK_SHOWN:
@@ -78,13 +78,13 @@ ScreenState Automaton::computeUnknown(GameplayScene scene)
 	}
 }
 
-ScreenState Automaton::computeEnteringRankShown(void)
+ScreenState StateMachine::computeEnteringRankShown(void)
 {
 	actionHandler.handleEnteringRankShown(gameplayGray);
 	return ScreenState::RANK_SHOWN;
 }
 
-ScreenState Automaton::computeRankShown(GameplayScene scene)
+ScreenState StateMachine::computeRankShown(GameplayScene scene)
 {
 	switch (scene) {
 	case GameplayScene::SELECT_POKEMON:
@@ -94,7 +94,7 @@ ScreenState Automaton::computeRankShown(GameplayScene scene)
 	}
 }
 
-ScreenState Automaton::computeEnteringSelectPokemon(void)
+ScreenState StateMachine::computeEnteringSelectPokemon(void)
 {
 	bool canEnterToSelectPokemon = elapsedNsFromLastStateChange >
 				       1000000000;
@@ -108,7 +108,7 @@ ScreenState Automaton::computeEnteringSelectPokemon(void)
 	}
 }
 
-ScreenState Automaton::computeSelectPokemon(GameplayScene scene)
+ScreenState StateMachine::computeSelectPokemon(GameplayScene scene)
 {
 	actionHandler.handleSelectPokemon(gameplayBGRA, gameplayBGR,
 					  gameplayHSV, gameplayGray,
@@ -120,7 +120,7 @@ ScreenState Automaton::computeSelectPokemon(GameplayScene scene)
 	}
 }
 
-ScreenState Automaton::computeLeavingSelectPokemon(GameplayScene scene)
+ScreenState StateMachine::computeLeavingSelectPokemon(GameplayScene scene)
 {
 	switch (scene) {
 	case GameplayScene::UNKNOWN:
@@ -136,7 +136,7 @@ ScreenState Automaton::computeLeavingSelectPokemon(GameplayScene scene)
 	}
 }
 
-ScreenState Automaton::computeEnteringConfirmPokemon(GameplayScene scene)
+ScreenState StateMachine::computeEnteringConfirmPokemon(GameplayScene scene)
 {
 	if (elapsedNsFromLastStateChange > 500000000) {
 		return ScreenState::CONFIRM_POKEMON;
@@ -147,7 +147,7 @@ ScreenState Automaton::computeEnteringConfirmPokemon(GameplayScene scene)
 	}
 }
 
-ScreenState Automaton::computeConfirmPokemon(GameplayScene scene)
+ScreenState StateMachine::computeConfirmPokemon(GameplayScene scene)
 {
 	switch (scene) {
 	case GameplayScene::SELECT_POKEMON:
@@ -161,7 +161,7 @@ ScreenState Automaton::computeConfirmPokemon(GameplayScene scene)
 	}
 }
 
-ScreenState Automaton::computeEnteringMatch(GameplayScene scene)
+ScreenState StateMachine::computeEnteringMatch(GameplayScene scene)
 {
 	bool canEnterToMatch = prevScene != GameplayScene::BLACK_TRANSITION &&
 			       scene == GameplayScene::BLACK_TRANSITION;
@@ -177,7 +177,7 @@ ScreenState Automaton::computeEnteringMatch(GameplayScene scene)
 	}
 }
 
-ScreenState Automaton::computeMatch(GameplayScene scene)
+ScreenState StateMachine::computeMatch(GameplayScene scene)
 {
 	if (scene == GameplayScene::SELECT_POKEMON) {
 		return ScreenState::ENTERING_SELECT_POKEMON;
@@ -191,12 +191,12 @@ ScreenState Automaton::computeMatch(GameplayScene scene)
 	}
 }
 
-ScreenState Automaton::computeEnteringResult(void)
+ScreenState StateMachine::computeEnteringResult(void)
 {
 	return ScreenState::RESULT;
 }
 
-ScreenState Automaton::computeResult(GameplayScene scene)
+ScreenState StateMachine::computeResult(GameplayScene scene)
 {
 	if (elapsedNsFromLastStateChange > 2000000000) {
 		return ScreenState::UNKNOWN;
