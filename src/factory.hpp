@@ -4,6 +4,7 @@
 
 #include "Croppers/MyPokemonCropper.hpp"
 #include "Croppers/OpponentPokemonCropper.hpp"
+#include "Croppers/SelectionOrderCropper.hpp"
 #include "Recognizers/PokemonRecognizer.h"
 #include "Recognizers/SelectionRecognizer.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
@@ -20,6 +21,7 @@ PokemonRecognizer newPokemonRecognizer(const char *name);
 SelectionRecognizer newSelectionRecognizer(const char *name);
 MyPokemonCropper newMyPokemonCropper(const char *name);
 OpponentPokemonCropper newOpponentPokemonCropper(const char *name);
+SelectionOrderCropper newSelectionOrderCropper(const char *name);
 HistClassifier newHistClassifier(const char *name);
 TemplateClassifier newTemplateClassifier(const char *name);
 TemplateClassifier newTemplateClassifier(const char *name);

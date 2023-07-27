@@ -121,21 +121,18 @@ void ActionHandler::handleEnteringSelectPokemon(
 	}
 }
 
-static bool
-detectSelectionOrderChange(EntityCropper &selectionOrderCropper,
-			   const cv::Mat &gameplayBGRA,
-			   const SelectionRecognizer &selectionRecognizer,
-			   std::array<int, N_POKEMONS> &mySelectionOrderMap)
+bool ActionHandler::detectSelectionOrderChange(
+	const cv::Mat &gameplayBGR, const cv::Mat &gameplayGray,
+	std::array<int, N_POKEMONS> &mySelectionOrderMap) const
 {
-	selectionOrderCropper.crop(gameplayBGRA);
-
+	std::vector<cv::Mat> imagesBGR =
+		selectionOrderCropper.crop(gameplayBGR);
+	std::vector<cv::Mat> imagesGray =
+		selectionOrderCropper.crop(gameplayGray);
 	std::array<int, N_POKEMONS> orders;
 	bool change_detected = false;
 	for (int i = 0; i < N_POKEMONS; i++) {
-		const cv::Mat &imageBGR = selectionOrderCropper.imagesBGR[i];
-		cv::Mat imageGray;
-		cv::cvtColor(imageBGR, imageGray, cv::COLOR_BGR2GRAY);
-		orders[i] = selectionRecognizer(imageBGR, imageGray);
+		orders[i] = selectionRecognizer(imagesBGR[i], imagesGray[i]);
 		if (orders[i] > 0 &&
 		    mySelectionOrderMap[orders[i] - 1] != i + 1) {
 			mySelectionOrderMap[orders[i] - 1] = i + 1;
@@ -143,17 +140,16 @@ detectSelectionOrderChange(EntityCropper &selectionOrderCropper,
 		}
 	}
 	if (change_detected) {
-		blog(LOG_INFO, "My order: %d %d %d %d %d %d\n", orders[0],
+		blog(LOG_INFO, "My order: %d %d %d %d %d %d", orders[0],
 		     orders[1], orders[2], orders[3], orders[4], orders[5]);
 	}
 	return change_detected;
 }
 
-static void
-drawMyPokemons(const MyPokemonCropper &myPokemonCropper,
-	       const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHSV,
-	       std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA,
-	       const std::array<int, N_POKEMONS> &mySelectionOrderMap)
+void ActionHandler::drawMyPokemons(
+	const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHSV,
+	std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA,
+	const std::array<int, N_POKEMONS> &mySelectionOrderMap) const
 {
 	std::vector<std::string> imageUrls(N_POKEMONS);
 	const std::vector<cv::Mat> croppedBGRA =
@@ -189,15 +185,15 @@ drawMyPokemons(const MyPokemonCropper &myPokemonCropper,
 }
 
 void ActionHandler::handleSelectPokemon(
-	const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHsv,
+	const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
+	const cv::Mat &gameplayHsv, const cv::Mat &gameplayGray,
 	std::array<int, N_POKEMONS> &mySelectionOrderMap,
 	std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA) const
 {
-	if (detectSelectionOrderChange(selectionOrderCropper, gameplayBGRA,
-				       selectionRecognizer,
+	if (detectSelectionOrderChange(gameplayBGR, gameplayGray,
 				       mySelectionOrderMap)) {
-		drawMyPokemons(myPokemonCropper, gameplayBGRA, gameplayHsv,
-			       myPokemonsBGRA, mySelectionOrderMap);
+		drawMyPokemons(gameplayBGRA, gameplayHsv, myPokemonsBGRA,
+			       mySelectionOrderMap);
 	}
 }
 
