@@ -50,7 +50,7 @@ struct screen_context {
 	HistClassifier blackTransition;
 	SceneDetector sceneDetector;
 	ActionHandler actionHandler;
-	StateMachine StateMachine;
+	StateMachine stateMachine;
 
 	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
 
@@ -79,7 +79,7 @@ struct screen_context {
 			  "preset/SceneDetector_blackTransition.json")),
 		  sceneDetector(lobbyRankShown, lobbyMySelect,
 				lobbyOpponentSelect, blackTransition),
-		  StateMachine(actionHandler, sceneDetector)
+		  stateMachine(actionHandler, sceneDetector)
 	{
 	}
 };
