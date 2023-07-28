@@ -65,13 +65,13 @@ if(APPLE)
                                                src/update-checker/URLSessionClient/URLSessionClient.mm)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-framework Vision" "-framework CoreVideo"
                                                       "-framework VideoToolbox")
+else()
+  include(cmake/BuildMyCurl.cmake)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libcurl)
 endif()
 
 include(cmake/BuildMyOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
-
-include(cmake/BuildMyCurl.cmake)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libcurl)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nameof/include)

@@ -95,7 +95,8 @@ private:
 		if (!curl) {
 			blog(LOG_ERROR, "[%s] Failed to initialize curl!",
 			     pluginName.c_str());
-			return {"", CURL_LAST};
+			callback("", CURL_LAST);
+			return;
 		}
 
 		CURLcode code;
@@ -109,12 +110,14 @@ private:
 		curl_easy_cleanup(curl);
 
 		if (code == CURLE_OK) {
-			return {data, code};
+			callback(data, code);
+			return;
 		} else {
 			blog(LOG_ERROR,
 			     "[%s] Failed to fetch a content from %s!",
 			     pluginName.c_str(), url);
-			return {"", code};
+			callback("", code);
+			return;
 		}
 #endif
 	}
