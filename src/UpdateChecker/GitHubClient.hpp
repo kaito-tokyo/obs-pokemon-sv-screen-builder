@@ -51,7 +51,7 @@ public:
 				obs_data_create_from_json(responseBody.c_str());
 			if (!data) {
 				obs_log(LOG_INFO,
-					"Failed to parse the latest release info!");
+					"Failed to parse the latest release info! %s", responseBody.c_str());
 				callback({"", "", true});
 				return;
 			}

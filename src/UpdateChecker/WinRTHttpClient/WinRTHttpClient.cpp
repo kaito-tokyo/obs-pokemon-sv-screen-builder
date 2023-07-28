@@ -13,19 +13,24 @@ using winrt::Windows::Web::Http::IHttpContent;
 void fetchStringFromUrl(const char *urlString,
 			std::function<void(std::string, int)> callback)
 {
-	winrt::init_apartment();
-
 	HttpClient httpClient;
 	auto headers(httpClient.DefaultRequestHeaders());
+	headers.UserAgent().TryParseAdd(L"obs-pokemon-sv-screen-builder/0.1.1");
 	Uri requestUri(winrt::to_hstring(urlString));
 	HttpResponseMessage httpResponseMessage;
 	IBuffer httpResponseBuffer;
-	httpResponseMessage = httpClient.GetAsync(requestUri).get();
-	httpResponseMessage.EnsureSuccessStatusCode();
-	IHttpContent httpContent = httpResponseMessage.Content();
-	httpResponseBuffer = httpContent.ReadAsBufferAsync().get();
+	try {
+		httpResponseMessage = httpClient.GetAsync(requestUri).get();
+		httpResponseMessage.EnsureSuccessStatusCode();
+		IHttpContent httpContent = httpResponseMessage.Content();
+		httpResponseBuffer = httpContent.ReadAsBufferAsync().get();
 
-	uint8_t *data = httpResponseBuffer.data();
-	std::string str((const char *)data, httpResponseBuffer.Length());
-	callback(str, 0);
+		uint8_t *data = httpResponseBuffer.data();
+		std::string str((const char *)data,
+				httpResponseBuffer.Length());
+		callback(str, 0);
+	} catch (winrt::hresult_error const &ex) {
+		std::string str(winrt::to_string(ex.message()));
+		callback(str, 0);
+	}
 }
