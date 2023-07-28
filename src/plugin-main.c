@@ -2,7 +2,7 @@
 
 #include <plugin-support.h>
 
-#include "update-checker/update-checker.h"
+#include "UpdateChecker/UpdateChecker.h"
 
 const char *screen_get_name(void *unused);
 void *screen_create(obs_data_t *settings, obs_source_t *source);
