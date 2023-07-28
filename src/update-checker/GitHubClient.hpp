@@ -44,10 +44,6 @@ public:
 				return;
 			}
 
-			obs_log(LOG_INFO, "aaa %lu", responseBody.size());
-			std::ofstream ofs("/tmp/b.json");
-			ofs.write((const char *)responseBody.c_str(),
-				  responseBody.size() + 1);
 			obs_data_t *data =
 				obs_data_create_from_json(responseBody.c_str());
 			if (!data) {
