@@ -81,11 +81,6 @@ target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/ven
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nameof/include)
 
 if(MSVC)
-  #set(WinRTTextRecognizer_DIR "${CMAKE_SOURCE_DIR}/src/TextRecognizer/WinRTTextRecognizer")
-  #include_external_msproject(WinRTTextRecognizer "${WinRTTextRecognizer_DIR}/WinRTTextRecognizer.vcxproj")
-  #target_link_libraries(${CMAKE_PROJECT_NAME}
-  #                      PRIVATE "${WinRTTextRecognizer_DIR}/x64/$<CONFIG>/WinRTTextRecognizer/WinRTTextRecognizer.lib")
-  #add_dependencies(${CMAKE_PROJECT_NAME} WinRTTextRecognizer)
   add_subdirectory(src/TextRecognizer/WinRTTextRecognizer)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTTextRecognizer)
 endif()
