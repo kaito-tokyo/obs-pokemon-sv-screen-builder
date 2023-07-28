@@ -72,6 +72,12 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
 
 if(APPLE)
 
+elseif(MSVC)
+  add_subdirectory(src/TextRecognizer/WinRTTextRecognizer)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTTextRecognizer)
+
+  add_subdirectory(src/UpdateChecker/WinRTHttpClient)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTHttpClient)
 else()
   include(cmake/BuildMyCurl.cmake)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libcurl)
@@ -79,10 +85,5 @@ endif()
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nameof/include)
-
-if(MSVC)
-  add_subdirectory(src/TextRecognizer/WinRTTextRecognizer)
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTTextRecognizer)
-endif()
 
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
