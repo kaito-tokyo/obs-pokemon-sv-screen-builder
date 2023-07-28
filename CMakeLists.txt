@@ -57,12 +57,12 @@ target_sources(
           src/modules/MyRankExtractorGenerated.cpp
           src/Recognizers/SelectionRecognizer.cpp
           src/Recognizers/PokemonRecognizer.cpp
-          src/update-checker/UpdateDialog.cpp
-          src/update-checker/update-checker.cpp)
+          src/UpdateChecker/UpdateDialog.cpp
+          src/UpdateChecker/UpdateChecker.cpp)
 
 if(APPLE)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/TextRecognizer/VisionTextRecognizer/VisionTextRecognizer.mm
-                                               src/update-checker/URLSessionClient/URLSessionClient.mm)
+                                               src/UpdateChecker/URLSessionClient/URLSessionClient.mm)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-framework Vision" "-framework CoreVideo"
                                                       "-framework VideoToolbox")
 endif()

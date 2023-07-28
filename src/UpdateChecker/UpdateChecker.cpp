@@ -10,7 +10,7 @@
 #include "GitHubClient.hpp"
 #include "plugin-support.h"
 
-#include "update-checker.h"
+#include "UpdateChecker.h"
 
 config_t *checkUpdateConfig = nullptr;
 UpdateDialog *updateDialog = nullptr;
