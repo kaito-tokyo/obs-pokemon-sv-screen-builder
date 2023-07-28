@@ -12,6 +12,9 @@
 #ifdef __APPLE__
 void fetchStringFromUrl(const char *urlString,
 			std::function<void(std::string, int)> callback);
+#elif defined(_WIN32)
+void fetchStringFromUrl(const char *urlString,
+			std::function<void(std::string, int)> callback);
 #else
 #include <curl/curl.h>
 #endif
@@ -48,7 +51,8 @@ public:
 				obs_data_create_from_json(responseBody.c_str());
 			if (!data) {
 				obs_log(LOG_INFO,
-					"Failed to parse the latest release info!");
+					"Failed to parse the latest release info! %s",
+					responseBody.c_str());
 				callback({"", "", true});
 				return;
 			}
@@ -89,6 +93,8 @@ private:
 		    std::function<void(std::string, int)> callback) const
 	{
 #ifdef __APPLE__
+		fetchStringFromUrl(url, callback);
+#elif defined(_WIN32)
 		fetchStringFromUrl(url, callback);
 #else
 		CURL *curl = curl_easy_init();
