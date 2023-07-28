@@ -8,6 +8,7 @@
 
 #include "UpdateDialog.hpp"
 #include "GitHubClient.hpp"
+#include "plugin-support.h"
 
 #include "update-checker.h"
 
@@ -32,46 +33,52 @@ static bool getIsSkipping(config_t *config, std::string latestVersion)
 	}
 }
 
-void update_checker_check_update(const char *latest_release_url,
-				 const char *plugin_name,
-				 const char *plugin_version)
+void update_checker_check_update(const char *latest_release_url)
 {
+	std::string currentTag = std::string("v") + PLUGIN_VERSION;
+	GitHubClient client(PLUGIN_NAME, PLUGIN_VERSION);
+	client.getLatestRelease(
+		latest_release_url,
+		[currentTag](GitHubClient::LatestRelease result) {
+			if (result.error) {
+				obs_log(LOG_INFO,
+					"Failed to fetch latest release info!");
+				return;
+			}
+			if (result.version == currentTag) {
+				obs_log(LOG_INFO, "This plugin is latest!");
+				return;
+			}
 
-	GitHubClient client(plugin_name, plugin_version);
-	GitHubClient::LatestRelease result =
-		client.getLatestRelease(latest_release_url);
-	if (result.error) {
-		blog(LOG_INFO, "[%s] Failed to fetch latest release info!",
-		     plugin_name);
-		return;
-	}
-	if (result.version == plugin_version) {
-		blog(LOG_INFO, "[%s] This plugin is latest!", plugin_name);
-		return;
-	}
+			char *configDirDstr = obs_module_config_path("");
+			std::filesystem::create_directories(configDirDstr);
+			bfree(configDirDstr);
 
-	char *configDirDstr = obs_module_config_path("");
-	std::filesystem::create_directories(configDirDstr);
-	bfree(configDirDstr);
+			char *configDstr =
+				obs_module_config_path("update-checker.ini");
+			int configResult = config_open(&checkUpdateConfig,
+						       configDstr,
+						       CONFIG_OPEN_ALWAYS);
+			bfree(configDstr);
+			if (configResult != CONFIG_SUCCESS) {
+				obs_log(LOG_ERROR,
+					"Update checker config cennot be opened!");
+				return;
+			}
+			if (getIsSkipping(checkUpdateConfig,
+					  result.version.c_str())) {
+				obs_log(LOG_INFO, "Checking update skipped!");
+				return;
+			}
 
-	char *configDstr = obs_module_config_path("update-checker.ini");
-	int configResult =
-		config_open(&checkUpdateConfig, configDstr, CONFIG_OPEN_ALWAYS);
-	bfree(configDstr);
-	if (configResult != CONFIG_SUCCESS) {
-		blog(LOG_ERROR, "[%s] Update checker config cennot be opened!",
-		     plugin_name);
-		return;
-	}
-	if (getIsSkipping(checkUpdateConfig, result.version.c_str())) {
-		blog(LOG_INFO, "[%s] Checking update skipped!", plugin_name);
-		return;
-	}
+			obs_log(LOG_INFO, "Update available!");
 
-	updateDialog =
-		new UpdateDialog(result.version, result.body, checkUpdateConfig,
-				 (QWidget *)obs_frontend_get_main_window());
-	QTimer::singleShot(2000, updateDialog, &UpdateDialog::exec);
+			updateDialog = new UpdateDialog(
+				result.version, result.body, checkUpdateConfig,
+				(QWidget *)obs_frontend_get_main_window());
+			QTimer::singleShot(2000, updateDialog,
+					   &UpdateDialog::exec);
+		});
 }
 
 void update_checker_close(void)

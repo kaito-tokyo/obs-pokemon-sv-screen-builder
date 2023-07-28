@@ -1,14 +1,24 @@
 #pragma once
 
 #include <string>
+#include <iostream>
+#include <fstream>
+
+#include <nlohmann/json.hpp>
 
 #include <obs.h>
+#include "plugin-support.h"
 
+#ifdef __APPLE__
+void fetchStringFromUrl(const char *urlString,
+			std::function<void(std::string, int)> callback);
+#else
 #include <curl/curl.h>
+#endif
 
 class GitHubClient {
 public:
-	using URLResponse = std::pair<std::string, CURLcode>;
+	using URLResponse = std::pair<std::string, int>;
 
 	struct LatestRelease {
 		std::string version;
@@ -21,32 +31,45 @@ public:
 	{
 	}
 
-	LatestRelease getLatestRelease(const char *latestReleaseUrl) const
+	void getLatestRelease(const char *latestReleaseUrl,
+			      std::function<void(LatestRelease)> callback) const
 	{
-		URLResponse response = getUrl(latestReleaseUrl);
-		if (response.second != CURLE_OK) {
-			blog(LOG_INFO,
-			     "[%s] Failed to get the latest release info!",
-			     pluginName.c_str());
-			return {"", "", true};
-		}
+		getUrl(latestReleaseUrl, [this,
+					  callback](std::string responseBody,
+						    int errorCode) {
+			if (errorCode != 0) {
+				obs_log(LOG_INFO,
+					"Failed to get the latest release info!");
+				callback({"", "", true});
+				return;
+			}
 
-		obs_data_t *data =
-			obs_data_create_from_json(response.first.c_str());
-		if (!data) {
-			blog(LOG_INFO,
-			     "[%s] Failed to parse the latest release info!",
-			     pluginName.c_str());
-			return {"", "", true};
-		}
+			obs_data_t *data =
+				obs_data_create_from_json(responseBody.c_str());
+			if (!data) {
+				obs_log(LOG_INFO,
+					"Failed to parse the latest release info!");
+				callback({"", "", true});
+				return;
+			}
 
-		LatestRelease result;
-		result.version = obs_data_get_string(data, "tag_name");
-		result.body = obs_data_get_string(data, "body");
-		result.error = false;
-		obs_data_release(data);
-
-		return result;
+			LatestRelease result;
+			const char *version =
+				obs_data_get_string(data, "tag_name");
+			const char *body = obs_data_get_string(data, "body");
+			if (!version || !body) {
+				obs_log(LOG_INFO,
+					"Malformed JSON from GitHub!");
+				result.error = true;
+			} else {
+				result.version =
+					obs_data_get_string(data, "tag_name");
+				result.body = obs_data_get_string(data, "body");
+				result.error = false;
+			}
+			obs_data_release(data);
+			callback(result);
+		});
 	}
 
 private:
@@ -62,13 +85,18 @@ private:
 		return size * nmemb;
 	}
 
-	std::pair<std::string, CURLcode> getUrl(const char *url) const
+	void getUrl(const char *url,
+		    std::function<void(std::string, int)> callback) const
 	{
+#ifdef __APPLE__
+		fetchStringFromUrl(url, callback);
+#else
 		CURL *curl = curl_easy_init();
 		if (!curl) {
 			blog(LOG_ERROR, "[%s] Failed to initialize curl!",
 			     pluginName.c_str());
-			return {"", CURL_LAST};
+			callback("", CURL_LAST);
+			return;
 		}
 
 		CURLcode code;
@@ -82,12 +110,15 @@ private:
 		curl_easy_cleanup(curl);
 
 		if (code == CURLE_OK) {
-			return {data, code};
+			callback(data, code);
+			return;
 		} else {
 			blog(LOG_ERROR,
 			     "[%s] Failed to fetch a content from %s!",
 			     pluginName.c_str(), url);
-			return {"", code};
+			callback("", code);
+			return;
 		}
+#endif
 	}
 };

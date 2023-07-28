@@ -38,7 +38,7 @@ bool obs_module_load(void)
 
 	const char UPDATE_URL[] =
 		"https://api.github.com/repos/umireon/obs-pokemon-sv-screen-builder/releases/latest";
-	update_checker_check_update(UPDATE_URL, PLUGIN_NAME, PLUGIN_VERSION);
+	update_checker_check_update(UPDATE_URL);
 
 	return true;
 }

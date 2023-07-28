@@ -61,7 +61,8 @@ target_sources(
           src/update-checker/update-checker.cpp)
 
 if(APPLE)
-  target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/TextRecognizer/VisionTextRecognizer/VisionTextRecognizer.mm)
+  target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/TextRecognizer/VisionTextRecognizer/VisionTextRecognizer.mm
+                                               src/update-checker/URLSessionClient/URLSessionClient.mm)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-framework Vision" "-framework CoreVideo"
                                                       "-framework VideoToolbox")
 endif()
@@ -69,8 +70,12 @@ endif()
 include(cmake/BuildMyOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
 
-include(cmake/BuildMyCurl.cmake)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libcurl)
+if(APPLE)
+
+else()
+  include(cmake/BuildMyCurl.cmake)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libcurl)
+endif()
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nameof/include)
