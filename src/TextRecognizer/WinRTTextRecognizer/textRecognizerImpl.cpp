@@ -18,7 +18,11 @@ std::string recognizeTextImpl(const unsigned char *data, int width, int height)
 	MemoryBuffer memoryBuffer(dataSize);
 
 	IMemoryBufferReference ref = memoryBuffer.CreateReference();
-	memcpy_s(ref.data(), dataSize, data, dataSize);
+	auto interop = ref.as<IMemoryBufferByteAccess>();
+	uint8_t *value;
+	uint32_t valueSize;
+	winrt::check_hresult(interop->GetBuffer(&value, &valueSize));
+	memcpy_s(value, valueSize, data, dataSize);
 
 	Buffer buffer = Buffer::CreateCopyFromMemoryBuffer(memoryBuffer);
 	buffer.Length(dataSize);
