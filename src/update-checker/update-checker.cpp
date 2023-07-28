@@ -38,40 +38,45 @@ void update_checker_check_update(const char *latest_release_url,
 {
 
 	GitHubClient client(plugin_name, plugin_version);
-	GitHubClient::LatestRelease result =
-		client.getLatestRelease(latest_release_url);
-	if (result.error) {
-		blog(LOG_INFO, "[%s] Failed to fetch latest release info!",
-		     plugin_name);
-		return;
-	}
-	if (result.version == plugin_version) {
-		blog(LOG_INFO, "[%s] This plugin is latest!", plugin_name);
-		return;
-	}
+	client.getLatestRelease(latest_release_url, [&](GitHubClient::LatestRelease
+								result) {
+		if (result.error) {
+			blog(LOG_INFO,
+			     "[%s] Failed to fetch latest release info!",
+			     plugin_name);
+			return;
+		}
+		if (result.version == plugin_version) {
+			blog(LOG_INFO, "[%s] This plugin is latest!",
+			     plugin_name);
+			return;
+		}
 
-	char *configDirDstr = obs_module_config_path("");
-	std::filesystem::create_directories(configDirDstr);
-	bfree(configDirDstr);
+		char *configDirDstr = obs_module_config_path("");
+		std::filesystem::create_directories(configDirDstr);
+		bfree(configDirDstr);
 
-	char *configDstr = obs_module_config_path("update-checker.ini");
-	int configResult =
-		config_open(&checkUpdateConfig, configDstr, CONFIG_OPEN_ALWAYS);
-	bfree(configDstr);
-	if (configResult != CONFIG_SUCCESS) {
-		blog(LOG_ERROR, "[%s] Update checker config cennot be opened!",
-		     plugin_name);
-		return;
-	}
-	if (getIsSkipping(checkUpdateConfig, result.version.c_str())) {
-		blog(LOG_INFO, "[%s] Checking update skipped!", plugin_name);
-		return;
-	}
+		char *configDstr = obs_module_config_path("update-checker.ini");
+		int configResult = config_open(&checkUpdateConfig, configDstr,
+					       CONFIG_OPEN_ALWAYS);
+		bfree(configDstr);
+		if (configResult != CONFIG_SUCCESS) {
+			blog(LOG_ERROR,
+			     "[%s] Update checker config cennot be opened!",
+			     plugin_name);
+			return;
+		}
+		if (getIsSkipping(checkUpdateConfig, result.version.c_str())) {
+			blog(LOG_INFO, "[%s] Checking update skipped!",
+			     plugin_name);
+			return;
+		}
 
-	updateDialog =
-		new UpdateDialog(result.version, result.body, checkUpdateConfig,
-				 (QWidget *)obs_frontend_get_main_window());
-	QTimer::singleShot(2000, updateDialog, &UpdateDialog::exec);
+		updateDialog = new UpdateDialog(
+			result.version, result.body, checkUpdateConfig,
+			(QWidget *)obs_frontend_get_main_window());
+		QTimer::singleShot(2000, updateDialog, &UpdateDialog::exec);
+	});
 }
 
 void update_checker_close(void)
