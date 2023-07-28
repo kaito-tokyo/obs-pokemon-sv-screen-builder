@@ -71,6 +71,7 @@ include(cmake/BuildMyOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
 
 if(APPLE)
+
 else()
   include(cmake/BuildMyCurl.cmake)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE libcurl)
