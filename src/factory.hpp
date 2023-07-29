@@ -9,6 +9,8 @@
 #include "Recognizers/SelectionRecognizer.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
+#include "Extractors/MyRankExtractor.hpp"
+#include "Extractors/OpponentRankExtractor.hpp"
 
 namespace factory {
 
@@ -25,5 +27,7 @@ SelectionOrderCropper newSelectionOrderCropper(const char *name);
 HistClassifier newHistClassifier(const char *name);
 TemplateClassifier newTemplateClassifier(const char *name);
 TemplateClassifier newTemplateClassifier(const char *name);
+MyRankExtractor newMyRankExtractor(const char *name);
+OpponentRankExtractor newOpponentRankExtractor(const char *name);
 
 }

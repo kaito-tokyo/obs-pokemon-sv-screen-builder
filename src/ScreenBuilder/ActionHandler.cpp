@@ -48,19 +48,17 @@ void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
 {
 	std::string prefix = logger.getPrefix();
 
-	cv::Mat gameplayBinary;
-	cv::threshold(gameplayGray, gameplayBinary, 200, 255,
-		      cv::THRESH_BINARY);
-
-	cv::Rect myRankRect = myRankExtractor.extract(gameplayBinary);
+	cv::Rect myRankRect = myRankExtractor(gameplayGray);
 	if (myRankRect.empty()) {
 		obs_log(LOG_INFO, "Failed to extract my rank!");
-		logger.writeScreenshot(prefix, "MyRankFailed", gameplayBinary);
+		logger.writeScreenshot(prefix, "MyRankFailed", gameplayGray);
 	} else {
-		cv::Mat rankImage = ~gameplayBinary(myRankRect);
-		logger.writeMyRankImage(prefix, rankImage);
+		cv::Mat rankGray = gameplayGray(myRankRect), rankBinary;
+		cv::threshold(rankGray, rankBinary, 200, 255,
+			      cv::THRESH_BINARY_INV);
+		logger.writeMyRankImage(prefix, rankBinary);
 
-		std::string rankText = recognizeText(rankImage);
+		std::string rankText = recognizeText(rankBinary);
 		obs_log(LOG_INFO, "My rank text is %s.", rankText.c_str());
 
 		dispatchMyRankShown(rankText);
@@ -69,17 +67,18 @@ void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
 	cv::Mat opponentRankBinary;
 	cv::threshold(gameplayGray, opponentRankBinary, 128, 255,
 		      cv::THRESH_BINARY);
-	cv::Rect opponentRankRect =
-		opponentRankExtractor.extract(opponentRankBinary);
+	cv::Rect opponentRankRect = opponentRankExtractor(opponentRankBinary);
 	if (opponentRankRect.empty()) {
 		obs_log(LOG_INFO, "Failed to extract the opponent rank!");
 		logger.writeScreenshot(prefix, "OpponentRankFailed",
-				       gameplayBinary);
+				       gameplayGray);
 	} else {
-		cv::Mat rankImage = ~gameplayBinary(opponentRankRect);
-		logger.writeOpponentRankImage(prefix, rankImage);
+		cv::Mat rankGray = gameplayGray(opponentRankRect), rankBinary;
+		cv::threshold(rankGray, rankBinary, 200, 255,
+			      cv::THRESH_BINARY_INV);
+		logger.writeOpponentRankImage(prefix, rankBinary);
 
-		std::string rankText = recognizeText(rankImage);
+		std::string rankText = recognizeText(rankBinary);
 		obs_log(LOG_INFO, "The opponent rank text is %s.",
 			rankText.c_str());
 
