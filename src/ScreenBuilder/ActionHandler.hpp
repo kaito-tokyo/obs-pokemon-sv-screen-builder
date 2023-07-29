@@ -1,6 +1,6 @@
 #pragma once
 
-#include "modules/Logger.hpp"
+#include "ScreenBuilder/Logger.hpp"
 #include "Recognizers/PokemonRecognizer.hpp"
 #include "constants.h"
 #include "Recognizers/SelectionRecognizer.hpp"

@@ -7,7 +7,7 @@
 
 #include "Croppers/MyPokemonCropper.hpp"
 #include "factory.hpp"
-#include "modules/Logger.hpp"
+#include "ScreenBuilder/Logger.hpp"
 #include "Extractors/MyRankExtractor.hpp"
 #include "Extractors/OpponentRankExtractor.hpp"
 #include "Recognizers/PokemonRecognizer.hpp"
