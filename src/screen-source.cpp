@@ -11,7 +11,6 @@
 #include <obs-frontend-api.h>
 #include <util/config-file.h>
 
-#include "modules/Base64.hpp"
 #include "obs-browser-api.h"
 #include "obs-platform-util.h"
 
