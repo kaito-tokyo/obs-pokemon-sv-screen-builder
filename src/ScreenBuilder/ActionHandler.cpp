@@ -8,7 +8,7 @@
 #include "TextRecognizer/TextRecognizer.h"
 #include "obs-browser-api.h"
 #include "constants.h"
-#include "modules/Base64.hpp"
+#include "Base64/Base64.hpp"
 
 static void dispatchMyRankShown(std::string text)
 {
