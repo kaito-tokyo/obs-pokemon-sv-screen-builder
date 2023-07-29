@@ -50,7 +50,6 @@ target_sources(
           src/factory.cpp
           src/ScreenBuilder/ActionHandler.cpp
           src/ScreenBuilder/StateMachine.cpp
-          src/modules/Logger.cpp
           src/UpdateChecker/UpdateDialog.cpp
           src/UpdateChecker/UpdateChecker.cpp)
 
