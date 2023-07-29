@@ -21,7 +21,7 @@ public:
 
 	std::string recognizePokemon(const cv::Mat &imageBGRA) const
 	{
-		cv::Mat scaledBGRA, scaledBGR, mask;
+		cv::Mat scaledBGRA, scaledBGR;
 		cv::resize(imageBGRA, scaledBGRA,
 			   cv::Size(imageBGRA.cols * height / imageBGRA.rows,
 				    height));
