@@ -8,7 +8,6 @@
 !/data
 !/data-generator
 !/src
-!/src-generator
 !/vendor
 !.clang-format
 !.cmake-format.json

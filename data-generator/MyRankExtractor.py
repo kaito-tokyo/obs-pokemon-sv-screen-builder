@@ -1,12 +1,14 @@
 import cv2
 from glob import glob
-from jinja2 import Environment, FileSystemLoader, Template
 import numpy as np
 from os import path
-import sys
+from cbor2 import dump
 
-data = []
+rect = [1206, 419, 409, 55]
+threshold = 200
 cols = []
+data = []
+ratio = 0.05
 for file in glob('./assets/screenshots/MyRankExtractor/*.png'):
     name = path.splitext(path.basename(file))[0]
     args = name.split(' ')
@@ -17,13 +19,14 @@ for file in glob('./assets/screenshots/MyRankExtractor/*.png'):
     retval, destImg = cv2.threshold(destImg, 200, 255, cv2.THRESH_BINARY)
     cv2.imwrite('./assets/MyRankExtractor/' + name + '.png', destImg)
 
-    data.append('{' + ','.join(str(x) for x in np.ravel(destImg).tolist()) + '}')
-    cols.append(str(destImg.shape[1]))
+    cols.append(destImg.shape[1])
+    data.append(np.ravel(destImg).tolist())
 
-env = Environment(
-    loader=FileSystemLoader('src-generator/MyRankExtractor')
-)
-template = env.get_template('MyRankExtractor.j2')
-result = template.render(data=data, cols=cols)
-with open('src/modules/MyRankExtractorGenerated.cpp', 'w') as fp:
-    fp.write(result)
+with open('data/preset/MyRankExtractor.cbor', 'wb') as fp:
+    dump({
+        "rect": rect,
+        "threshold": threshold,
+        "cols": cols,
+        "data": data,
+        "ratio": ratio,
+    }, fp)

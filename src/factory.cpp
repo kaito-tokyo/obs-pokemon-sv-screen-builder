@@ -183,4 +183,37 @@ TemplateClassifier newTemplateClassifier(const char *name)
 		json["data"].template get<std::vector<std::vector<uchar>>>(),
 	};
 }
+
+MyRankExtractor newMyRankExtractor(const char *name)
+{
+	auto path = getPresetPath(name);
+	std::ifstream ifs(path, std::ios_base::binary);
+	nlohmann::json json = nlohmann::json::from_cbor(ifs);
+
+	return {
+		json["rect"].template get<cv::Rect>(),
+		json["threshold"].template get<int>(),
+		json["cols"].template get<std::vector<int>>(),
+		json["data"].template get<std::vector<std::vector<uchar>>>(),
+		json["ratio"].template get<double>(),
+	};
+}
+
+OpponentRankExtractor newOpponentRankExtractor(const char *name)
+{
+	auto path = getPresetPath(name);
+	std::ifstream ifs(path, std::ios_base::binary);
+	nlohmann::json json = nlohmann::json::from_cbor(ifs);
+
+	return {
+		json["rect"].template get<cv::Rect>(),
+		json["threshold"].template get<int>(),
+		json["parenMap"]
+			.template get<
+				std::map<std::string, std::pair<int, int>>>(),
+		json["cols"].template get<std::vector<int>>(),
+		json["data"].template get<std::vector<std::vector<uchar>>>(),
+		json["ratio"].template get<double>(),
+	};
+}
 }

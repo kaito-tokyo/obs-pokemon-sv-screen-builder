@@ -1,14 +1,14 @@
 #pragma once
 
 #include "modules/Logger.hpp"
-#include "modules/OpponentRankExtractor.h"
-#include "modules/MyRankExtractor.h"
 #include "Recognizers/PokemonRecognizer.h"
 #include "constants.h"
 #include "Recognizers/SelectionRecognizer.hpp"
 #include "Croppers/MyPokemonCropper.hpp"
 #include "Croppers/OpponentPokemonCropper.hpp"
 #include "Croppers/SelectionOrderCropper.hpp"
+#include "Extractors/MyRankExtractor.hpp"
+#include "Extractors/OpponentRankExtractor.hpp"
 
 class ActionHandler {
 public:

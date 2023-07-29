@@ -8,8 +8,8 @@
 #include "Croppers/MyPokemonCropper.hpp"
 #include "factory.hpp"
 #include "modules/Logger.hpp"
-#include "modules/MyRankExtractor.h"
-#include "modules/OpponentRankExtractor.h"
+#include "Extractors/MyRankExtractor.hpp"
+#include "Extractors/OpponentRankExtractor.hpp"
 #include "Recognizers/PokemonRecognizer.h"
 #include "Recognizers/SelectionRecognizer.hpp"
 #include "ScreenBuilder/StateMachine.hpp"
@@ -66,8 +66,12 @@ struct screen_context {
 			  "preset/PokemonRecognizer.cbor")),
 		  selectionRecognizer(factory::newSelectionRecognizer(
 			  "preset/SelectionRecognizer.cbor")),
+		  opponentRankExtractor(factory::newOpponentRankExtractor(
+			  "preset/OpponentRankExtractor.cbor")),
 		  myPokemonCropper(factory::newMyPokemonCropper(
 			  "preset/MyPokemonCropper.json")),
+		  myRankExtractor(factory::newMyRankExtractor(
+			  "preset/MyRankExtractor.cbor")),
 		  lobbyRankShown(factory::newTemplateClassifier(
 			  "preset/SceneDetector_lobbyRankShown.cbor")),
 		  lobbyMySelect(factory::newHistClassifier(

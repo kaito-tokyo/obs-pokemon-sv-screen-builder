@@ -1,13 +1,15 @@
 import cv2
 from glob import glob
-from jinja2 import Environment, FileSystemLoader, Template
 import numpy as np
 from os import path
-import sys
+from cbor2 import dump
 
-data = ['{0}', '{0}']
-cols = [1, 1]
+rect = [544, 831, 834, 36]
+threshold = 200
 parenDict = {}
+cols = [1, 1]
+data = [[0], [0]]
+ratio = 0.05
 for file in glob('./assets/screenshots/OpponentRankExtractor/*.png'):
     name = path.splitext(path.basename(file))[0]
     args = name.split(' ')
@@ -26,15 +28,15 @@ for file in glob('./assets/screenshots/OpponentRankExtractor/*.png'):
     elif symbolName == 'parenEnd':
         parenDict[language][1] = len(data)
 
-    data.append('{' + ','.join(str(x) for x in np.ravel(destImg).tolist()) + '}')
-    cols.append(str(destImg.shape[1]))
+    cols.append(destImg.shape[1])
+    data.append(np.ravel(destImg).tolist())
 
-parenMap = ['{"' + language + '", {' + ','.join([str(s), str(e)]) + '}}' for language, (s, e) in parenDict.items()]
-
-env = Environment(
-    loader=FileSystemLoader('src-generator/OpponentRankExtractor')
-)
-template = env.get_template('OpponentRankExtractor.j2')
-result = template.render(data=data, cols=cols, parenMap=parenMap)
-with open('src/modules/OpponentRankExtractorGenerated.cpp', 'w') as fp:
-    fp.write(result)
+with open('data/preset/OpponentRankExtractor.cbor', 'wb') as fp:
+    dump({
+        "rect": rect,
+        "threshold": threshold,
+        "parenMap": parenDict,
+        "cols": cols,
+        "data": data,
+        "ratio": ratio,
+    }, fp)
