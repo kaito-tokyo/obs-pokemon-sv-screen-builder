@@ -10,7 +10,7 @@
 #include "modules/Logger.hpp"
 #include "Extractors/MyRankExtractor.hpp"
 #include "Extractors/OpponentRankExtractor.hpp"
-#include "Recognizers/PokemonRecognizer.h"
+#include "Recognizers/PokemonRecognizer.hpp"
 #include "Recognizers/SelectionRecognizer.hpp"
 #include "ScreenBuilder/StateMachine.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"

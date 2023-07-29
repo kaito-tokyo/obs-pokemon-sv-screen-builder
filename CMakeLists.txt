@@ -51,8 +51,6 @@ target_sources(
           src/ScreenBuilder/ActionHandler.cpp
           src/ScreenBuilder/StateMachine.cpp
           src/modules/Logger.cpp
-          src/Recognizers/SelectionRecognizer.cpp
-          src/Recognizers/PokemonRecognizer.cpp
           src/UpdateChecker/UpdateDialog.cpp
           src/UpdateChecker/UpdateChecker.cpp)
 

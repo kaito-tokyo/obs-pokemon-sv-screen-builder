@@ -1,7 +1,7 @@
 #pragma once
 
 #include "modules/Logger.hpp"
-#include "Recognizers/PokemonRecognizer.h"
+#include "Recognizers/PokemonRecognizer.hpp"
 #include "constants.h"
 #include "Recognizers/SelectionRecognizer.hpp"
 #include "Croppers/MyPokemonCropper.hpp"

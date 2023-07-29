@@ -5,7 +5,7 @@
 #include "Croppers/MyPokemonCropper.hpp"
 #include "Croppers/OpponentPokemonCropper.hpp"
 #include "Croppers/SelectionOrderCropper.hpp"
-#include "Recognizers/PokemonRecognizer.h"
+#include "Recognizers/PokemonRecognizer.hpp"
 #include "Recognizers/SelectionRecognizer.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
