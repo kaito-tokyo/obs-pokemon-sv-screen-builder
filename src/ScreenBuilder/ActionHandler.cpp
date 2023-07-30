@@ -7,7 +7,6 @@
 #include "ActionHandler.hpp"
 #include "TextRecognizer/TextRecognizer.h"
 #include "obs-browser-api.h"
-#include "constants.h"
 #include "Base64/Base64.hpp"
 
 static void dispatchMyRankShown(std::string text)
@@ -89,7 +88,7 @@ void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
 void ActionHandler::handleEnteringSelectPokemon(
 	const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
 	bool canEnterToSelectPokemon,
-	std::array<int, N_POKEMONS> &mySelectionOrderMap) const
+	std::vector<int> &mySelectionOrderMap) const
 {
 	if (canEnterToSelectPokemon) {
 		std::string prefix = logger.getPrefix();
@@ -103,15 +102,17 @@ void ActionHandler::handleEnteringSelectPokemon(
 		std::vector<cv::Mat> resultsBGRA =
 			opponentPokemonCropper.generateTransparentImages(
 				imagesBGRA, masks);
-		for (int i = 0; i < N_POKEMONS; i++) {
-			logger.writeOpponentPokemonImage(prefix, i,
+		for (size_t i = 0; i < resultsBGRA.size(); i++) {
+			logger.writeOpponentPokemonImage(prefix, static_cast<int>(i),
 							 resultsBGRA[i]);
 		}
 		dispatchOpponentTeamShown(resultsBGRA);
 
-		mySelectionOrderMap.fill(0);
-		std::vector<std::string> pokemonNames(N_POKEMONS);
-		for (int i = 0; i < N_POKEMONS; i++) {
+		for (size_t i = 0; mySelectionOrderMap.size(); i++) {
+			mySelectionOrderMap[i] = 0;
+		}
+		std::vector<std::string> pokemonNames(resultsBGRA.size());
+		for (size_t i = 0; i < pokemonNames.size(); i++) {
 			pokemonNames[i] = pokemonRecognizer.recognizePokemon(
 				resultsBGRA[i]);
 		}
@@ -121,19 +122,20 @@ void ActionHandler::handleEnteringSelectPokemon(
 
 bool ActionHandler::detectSelectionOrderChange(
 	const cv::Mat &gameplayBGR, const cv::Mat &gameplayGray,
-	std::array<int, N_POKEMONS> &mySelectionOrderMap) const
+	std::vector<int> &mySelectionOrderMap) const
 {
 	std::vector<cv::Mat> imagesBGR =
 		selectionOrderCropper.crop(gameplayBGR);
 	std::vector<cv::Mat> imagesGray =
 		selectionOrderCropper.crop(gameplayGray);
-	std::array<int, N_POKEMONS> orders;
+	std::vector<int> orders(imagesBGR.size());
 	bool change_detected = false;
-	for (int i = 0; i < N_POKEMONS; i++) {
+	for (size_t i = 0; i < orders.size(); i++) {
 		orders[i] = selectionRecognizer(imagesBGR[i], imagesGray[i]);
+		int currentPokemon = static_cast<int>(i + 1);
 		if (orders[i] > 0 &&
-		    mySelectionOrderMap[orders[i] - 1] != i + 1) {
-			mySelectionOrderMap[orders[i] - 1] = i + 1;
+		    mySelectionOrderMap[orders[i] - 1] != currentPokemon) {
+			mySelectionOrderMap[orders[i] - 1] = currentPokemon;
 			change_detected = true;
 		}
 	}
@@ -146,23 +148,23 @@ bool ActionHandler::detectSelectionOrderChange(
 
 void ActionHandler::drawMyPokemons(
 	const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHSV,
-	std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA,
-	const std::array<int, N_POKEMONS> &mySelectionOrderMap) const
+	std::vector<cv::Mat> &myPokemonsBGRA,
+	const std::vector<int> &mySelectionOrderMap) const
 {
-	std::vector<std::string> imageUrls(N_POKEMONS);
 	const std::vector<cv::Mat> croppedBGRA =
 		myPokemonCropper.crop(gameplayBGRA);
 	const std::vector<bool> shouldUpdate =
 		myPokemonCropper.getShouldUpdate(gameplayHSV);
 
-	for (int i = 0; i < N_POKEMONS; i++) {
+	for (size_t i = 0; i < myPokemonsBGRA.size(); i++) {
 		if (shouldUpdate[i]) {
-			blog(LOG_INFO, "shouldUpdate: %d", i);
+			blog(LOG_INFO, "shouldUpdate: %lu", i);
 			myPokemonsBGRA[i] = croppedBGRA[i].clone();
 		}
 	}
 
-	for (int i = 0; i < N_POKEMONS; i++) {
+	std::vector<std::string> imageUrls(myPokemonsBGRA.size());
+	for (size_t i = 0; i < myPokemonsBGRA.size(); i++) {
 		if (myPokemonsBGRA[i].empty()) {
 			imageUrls[i] = "";
 		} else {
@@ -185,8 +187,8 @@ void ActionHandler::drawMyPokemons(
 void ActionHandler::handleSelectPokemon(
 	const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
 	const cv::Mat &gameplayHsv, const cv::Mat &gameplayGray,
-	std::array<int, N_POKEMONS> &mySelectionOrderMap,
-	std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA) const
+	std::vector<int> &mySelectionOrderMap,
+	std::vector<cv::Mat> &myPokemonsBGRA) const
 {
 	if (detectSelectionOrderChange(gameplayBGR, gameplayGray,
 				       mySelectionOrderMap)) {

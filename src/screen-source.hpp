@@ -5,16 +5,11 @@
 
 #include <obs.h>
 
-#include "Croppers/MyPokemonCropper.hpp"
 #include "factory.hpp"
-#include "ScreenBuilder/Logger.hpp"
-#include "Extractors/MyRankExtractor.hpp"
-#include "Extractors/OpponentRankExtractor.hpp"
-#include "Recognizers/PokemonRecognizer.hpp"
-#include "Recognizers/SelectionRecognizer.hpp"
-#include "ScreenBuilder/StateMachine.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
+#include "ScreenBuilder/Logger.hpp"
 #include "ScreenBuilder/SceneDetector.hpp"
+#include "ScreenBuilder/StateMachine.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
 
 struct screen_context {
@@ -32,7 +27,7 @@ struct screen_context {
 
 	ScreenState state = ScreenState::UNKNOWN;
 	uint64_t last_state_change_ns = 0;
-	std::array<int, N_POKEMONS> my_selection_order_map;
+	std::vector<int> my_selection_order_map;
 
 	OpponentPokemonCropper opponentPokemonCropper;
 	MyPokemonCropper myPokemonCropper;
@@ -51,10 +46,11 @@ struct screen_context {
 	ActionHandler actionHandler;
 	StateMachine stateMachine;
 
-	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
+	std::vector<cv::Mat> myPokemonsBGRA;
 
 	screen_context()
-		: opponentPokemonCropper(factory::newOpponentPokemonCropper(
+		: my_selection_order_map(6),
+		opponentPokemonCropper(factory::newOpponentPokemonCropper(
 			  "preset/OpponentPokemonCropper.json")),
 		  selectionOrderCropper(factory::newSelectionOrderCropper(
 			  "preset/SelectionOrderCropper.json")),
@@ -82,7 +78,8 @@ struct screen_context {
 			  "preset/SceneDetector_blackTransition.json")),
 		  sceneDetector(lobbyRankShown, lobbyMySelect,
 				lobbyOpponentSelect, blackTransition),
-		  stateMachine(actionHandler, sceneDetector)
+		  stateMachine(actionHandler, sceneDetector),
+		  myPokemonsBGRA(6)
 	{
 	}
 };
