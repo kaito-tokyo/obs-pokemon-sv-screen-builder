@@ -50,7 +50,7 @@ struct screen_context {
 
 	screen_context()
 		: my_selection_order_map(6),
-		opponentPokemonCropper(factory::newOpponentPokemonCropper(
+		  opponentPokemonCropper(factory::newOpponentPokemonCropper(
 			  "preset/OpponentPokemonCropper.json")),
 		  selectionOrderCropper(factory::newSelectionOrderCropper(
 			  "preset/SelectionOrderCropper.json")),

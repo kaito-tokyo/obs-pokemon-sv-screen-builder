@@ -103,8 +103,8 @@ void ActionHandler::handleEnteringSelectPokemon(
 			opponentPokemonCropper.generateTransparentImages(
 				imagesBGRA, masks);
 		for (size_t i = 0; i < resultsBGRA.size(); i++) {
-			logger.writeOpponentPokemonImage(prefix, static_cast<int>(i),
-							 resultsBGRA[i]);
+			logger.writeOpponentPokemonImage(
+				prefix, static_cast<int>(i), resultsBGRA[i]);
 		}
 		dispatchOpponentTeamShown(resultsBGRA);
 

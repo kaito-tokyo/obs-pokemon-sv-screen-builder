@@ -44,19 +44,21 @@ public:
 		const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
 		bool canEnterToSelectPokemon,
 		std::vector<int> &mySelectionOrderMap) const;
-	void handleSelectPokemon(
-		const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
-		const cv::Mat &gameplayHsv, const cv::Mat &gameplayGray,
-		std::vector<int> &mySelectionOrderMap,
-		std::vector<cv::Mat> &myPokemonsBGRA) const;
+	void handleSelectPokemon(const cv::Mat &gameplayBGRA,
+				 const cv::Mat &gameplayBGR,
+				 const cv::Mat &gameplayHsv,
+				 const cv::Mat &gameplayGray,
+				 std::vector<int> &mySelectionOrderMap,
+				 std::vector<cv::Mat> &myPokemonsBGRA) const;
 	void handleEnteringMatch(bool canEnterToMatch) const;
 
 private:
-	bool detectSelectionOrderChange(
-		const cv::Mat &gameplayBGR, const cv::Mat &gameplayGray,
-		std::vector<int> &mySelectionOrderMap) const;
-	void drawMyPokemons(
-		const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHSV,
-		std::vector<cv::Mat> &myPokemonsBGRA,
-		const std::vector<int> &mySelectionOrderMap) const;
+	bool
+	detectSelectionOrderChange(const cv::Mat &gameplayBGR,
+				   const cv::Mat &gameplayGray,
+				   std::vector<int> &mySelectionOrderMap) const;
+	void drawMyPokemons(const cv::Mat &gameplayBGRA,
+			    const cv::Mat &gameplayHSV,
+			    std::vector<cv::Mat> &myPokemonsBGRA,
+			    const std::vector<int> &mySelectionOrderMap) const;
 };
