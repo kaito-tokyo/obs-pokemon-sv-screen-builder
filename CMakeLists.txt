@@ -2,9 +2,9 @@ cmake_minimum_required(VERSION 3.16...3.26)
 
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/common/bootstrap.cmake" NO_POLICY_SCOPE)
 
-project(${_name} VERSION ${_version})
-
 set(CMAKE_CONFIGURATION_TYPES ${CMAKE_BUILD_TYPE})
+
+project(${_name} VERSION ${_version})
 
 option(ENABLE_FRONTEND_API "Use obs-frontend-api for UI functionality" OFF)
 option(ENABLE_QT "Use Qt functionality" OFF)
