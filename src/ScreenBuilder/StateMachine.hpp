@@ -1,10 +1,9 @@
 #pragma once
 
-#include "ScreenState.hpp"
+#include "ActionHandler.hpp"
 #include "GameplayScene.hpp"
 #include "SceneDetector.hpp"
-#include "ActionHandler.hpp"
-#include "constants.h"
+#include "ScreenState.hpp"
 
 class StateMachine {
 public:
@@ -41,6 +40,6 @@ private:
 	cv::Mat gameplayGray;
 	uint64_t lastStateChangeNs = 0;
 	uint64_t elapsedNsFromLastStateChange = 0;
-	std::array<int, N_POKEMONS> mySelectionOrderMap;
-	std::array<cv::Mat, N_POKEMONS> myPokemonsBGRA;
+	std::vector<int> mySelectionOrderMap;
+	std::vector<cv::Mat> myPokemonsBGRA;
 };

@@ -1,14 +1,13 @@
 #pragma once
 
-#include "ScreenBuilder/Logger.hpp"
-#include "Recognizers/PokemonRecognizer.hpp"
-#include "constants.h"
-#include "Recognizers/SelectionRecognizer.hpp"
 #include "Croppers/MyPokemonCropper.hpp"
 #include "Croppers/OpponentPokemonCropper.hpp"
 #include "Croppers/SelectionOrderCropper.hpp"
 #include "Extractors/MyRankExtractor.hpp"
 #include "Extractors/OpponentRankExtractor.hpp"
+#include "Recognizers/PokemonRecognizer.hpp"
+#include "Recognizers/SelectionRecognizer.hpp"
+#include "ScreenBuilder/Logger.hpp"
 
 class ActionHandler {
 public:
@@ -44,20 +43,22 @@ public:
 	void handleEnteringSelectPokemon(
 		const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
 		bool canEnterToSelectPokemon,
-		std::array<int, N_POKEMONS> &mySelectionOrderMap) const;
-	void handleSelectPokemon(
-		const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
-		const cv::Mat &gameplayHsv, const cv::Mat &gameplayGray,
-		std::array<int, N_POKEMONS> &mySelectionOrderMap,
-		std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA) const;
+		std::vector<int> &mySelectionOrderMap) const;
+	void handleSelectPokemon(const cv::Mat &gameplayBGRA,
+				 const cv::Mat &gameplayBGR,
+				 const cv::Mat &gameplayHsv,
+				 const cv::Mat &gameplayGray,
+				 std::vector<int> &mySelectionOrderMap,
+				 std::vector<cv::Mat> &myPokemonsBGRA) const;
 	void handleEnteringMatch(bool canEnterToMatch) const;
 
 private:
-	bool detectSelectionOrderChange(
-		const cv::Mat &gameplayBGR, const cv::Mat &gameplayGray,
-		std::array<int, N_POKEMONS> &mySelectionOrderMap) const;
-	void drawMyPokemons(
-		const cv::Mat &gameplayBGRA, const cv::Mat &gameplayHSV,
-		std::array<cv::Mat, N_POKEMONS> &myPokemonsBGRA,
-		const std::array<int, N_POKEMONS> &mySelectionOrderMap) const;
+	bool
+	detectSelectionOrderChange(const cv::Mat &gameplayBGR,
+				   const cv::Mat &gameplayGray,
+				   std::vector<int> &mySelectionOrderMap) const;
+	void drawMyPokemons(const cv::Mat &gameplayBGRA,
+			    const cv::Mat &gameplayHSV,
+			    std::vector<cv::Mat> &myPokemonsBGRA,
+			    const std::vector<int> &mySelectionOrderMap) const;
 };

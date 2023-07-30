@@ -5,12 +5,12 @@
 #include "Croppers/MyPokemonCropper.hpp"
 #include "Croppers/OpponentPokemonCropper.hpp"
 #include "Croppers/SelectionOrderCropper.hpp"
+#include "Extractors/MyRankExtractor.hpp"
+#include "Extractors/OpponentRankExtractor.hpp"
 #include "Recognizers/PokemonRecognizer.hpp"
 #include "Recognizers/SelectionRecognizer.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
-#include "Extractors/MyRankExtractor.hpp"
-#include "Extractors/OpponentRankExtractor.hpp"
 
 namespace factory {
 

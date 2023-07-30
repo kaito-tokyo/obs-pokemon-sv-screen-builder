@@ -14,7 +14,7 @@
 #include "obs-browser-api.h"
 #include "obs-platform-util.h"
 
-#include "screen-source.h"
+#include "screen-source.hpp"
 #include "plugin-support.h"
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
