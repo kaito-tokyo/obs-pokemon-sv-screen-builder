@@ -1,6 +1,6 @@
 include(FetchContent)
 
-set(OpenCV_Version 4.8.0-5)
+set(OpenCV_Version 4.8.0-6)
 
 if(${CMAKE_BUILD_TYPE} STREQUAL Release OR ${CMAKE_BUILD_TYPE} STREQUAL RelWithDebInfo)
   set(OpenCV_BUILD_TYPE Release)
@@ -13,7 +13,7 @@ if(APPLE)
     FetchContent_Declare(
       opencv
       URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-macos-Release.tar.gz"
-      URL_HASH MD5=339615d443085584b73f28853554380d)
+      URL_HASH MD5=1e33d94a983d5b749a6bacfbf8f14f91)
   else()
     FetchContent_Declare(
       opencv
