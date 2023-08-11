@@ -8,7 +8,8 @@ else()
   set(OpenCV_BUILD_TYPE Debug)
 endif()
 
-set(OpenCV_BASEURL "${OpenCV_BASEURL}")
+set(OpenCV_BASEURL
+    "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}")
 
 if(APPLE)
   if(OpenCV_BUILD_TYPE STREQUAL Release)
