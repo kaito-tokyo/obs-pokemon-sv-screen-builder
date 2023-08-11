@@ -28,7 +28,7 @@ if(APPLE)
     INTERFACE ${opencv_SOURCE_DIR}/lib/libopencv_features2d.a ${opencv_SOURCE_DIR}/lib/libopencv_imgcodecs.a
               ${opencv_SOURCE_DIR}/lib/libopencv_imgproc.a ${opencv_SOURCE_DIR}/lib/libopencv_core.a
               ${opencv_SOURCE_DIR}/lib/opencv4/3rdparty/liblibpng.a ${opencv_SOURCE_DIR}/lib/opencv4/3rdparty/libzlib.a)
-  target_include_directories(OpenCV INTERFACE ${opencv_SOURCE_DIR}/include/opencv4)
+  target_include_directories(OpenCV SYSTEM INTERFACE ${opencv_SOURCE_DIR}/include/opencv4)
 elseif(MSVC)
 
   if(OpenCV_BUILD_TYPE STREQUAL Release)
@@ -53,7 +53,7 @@ elseif(MSVC)
               ${opencv_SOURCE_DIR}/x64/vc17/staticlib/opencv_core.lib
               ${opencv_SOURCE_DIR}/x64/vc17/staticlib/libpng.lib
               ${opencv_SOURCE_DIR}/x64/vc17/staticlib/zlib.lib)
-  target_include_directories(OpenCV INTERFACE ${opencv_SOURCE_DIR}/include)
+  target_include_directories(OpenCV SYSTEM INTERFACE ${opencv_SOURCE_DIR}/include)
 else()
   if(OpenCV_BUILD_TYPE STREQUAL Release)
     FetchContent_Declare(
@@ -74,5 +74,5 @@ else()
     INTERFACE ${opencv_SOURCE_DIR}/lib/libopencv_features2d.a ${opencv_SOURCE_DIR}/lib/libopencv_imgcodecs.a
               ${opencv_SOURCE_DIR}/lib/libopencv_imgproc.a ${opencv_SOURCE_DIR}/lib/libopencv_core.a
               ${opencv_SOURCE_DIR}/lib/opencv4/3rdparty/liblibpng.a ${opencv_SOURCE_DIR}/lib/opencv4/3rdparty/libzlib.a)
-  target_include_directories(OpenCV INTERFACE ${opencv_SOURCE_DIR}/include/opencv4)
+  target_include_directories(OpenCV SYSTEM INTERFACE ${opencv_SOURCE_DIR}/include/opencv4)
 endif()
