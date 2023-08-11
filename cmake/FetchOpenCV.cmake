@@ -18,7 +18,7 @@ if(APPLE)
     FetchContent_Declare(
       opencv
       URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-macos-Debug.tar.gz"
-      URL_HASH MD5=b1e2405d2fdaa972efeabc78d5e9d0d2)
+      URL_HASH MD5=0fe5e26e2135e40e72d91822c833d6f3)
   endif()
 
   add_library(OpenCV INTERFACE)
@@ -35,12 +35,12 @@ elseif(MSVC)
     FetchContent_Declare(
       OpenCV
       URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-windows-Release.tar.gz"
-      URL_HASH MD5=af1e75900b70a50baef24cbade6d3342)
+      URL_HASH MD5=460fc72a81d793ae2c03c97731fe3206)
   else()
     FetchContent_Declare(
       OpenCV
       URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-windows-Debug.tar.gz"
-      URL_HASH MD5=461287f75c0703af8ad7154d17e9dea6)
+      URL_HASH MD5=3ae4d598e08d2f94de2c2c574c730258)
   endif()
 
   add_library(OpenCV INTERFACE)
@@ -59,12 +59,12 @@ else()
     FetchContent_Declare(
       OpenCV
       URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-linux-Release.tar.gz"
-      URL_HASH MD5=aa2fa6338d3c22bad64494f834d107b9)
+      URL_HASH MD5=0d9293c46da215df12a7c01dec5de7c1)
   else()
     FetchContent_Declare(
       OpenCV
       URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-linux-Debug.tar.gz"
-      URL_HASH MD5=2da52ad39dd6270b530f7db3c1577aaa)
+      URL_HASH MD5=0f7ba51d49f448fe611d91553b8f706c)
   endif()
 
   add_library(OpenCV INTERFACE)
