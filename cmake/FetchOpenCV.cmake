@@ -34,12 +34,12 @@ elseif(MSVC)
   if(OpenCV_BUILD_TYPE STREQUAL Release)
     FetchContent_Declare(
       OpenCV
-      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-windows-Release.tar.gz"
+      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-windows-Release.zip"
       URL_HASH MD5=0d9293c46da215df12a7c01dec5de7c1)
   else()
     FetchContent_Declare(
       OpenCV
-      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-windows-Debug.tar.gz"
+      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-windows-Debug.zip"
       URL_HASH MD5=0f7ba51d49f448fe611d91553b8f706c)
   endif()
 
@@ -58,12 +58,12 @@ else()
   if(OpenCV_BUILD_TYPE STREQUAL Release)
     FetchContent_Declare(
       OpenCV
-      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-linux-Release.zip"
+      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-linux-Release.tar.gz"
       URL_HASH MD5=460fc72a81d793ae2c03c97731fe3206)
   else()
     FetchContent_Declare(
       OpenCV
-      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-linux-Debug.zip"
+      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-linux-Debug.tar.gz"
       URL_HASH MD5=3ae4d598e08d2f94de2c2c574c730258)
   endif()
 
