@@ -58,12 +58,12 @@ else()
   if(OpenCV_BUILD_TYPE STREQUAL Release)
     FetchContent_Declare(
       OpenCV
-      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-linux-Release.tar.gz"
+      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-linux-Release.zip"
       URL_HASH MD5=460fc72a81d793ae2c03c97731fe3206)
   else()
     FetchContent_Declare(
       OpenCV
-      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-linux-Debug.tar.gz"
+      URL "https://github.com/umireon/obs-pokemon-sv-screen-builder-dep-opencv/releases/download/${OpenCV_Version}/opencv-linux-Debug.zip"
       URL_HASH MD5=3ae4d598e08d2f94de2c2c574c730258)
   endif()
 
