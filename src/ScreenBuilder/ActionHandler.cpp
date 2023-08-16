@@ -108,7 +108,7 @@ void ActionHandler::handleEnteringSelectPokemon(
 		}
 		dispatchOpponentTeamShown(resultsBGRA);
 
-		for (size_t i = 0; mySelectionOrderMap.size(); i++) {
+		for (size_t i = 0; i < mySelectionOrderMap.size(); i++) {
 			mySelectionOrderMap[i] = 0;
 		}
 		std::vector<std::string> pokemonNames(resultsBGRA.size());

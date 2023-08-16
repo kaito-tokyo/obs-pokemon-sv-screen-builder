@@ -46,8 +46,6 @@ struct screen_context {
 	ActionHandler actionHandler;
 	StateMachine stateMachine;
 
-	std::vector<cv::Mat> myPokemonsBGRA;
-
 	screen_context()
 		: my_selection_order_map(6),
 		  opponentPokemonCropper(factory::newOpponentPokemonCropper(
@@ -78,8 +76,7 @@ struct screen_context {
 			  "preset/SceneDetector_blackTransition.json")),
 		  sceneDetector(lobbyRankShown, lobbyMySelect,
 				lobbyOpponentSelect, blackTransition),
-		  stateMachine(actionHandler, sceneDetector),
-		  myPokemonsBGRA(6)
+		  stateMachine(actionHandler, sceneDetector)
 	{
 	}
 };

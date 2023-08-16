@@ -18,7 +18,7 @@ public:
 
 	bool operator()(const cv::Mat &gameplayGray) const
 	{
-		assert(gameplayGray.cols == 1920 && gameplayGray.cols == 1080);
+		assert(gameplayGray.cols == 1920 && gameplayGray.rows == 1080);
 
 		cv::Mat imageGray = gameplayGray(rect), imageBinary;
 		cv::threshold(imageGray, imageBinary, threshold, 255,
