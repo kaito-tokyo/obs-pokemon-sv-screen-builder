@@ -86,7 +86,4 @@ void update_checker_close(void)
 	if (checkUpdateConfig) {
 		config_close(checkUpdateConfig);
 	}
-	if (updateDialog) {
-		delete updateDialog;
-	}
 }
