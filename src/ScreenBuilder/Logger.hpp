@@ -94,6 +94,18 @@ public:
 		}
 	}
 
+	void writeEvent(const std::string &prefix, const std::string &eventName,
+			const std::string &jsonString) const
+	{
+		if (basedir.empty()) {
+			return;
+		}
+		std::filesystem::path p = basedir;
+		p /= prefix + "-" + eventName + ".txt";
+		std::ofstream ofs(p);
+		ofs << jsonString << std::endl;
+	}
+
 private:
 	void writeImage(const std::string &filename, const cv::Mat &image) const
 	{

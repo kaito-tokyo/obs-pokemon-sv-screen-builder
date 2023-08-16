@@ -9,40 +9,6 @@
 #include "obs-browser-api.h"
 #include "Base64/Base64.hpp"
 
-static void dispatchMyRankShown(std::string text)
-{
-	nlohmann::json json{{"text", text}};
-	std::string jsonString(json.dump());
-	sendEventToAllBrowserSources("obsPokemonSvScreenBuilderMyRankShown",
-				     jsonString.c_str());
-}
-
-static void dispatchOpponentRankShown(std::string text)
-{
-	nlohmann::json json{{"text", text}};
-	std::string jsonString(json.dump());
-	sendEventToAllBrowserSources(
-		"obsPokemonSvScreenBuilderOpponentRankShown",
-		jsonString.c_str());
-}
-
-static void dispatchOpponentTeamShown(const std::vector<cv::Mat> &images)
-{
-	std::vector<std::string> imageUrls;
-	for (size_t i = 0; i < images.size(); i++) {
-		std::vector<uchar> pngImage;
-		cv::imencode(".png", images[i], pngImage);
-		imageUrls.push_back("data:image/png;base64," +
-				    Base64::encode(pngImage));
-	}
-
-	nlohmann::json json{{"imageUrls", imageUrls}};
-	std::string jsonString = json.dump();
-	sendEventToAllBrowserSources(
-		"obsPokemonSvScreenBuilderOpponentTeamShown",
-		jsonString.c_str());
-}
-
 void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
 {
 	std::string prefix = logger.getPrefix();
@@ -163,25 +129,7 @@ void ActionHandler::drawMyPokemons(
 		}
 	}
 
-	std::vector<std::string> imageUrls(myPokemonsBGRA.size());
-	for (size_t i = 0; i < myPokemonsBGRA.size(); i++) {
-		if (myPokemonsBGRA[i].empty()) {
-			imageUrls[i] = "";
-		} else {
-			std::vector<uchar> pngImage;
-			cv::imencode(".png", myPokemonsBGRA[i], pngImage);
-			imageUrls[i] = "data:image/png;base64," +
-				       Base64::encode(pngImage);
-		}
-	}
-
-	nlohmann::json json{
-		{"imageUrls", imageUrls},
-		{"mySelectionOrderMap", mySelectionOrderMap},
-	};
-	const char eventName[] = "obsPokemonSvScreenBuilderMySelectionChanged";
-	std::string jsonString = json.dump();
-	sendEventToAllBrowserSources(eventName, jsonString.c_str());
+	dispatchMySelectionChanged(myPokemonsBGRA, mySelectionOrderMap);
 }
 
 void ActionHandler::handleSelectPokemon(
@@ -200,10 +148,6 @@ void ActionHandler::handleSelectPokemon(
 void ActionHandler::handleEnteringMatch(bool canEnterToMatch) const
 {
 	if (canEnterToMatch) {
-		nlohmann::json json{{"durationMins", 20}};
-		std::string jsonString(json.dump());
-		sendEventToAllBrowserSources(
-			"obsPokemonSvScreenBuilderMatchStarted",
-			jsonString.c_str());
+		dispatchMatchStarted(20);
 	}
 }
