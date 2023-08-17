@@ -64,17 +64,14 @@ include(cmake/FetchOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
 
 if(APPLE)
-
+  add_subdirectory(src/UpdateChecker/URLSessionClient)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE URLSessionClient)
+elseif(UNIX)
+  add_subdirectory(src/UpdateChecker/CurlClient)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE CurlClient)
 elseif(MSVC)
-  add_subdirectory(src/TextRecognizer/WinRTTextRecognizer)
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTTextRecognizer)
-
   add_subdirectory(src/UpdateChecker/WinRTHttpClient)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTHttpClient)
-else()
-  find_package(CURL REQUIRED)
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "${CURL_LIBRARIES}")
-  target_include_directories(${CMAKE_PROJECT_NAME} SYSTEM PUBLIC "${CURL_INCLUDE_DIRS}")
 endif()
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
