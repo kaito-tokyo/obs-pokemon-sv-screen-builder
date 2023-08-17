@@ -21,6 +21,11 @@ static bool getIsSkipping(config_t *config, std::string latestVersion)
 		return true;
 	}
 
+	bool skip = config_get_bool(config, "check-update", "skip");
+	if (!skip) {
+		return false;
+	}
+
 	const char *skipVersion =
 		config_get_string(config, "check-update", "skip-version");
 	return skipVersion != nullptr && skipVersion == latestVersion;
