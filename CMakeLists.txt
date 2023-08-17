@@ -53,16 +53,21 @@ target_sources(
           src/UpdateChecker/UpdateDialog.cpp
           src/UpdateChecker/UpdateChecker.cpp)
 
+include(cmake/FetchOpenCV.cmake)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
+
+# TextRecognizer
 if(APPLE)
   target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/TextRecognizer/VisionTextRecognizer/VisionTextRecognizer.mm
                                                src/UpdateChecker/URLSessionClient/URLSessionClient.mm)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-framework Vision" "-framework CoreVideo"
                                                       "-framework VideoToolbox")
+elseif(MSVC)
+  add_subdirectory(src/TextRecognizer/WinRTTextRecognizer)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTTextRecognizer)
 endif()
 
-include(cmake/FetchOpenCV.cmake)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
-
+# UpdateChecker
 if(APPLE)
   add_subdirectory(src/UpdateChecker/URLSessionClient)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE URLSessionClient)
