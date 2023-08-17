@@ -2,8 +2,8 @@
 #include <nameof.hpp>
 
 #include <obs.h>
+#include <util/platform.h>
 
-#include "obs-platform-util.h"
 #include "plugin-support.h"
 
 #include "ActionHandler.hpp"
