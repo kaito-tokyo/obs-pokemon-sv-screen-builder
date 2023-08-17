@@ -26,7 +26,8 @@ public:
 		double maxVal;
 		cv::Point maxIdx;
 		cv::minMaxLoc(hist, nullptr, &maxVal, nullptr, &maxIdx);
-		obs_log(LOG_INFO, "ResultRecognizer: %d %f %d", imageHSV.total(), maxVal, maxIdx.y);
+		obs_log(LOG_INFO, "ResultRecognizer: %d %f %d",
+			imageHSV.total(), maxVal, maxIdx.y);
 		if (maxVal > imageHSV.total() * winRatio &&
 		    maxIdx.y == winMaxIndex) {
 			return "WIN";
@@ -51,7 +52,7 @@ private:
 		const int histSize[]{nBins};
 		const float hranges[] = {0, 180};
 		const float *ranges[]{hranges};
-		cv::calcHist(&imageHSV, 1, channels, {}, hist, 1,
-			     histSize, ranges);
+		cv::calcHist(&imageHSV, 1, channels, {}, hist, 1, histSize,
+			     ranges);
 	}
 };
