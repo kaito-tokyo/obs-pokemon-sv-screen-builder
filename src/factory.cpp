@@ -185,8 +185,10 @@ ResultRecognizer newResultRecognizer(const char *name)
 	if (path.empty()) {
 		throw PresetFileNotFoundError(name);
 	}
-	std::ifstream ifs(path, std::ios_base::binary);
-	nlohmann::json json = nlohmann::json::from_cbor(ifs);
+	std::ifstream ifs(path);
+	nlohmann::json json;
+	ifs >> json;
+
 	return {
 		json["nBins"].template get<int>(),
 		json["winMaxIndex"].template get<int>(),
