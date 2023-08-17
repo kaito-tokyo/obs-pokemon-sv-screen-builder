@@ -19,7 +19,7 @@ public:
 		return oss.str();
 	}
 
-	void writeOpponentPokemonImage(const std::string &prefix, int index,
+	void writeOpponentPokemonImage(const std::string &prefix, size_t index,
 				       const cv::Mat &image) const
 	{
 		if (basedir.empty()) {
@@ -55,7 +55,7 @@ public:
 		writeImage(oss.str(), image);
 	}
 
-	void writeMyPokemonImage(const std::string &prefix, int index,
+	void writeMyPokemonImage(const std::string &prefix, size_t index,
 				 const cv::Mat &image) const
 	{
 		if (basedir.empty()) {

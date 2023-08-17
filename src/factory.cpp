@@ -69,6 +69,86 @@ PresetFileNotFoundError::PresetFileNotFoundError(const char *name)
 {
 }
 
+MyPokemonCropper newMyPokemonCropper(const char *name)
+{
+	fs::path path = getPresetPath(name);
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
+	std::ifstream ifs(path);
+	nlohmann::json json;
+	ifs >> json;
+	return {
+		json["rects"].template get<std::vector<cv::Rect>>(),
+		json["backgroundValueThreshold"].template get<uchar>(),
+		json["backgroundPoint"].template get<cv::Point>(),
+	};
+}
+
+OpponentPokemonCropper newOpponentPokemonCropper(const char *name)
+{
+	fs::path path = getPresetPath(name);
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
+	std::ifstream ifs(path);
+	nlohmann::json json;
+	ifs >> json;
+	return {
+		json["rects"].template get<std::vector<cv::Rect>>(),
+		json["seed"].template get<cv::Point>(),
+		json["loDiff"].template get<cv::Scalar>(),
+		json["upDiff"].template get<cv::Scalar>(),
+	};
+}
+
+ResultCropper newResultCropper(const char *name)
+{
+	fs::path path = getPresetPath(name);
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
+	std::ifstream ifs(path);
+	nlohmann::json json;
+	ifs >> json;
+	return {
+		json["rects"].template get<std::vector<cv::Rect>>(),
+	};
+}
+
+MyRankExtractor newMyRankExtractor(const char *name)
+{
+	auto path = getPresetPath(name);
+	std::ifstream ifs(path, std::ios_base::binary);
+	nlohmann::json json = nlohmann::json::from_cbor(ifs);
+
+	return {
+		json["rect"].template get<cv::Rect>(),
+		json["threshold"].template get<int>(),
+		json["cols"].template get<std::vector<int>>(),
+		json["data"].template get<std::vector<std::vector<uchar>>>(),
+		json["ratio"].template get<double>(),
+	};
+}
+
+OpponentRankExtractor newOpponentRankExtractor(const char *name)
+{
+	auto path = getPresetPath(name);
+	std::ifstream ifs(path, std::ios_base::binary);
+	nlohmann::json json = nlohmann::json::from_cbor(ifs);
+
+	return {
+		json["rect"].template get<cv::Rect>(),
+		json["threshold"].template get<int>(),
+		json["parenMap"]
+			.template get<
+				std::map<std::string, std::pair<int, int>>>(),
+		json["cols"].template get<std::vector<int>>(),
+		json["data"].template get<std::vector<std::vector<uchar>>>(),
+		json["ratio"].template get<double>(),
+	};
+}
+
 PokemonRecognizer newPokemonRecognizer(const char *name)
 {
 	fs::path path = getPresetPath(name);
@@ -103,53 +183,6 @@ SelectionRecognizer newSelectionRecognizer(const char *name)
 	};
 }
 
-MyPokemonCropper newMyPokemonCropper(const char *name)
-{
-	fs::path path = getPresetPath(name);
-	if (path.empty()) {
-		throw PresetFileNotFoundError(name);
-	}
-	std::ifstream ifs(path);
-	nlohmann::json json;
-	ifs >> json;
-	return {
-		json["rects"].template get<std::vector<cv::Rect>>(),
-		json["backgroundValueThreshold"].template get<uchar>(),
-		json["backgroundPoint"].template get<cv::Point>(),
-	};
-}
-
-OpponentPokemonCropper newOpponentPokemonCropper(const char *name)
-{
-	fs::path path = getPresetPath(name);
-	if (path.empty()) {
-		throw PresetFileNotFoundError(name);
-	}
-	std::ifstream ifs(path);
-	nlohmann::json json;
-	ifs >> json;
-	return {
-		json["rects"].template get<std::vector<cv::Rect>>(),
-		json["seed"].template get<cv::Point>(),
-		json["loDiff"].template get<cv::Scalar>(),
-		json["upDiff"].template get<cv::Scalar>(),
-	};
-}
-
-SelectionOrderCropper newSelectionOrderCropper(const char *name)
-{
-	fs::path path = getPresetPath(name);
-	if (path.empty()) {
-		throw PresetFileNotFoundError(name);
-	}
-	std::ifstream ifs(path);
-	nlohmann::json json;
-	ifs >> json;
-	return {
-		json["rects"].template get<std::vector<cv::Rect>>(),
-	};
-}
-
 HistClassifier newHistClassifier(const char *name)
 {
 	fs::path path = getPresetPath(name);
@@ -181,39 +214,6 @@ TemplateClassifier newTemplateClassifier(const char *name)
 		json["ratio"].template get<double>(),
 		json["cols"].template get<std::vector<int>>(),
 		json["data"].template get<std::vector<std::vector<uchar>>>(),
-	};
-}
-
-MyRankExtractor newMyRankExtractor(const char *name)
-{
-	auto path = getPresetPath(name);
-	std::ifstream ifs(path, std::ios_base::binary);
-	nlohmann::json json = nlohmann::json::from_cbor(ifs);
-
-	return {
-		json["rect"].template get<cv::Rect>(),
-		json["threshold"].template get<int>(),
-		json["cols"].template get<std::vector<int>>(),
-		json["data"].template get<std::vector<std::vector<uchar>>>(),
-		json["ratio"].template get<double>(),
-	};
-}
-
-OpponentRankExtractor newOpponentRankExtractor(const char *name)
-{
-	auto path = getPresetPath(name);
-	std::ifstream ifs(path, std::ios_base::binary);
-	nlohmann::json json = nlohmann::json::from_cbor(ifs);
-
-	return {
-		json["rect"].template get<cv::Rect>(),
-		json["threshold"].template get<int>(),
-		json["parenMap"]
-			.template get<
-				std::map<std::string, std::pair<int, int>>>(),
-		json["cols"].template get<std::vector<int>>(),
-		json["data"].template get<std::vector<std::vector<uchar>>>(),
-		json["ratio"].template get<double>(),
 	};
 }
 }

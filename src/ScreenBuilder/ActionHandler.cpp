@@ -4,10 +4,11 @@
 
 #include "plugin-support.h"
 
-#include "ActionHandler.hpp"
-#include "TextRecognizer/TextRecognizer.h"
 #include "obs-browser-api.h"
 #include "Base64/Base64.hpp"
+
+#include "ActionHandler.hpp"
+#include "TextRecognizer/TextRecognizer.h"
 
 void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
 {
@@ -61,8 +62,6 @@ void ActionHandler::handleEnteringSelectPokemon(
 			mySelectionOrderMap[i] = 0;
 		}
 
-		std::string prefix = logger.getPrefix();
-
 		std::vector<cv::Mat> imagesBGRA =
 			opponentPokemonCropper.crop(gameplayBGRA);
 		std::vector<cv::Mat> imagesBGR =
@@ -72,10 +71,6 @@ void ActionHandler::handleEnteringSelectPokemon(
 		std::vector<cv::Mat> resultsBGRA =
 			opponentPokemonCropper.generateTransparentImages(
 				imagesBGRA, masks);
-		for (size_t i = 0; i < resultsBGRA.size(); i++) {
-			logger.writeOpponentPokemonImage(
-				prefix, static_cast<int>(i), resultsBGRA[i]);
-		}
 		std::vector<std::string> pokemonNames(resultsBGRA.size());
 		for (size_t i = 0; i < pokemonNames.size(); i++) {
 			pokemonNames[i] = pokemonRecognizer.recognizePokemon(
