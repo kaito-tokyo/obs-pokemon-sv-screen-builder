@@ -180,15 +180,10 @@ ${_usage_host:-}"
     if (( _loglevel > 1  || ${+CI} )) _tarflags="v${_tarflags}"
 
     if (( package )) {
-      if [[ ! -f ${project_root}/build_macos/installer-macos.generated.pkgproj ]] {
-        log_error 'Packages project file not found. Run the build script or the CMake build and install procedures first.'
-        return 2
-      }
-
       log_group "Packaging ${product_name}..."
       pushd ${project_root}
       pkgbuild \
-        --component "${project_root}/release/obs-backgroundremoval.plugin" \
+        --component "${project_root}/release/${config}/obs-backgroundremoval.plugin" \
         --install-location "/Library/Application Support/obs-studio/plugins" \
         --scripts "${project_root}/cmake/macos/resources/scripts" \
         "${project_root}/release/${product_name}-flat.pkg"
