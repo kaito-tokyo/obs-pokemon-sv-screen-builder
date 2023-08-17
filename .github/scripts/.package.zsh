@@ -167,7 +167,7 @@ ${_usage_host:-}"
     "$(jq -r '. | {name, version} | join(" ")' ${buildspec_file})"
 
   if [[ ${host_os} == macos ]] {
-    autoload -Uz check_packages read_codesign read_codesign_installer read_codesign_pass
+    autoload -Uz read_codesign read_codesign_installer read_codesign_pass
 
     local output_name="${product_name}-${product_version}-${host_os}-universal"
 
@@ -184,8 +184,6 @@ ${_usage_host:-}"
         log_error 'Packages project file not found. Run the build script or the CMake build and install procedures first.'
         return 2
       }
-
-      check_packages
 
       log_group "Packaging ${product_name}..."
       pushd ${project_root}
