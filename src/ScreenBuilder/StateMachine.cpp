@@ -58,9 +58,9 @@ ScreenState StateMachine::compute(GameplayScene scene)
 	case ScreenState::MATCH:
 		return computeMatch(scene);
 	case ScreenState::ENTERING_RESULT:
-		return computeEnteringResult();
+		return computeEnteringResult(scene);
 	case ScreenState::RESULT:
-		return computeResult(scene);
+		return computeResult();
 	default:
 		return ScreenState::UNKNOWN;
 	}
@@ -191,15 +191,10 @@ ScreenState StateMachine::computeMatch(GameplayScene scene)
 	}
 }
 
-ScreenState StateMachine::computeEnteringResult(void)
-{
-	return ScreenState::RESULT;
-}
-
-ScreenState StateMachine::computeResult(GameplayScene scene)
+ScreenState StateMachine::computeEnteringResult(GameplayScene scene)
 {
 	if (elapsedNsFromLastStateChange > 2000000000) {
-		return ScreenState::UNKNOWN;
+		return ScreenState::RESULT;
 	} else if (scene == GameplayScene::SELECT_POKEMON) {
 		return ScreenState::ENTERING_SELECT_POKEMON;
 	} else if (scene == GameplayScene::RANK_SHOWN) {
@@ -207,4 +202,10 @@ ScreenState StateMachine::computeResult(GameplayScene scene)
 	} else {
 		return ScreenState::RESULT;
 	}
+}
+
+ScreenState StateMachine::computeResult(void)
+{
+	actionHandler.handleResult(gameplayGray);
+	return ScreenState::UNKNOWN;
 }

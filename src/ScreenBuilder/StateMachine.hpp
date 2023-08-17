@@ -28,8 +28,8 @@ public:
 	ScreenState computeConfirmPokemon(GameplayScene scene);
 	ScreenState computeEnteringMatch(GameplayScene scene);
 	ScreenState computeMatch(GameplayScene scene);
-	ScreenState computeEnteringResult(void);
-	ScreenState computeResult(GameplayScene scene);
+	ScreenState computeEnteringResult(GameplayScene scene);
+	ScreenState computeResult(void);
 
 private:
 	GameplayScene prevScene = GameplayScene::UNKNOWN;

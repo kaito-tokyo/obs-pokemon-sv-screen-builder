@@ -55,6 +55,7 @@ public:
 				 std::vector<int> &mySelectionOrderMap,
 				 std::vector<cv::Mat> &myPokemonsBGRA) const;
 	void handleEnteringMatch(bool canEnterToMatch) const;
+	void handleResult(const cv::Mat &gameplayGray) const;
 
 private:
 	void dispatchMyRankShown(const std::string &text) const

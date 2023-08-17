@@ -151,3 +151,9 @@ void ActionHandler::handleEnteringMatch(bool canEnterToMatch) const
 		dispatchMatchStarted(20);
 	}
 }
+
+void ActionHandler::handleResult(const cv::Mat &gameplayGray) const
+{
+	auto prefix = logger.getPrefix();
+	logger.writeScreenshot(prefix, "MatchResultShown", gameplayGray);
+}
