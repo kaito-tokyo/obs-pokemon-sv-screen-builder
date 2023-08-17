@@ -18,54 +18,52 @@ struct screen_context {
 
 	gs_texrender_t *texrender = nullptr;
 	gs_stagesurf_t *stagesurface = nullptr;
-	cv::Mat gameplay_bgra;
-	cv::Mat gameplayHsv;
-	cv::Mat gameplayGray;
-	cv::Mat gameplayBinary;
+	cv::Mat gameplayBGRA;
 
-	uint64_t next_tick = 0;
-
-	ScreenState state = ScreenState::UNKNOWN;
-	uint64_t last_state_change_ns = 0;
-	std::vector<int> my_selection_order_map;
-
-	OpponentPokemonCropper opponentPokemonCropper;
 	MyPokemonCropper myPokemonCropper;
+	OpponentPokemonCropper opponentPokemonCropper;
+	ResultCropper resultCropper;
 	SelectionOrderCropper selectionOrderCropper;
-	SelectionRecognizer selectionRecognizer;
-	OpponentRankExtractor opponentRankExtractor;
-	Logger logger;
-	PokemonRecognizer pokemonRecognizer;
 	MyRankExtractor myRankExtractor;
+	OpponentRankExtractor opponentRankExtractor;
+	PokemonRecognizer pokemonRecognizer;
+	ResultRecognizer resultRecognizer;
+	SelectionRecognizer selectionRecognizer;
+	Logger logger;
+	ActionHandler actionHandler;
 
 	TemplateClassifier lobbyRankShown;
 	HistClassifier lobbyMySelect;
 	HistClassifier lobbyOpponentSelect;
 	HistClassifier blackTransition;
 	SceneDetector sceneDetector;
-	ActionHandler actionHandler;
+
 	StateMachine stateMachine;
 
 	screen_context()
-		: my_selection_order_map(6),
+		: myPokemonCropper(factory::newMyPokemonCropper(
+			  "preset/MyPokemonCropper.json")),
 		  opponentPokemonCropper(factory::newOpponentPokemonCropper(
 			  "preset/OpponentPokemonCropper.json")),
+		  resultCropper(factory::newResultCropper(
+			  "preset/ResultCropper.json")),
 		  selectionOrderCropper(factory::newSelectionOrderCropper(
 			  "preset/SelectionOrderCropper.json")),
-		  actionHandler(myRankExtractor, opponentRankExtractor, logger,
-				pokemonRecognizer, selectionOrderCropper,
-				selectionRecognizer, myPokemonCropper,
-				opponentPokemonCropper),
-		  pokemonRecognizer(factory::newPokemonRecognizer(
-			  "preset/PokemonRecognizer.cbor")),
-		  selectionRecognizer(factory::newSelectionRecognizer(
-			  "preset/SelectionRecognizer.cbor")),
-		  opponentRankExtractor(factory::newOpponentRankExtractor(
-			  "preset/OpponentRankExtractor.cbor")),
-		  myPokemonCropper(factory::newMyPokemonCropper(
-			  "preset/MyPokemonCropper.json")),
 		  myRankExtractor(factory::newMyRankExtractor(
 			  "preset/MyRankExtractor.cbor")),
+		  opponentRankExtractor(factory::newOpponentRankExtractor(
+			  "preset/OpponentRankExtractor.cbor")),
+		  pokemonRecognizer(factory::newPokemonRecognizer(
+			  "preset/PokemonRecognizer.cbor")),
+		  resultRecognizer(factory::newResultRecognizer(
+			  "preset/ResultRecognizer.json")),
+		  selectionRecognizer(factory::newSelectionRecognizer(
+			  "preset/SelectionRecognizer.cbor")),
+		  actionHandler(myPokemonCropper, opponentPokemonCropper,
+				resultCropper, selectionOrderCropper,
+				myRankExtractor, opponentRankExtractor,
+				pokemonRecognizer, resultRecognizer,
+				selectionRecognizer, logger),
 		  lobbyRankShown(factory::newTemplateClassifier(
 			  "preset/SceneDetector_lobbyRankShown.cbor")),
 		  lobbyMySelect(factory::newHistClassifier(

@@ -19,7 +19,7 @@ public:
 		return oss.str();
 	}
 
-	void writeOpponentPokemonImage(const std::string &prefix, int index,
+	void writeOpponentPokemonImage(const std::string &prefix, size_t index,
 				       const cv::Mat &image) const
 	{
 		if (basedir.empty()) {
@@ -55,7 +55,7 @@ public:
 		writeImage(oss.str(), image);
 	}
 
-	void writeMyPokemonImage(const std::string &prefix, int index,
+	void writeMyPokemonImage(const std::string &prefix, size_t index,
 				 const cv::Mat &image) const
 	{
 		if (basedir.empty()) {
@@ -63,6 +63,18 @@ public:
 		}
 		std::ostringstream oss;
 		oss << prefix << "-MyPokemon-" << index << ".png";
+		const std::string filename = oss.str();
+		writeImage(oss.str(), image);
+	}
+
+	void writeResultImage(const std::string &prefix,
+			      const cv::Mat &image) const
+	{
+		if (basedir.empty()) {
+			return;
+		}
+		std::ostringstream oss;
+		oss << prefix << "-ResultImage.png";
 		const std::string filename = oss.str();
 		writeImage(oss.str(), image);
 	}
@@ -77,21 +89,6 @@ public:
 		oss << prefix << "-" << name << ".png";
 		const std::string filename = oss.str();
 		writeImage(oss.str(), image);
-	}
-
-	void writeOpponentTeamText(
-		const std::string &prefix,
-		const std::vector<std::string> &pokemonNames) const
-	{
-		if (basedir.empty()) {
-			return;
-		}
-		std::filesystem::path p = basedir;
-		p /= prefix + "-OpponentTeam.txt";
-		std::ofstream ofs(p);
-		for (const std::string &pokemonName : pokemonNames) {
-			ofs << pokemonName << std::endl;
-		}
 	}
 
 	void writeEvent(const std::string &prefix, const std::string &eventName,

@@ -74,14 +74,14 @@ try {
 		return;
 	if (stagesurface_data && linesize) {
 		if (gameplay_width * 4 == linesize) {
-			context->gameplay_bgra =
-				cv::Mat(gameplay_height, gameplay_width,
-					CV_8UC4, stagesurface_data);
+			context->gameplayBGRA = cv::Mat(gameplay_height,
+							gameplay_width, CV_8UC4,
+							stagesurface_data);
 		} else {
-			context->gameplay_bgra = cv::Mat(
+			context->gameplayBGRA = cv::Mat(
 				gameplay_height, gameplay_width, CV_8UC4);
 			for (uint32_t i = 0; i < gameplay_height; i++) {
-				memcpy(context->gameplay_bgra.data +
+				memcpy(context->gameplayBGRA.data +
 					       gameplay_width * 4 * i,
 				       stagesurface_data + linesize * i,
 				       gameplay_width * 4);
@@ -325,32 +325,19 @@ extern "C" void screen_update(void *data, obs_data_t *settings)
 
 extern "C" void screen_video_tick(void *data, float seconds)
 try {
+	UNUSED_PARAMETER(seconds);
+
 	if (!data) {
 		return;
 	}
 	screen_context *context = static_cast<screen_context *>(data);
-	uint64_t cur_time = os_gettime_ns();
 
-	if (cur_time < context->next_tick + 1000 * 1000 * 100) {
-		return;
-	}
-	context->next_tick = cur_time + 1000 * 1000 * 100;
-
-	if (context->gameplay_bgra.empty()) {
+	if (context->gameplayBGRA.empty()) {
 		return;
 	}
 
-	cv::Mat gameplay_bgr, gameplay_hsv, gameplay_gray, gameplay_binary;
-	cv::cvtColor(context->gameplay_bgra, gameplay_bgr, cv::COLOR_BGRA2BGR);
-	cv::cvtColor(gameplay_bgr, gameplay_hsv, cv::COLOR_BGR2HSV);
-	cv::cvtColor(context->gameplay_bgra, gameplay_gray,
-		     cv::COLOR_BGRA2GRAY);
-	cv::threshold(gameplay_gray, gameplay_binary, 200, 255,
-		      cv::THRESH_BINARY);
+	context->stateMachine(context->gameplayBGRA);
 
-	context->stateMachine(context->gameplay_bgra);
-
-	UNUSED_PARAMETER(seconds);
 } catch (const std::exception &e) {
 	obs_log(LOG_ERROR, "Error in video tick: %s", e.what());
 }

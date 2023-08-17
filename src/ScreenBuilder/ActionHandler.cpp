@@ -4,10 +4,11 @@
 
 #include "plugin-support.h"
 
-#include "ActionHandler.hpp"
-#include "TextRecognizer/TextRecognizer.h"
 #include "obs-browser-api.h"
 #include "Base64/Base64.hpp"
+
+#include "ActionHandler.hpp"
+#include "TextRecognizer/TextRecognizer.h"
 
 void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
 {
@@ -57,7 +58,9 @@ void ActionHandler::handleEnteringSelectPokemon(
 	std::vector<int> &mySelectionOrderMap) const
 {
 	if (canEnterToSelectPokemon) {
-		std::string prefix = logger.getPrefix();
+		for (size_t i = 0; i < mySelectionOrderMap.size(); i++) {
+			mySelectionOrderMap[i] = 0;
+		}
 
 		std::vector<cv::Mat> imagesBGRA =
 			opponentPokemonCropper.crop(gameplayBGRA);
@@ -68,21 +71,12 @@ void ActionHandler::handleEnteringSelectPokemon(
 		std::vector<cv::Mat> resultsBGRA =
 			opponentPokemonCropper.generateTransparentImages(
 				imagesBGRA, masks);
-		for (size_t i = 0; i < resultsBGRA.size(); i++) {
-			logger.writeOpponentPokemonImage(
-				prefix, static_cast<int>(i), resultsBGRA[i]);
-		}
-		dispatchOpponentTeamShown(resultsBGRA);
-
-		for (size_t i = 0; i < mySelectionOrderMap.size(); i++) {
-			mySelectionOrderMap[i] = 0;
-		}
 		std::vector<std::string> pokemonNames(resultsBGRA.size());
 		for (size_t i = 0; i < pokemonNames.size(); i++) {
 			pokemonNames[i] = pokemonRecognizer.recognizePokemon(
 				resultsBGRA[i]);
 		}
-		logger.writeOpponentTeamText(logger.getPrefix(), pokemonNames);
+		dispatchOpponentTeamShown(resultsBGRA, pokemonNames);
 	}
 }
 
@@ -150,4 +144,15 @@ void ActionHandler::handleEnteringMatch(bool canEnterToMatch) const
 	if (canEnterToMatch) {
 		dispatchMatchStarted(20);
 	}
+}
+
+void ActionHandler::handleResult(const cv::Mat &gameplayHSV) const
+{
+	const auto prefix = logger.getPrefix();
+	const auto images = resultCropper.crop(gameplayHSV);
+	const auto resultString = resultRecognizer.recognizeResult(images[0]);
+
+	logger.writeScreenshot(prefix, "MatchResultShown", gameplayHSV);
+	logger.writeResultImage(prefix, images[0]);
+	dispatchMatchCompleted(prefix, resultString);
 }

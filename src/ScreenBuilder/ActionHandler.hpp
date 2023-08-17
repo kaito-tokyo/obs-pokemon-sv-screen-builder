@@ -4,42 +4,41 @@
 
 #include "obs-browser-api.h"
 #include "Base64/Base64.hpp"
+
 #include "Croppers/MyPokemonCropper.hpp"
 #include "Croppers/OpponentPokemonCropper.hpp"
+#include "Croppers/ResultCropper.hpp"
 #include "Croppers/SelectionOrderCropper.hpp"
 #include "Extractors/MyRankExtractor.hpp"
 #include "Extractors/OpponentRankExtractor.hpp"
 #include "Recognizers/PokemonRecognizer.hpp"
+#include "Recognizers/ResultRecognizer.hpp"
 #include "Recognizers/SelectionRecognizer.hpp"
+
 #include "ScreenBuilder/Logger.hpp"
 
 class ActionHandler {
 public:
-	const MyRankExtractor &myRankExtractor;
-	const OpponentRankExtractor &opponentRankExtractor;
-	const PokemonRecognizer &pokemonRecognizer;
-	const Logger &logger;
-	const SelectionOrderCropper &selectionOrderCropper;
-	const SelectionRecognizer &selectionRecognizer;
-	const MyPokemonCropper &myPokemonCropper;
-	const OpponentPokemonCropper &opponentPokemonCropper;
-
-	ActionHandler(const MyRankExtractor &_myRankExtractor,
-		      const OpponentRankExtractor &_opponentRankExtractor,
-		      const Logger &_logger,
-		      const PokemonRecognizer &_pokemonRecognizer,
+	ActionHandler(const MyPokemonCropper &_myPokemonCropper,
+		      const OpponentPokemonCropper &_opponentPokemonCropper,
+		      const ResultCropper &_resultCropper,
 		      const SelectionOrderCropper &_selectionOrderCropper,
+		      const MyRankExtractor &_myRankExtractor,
+		      const OpponentRankExtractor &_opponentRankExtractor,
+		      const PokemonRecognizer &_pokemonRecognizer,
+		      const ResultRecognizer &_resultRecognizer,
 		      const SelectionRecognizer &_selectionRecognizer,
-		      const MyPokemonCropper &_myPokemonCropper,
-		      const OpponentPokemonCropper &_opponentPokemonCropper)
-		: myRankExtractor(_myRankExtractor),
-		  opponentRankExtractor(_opponentRankExtractor),
-		  logger(_logger),
-		  pokemonRecognizer(_pokemonRecognizer),
+		      const Logger &_logger)
+		: myPokemonCropper(_myPokemonCropper),
+		  opponentPokemonCropper(_opponentPokemonCropper),
+		  resultCropper(_resultCropper),
 		  selectionOrderCropper(_selectionOrderCropper),
+		  myRankExtractor(_myRankExtractor),
+		  opponentRankExtractor(_opponentRankExtractor),
+		  pokemonRecognizer(_pokemonRecognizer),
+		  resultRecognizer(_resultRecognizer),
 		  selectionRecognizer(_selectionRecognizer),
-		  myPokemonCropper(_myPokemonCropper),
-		  opponentPokemonCropper(_opponentPokemonCropper)
+		  logger(_logger)
 	{
 	}
 
@@ -55,8 +54,20 @@ public:
 				 std::vector<int> &mySelectionOrderMap,
 				 std::vector<cv::Mat> &myPokemonsBGRA) const;
 	void handleEnteringMatch(bool canEnterToMatch) const;
+	void handleResult(const cv::Mat &gameplayHSV) const;
 
 private:
+	const MyPokemonCropper &myPokemonCropper;
+	const OpponentPokemonCropper &opponentPokemonCropper;
+	const ResultCropper &resultCropper;
+	const SelectionOrderCropper &selectionOrderCropper;
+	const MyRankExtractor &myRankExtractor;
+	const OpponentRankExtractor &opponentRankExtractor;
+	const PokemonRecognizer &pokemonRecognizer;
+	const ResultRecognizer &resultRecognizer;
+	const SelectionRecognizer &selectionRecognizer;
+	const Logger &logger;
+
 	void dispatchMyRankShown(const std::string &text) const
 	{
 		nlohmann::json json{{"text", text}};
@@ -79,8 +90,17 @@ private:
 		logger.writeEvent(logger.getPrefix(), eventName, jsonString);
 	}
 
-	void dispatchOpponentTeamShown(const std::vector<cv::Mat> &images) const
+	void dispatchOpponentTeamShown(
+		const std::vector<cv::Mat> &images,
+		const std::vector<std::string> &pokemonNames) const
 	{
+		std::string prefix = logger.getPrefix();
+
+		for (size_t i = 0; i < images.size(); i++) {
+			logger.writeOpponentPokemonImage(
+				prefix, static_cast<int>(i), images[i]);
+		}
+
 		std::vector<std::string> imageUrls;
 		for (size_t i = 0; i < images.size(); i++) {
 			std::vector<uchar> pngImage;
@@ -89,13 +109,18 @@ private:
 					    Base64::encode(pngImage));
 		}
 
-		nlohmann::json json{{"imageUrls", imageUrls}};
+		nlohmann::json json{
+			{"imageUrls", imageUrls},
+			{"pokemonNames", pokemonNames},
+		};
 		std::string jsonString = json.dump();
 
 		const char eventName[] =
 			"obsPokemonSvScreenBuilderOpponentTeamShown";
 		sendEventToAllBrowserSources(eventName, jsonString.c_str());
-		logger.writeEvent(logger.getPrefix(), eventName, jsonString);
+		nlohmann::json jsonForLog{{"pokemonNames", pokemonNames}};
+		std::string jsonStringForLog = jsonForLog.dump();
+		logger.writeEvent(prefix, eventName, jsonStringForLog);
 	}
 
 	void dispatchMySelectionChanged(
@@ -122,7 +147,17 @@ private:
 			"obsPokemonSvScreenBuilderMySelectionChanged";
 		std::string jsonString = json.dump();
 		sendEventToAllBrowserSources(eventName, jsonString.c_str());
-		logger.writeEvent(logger.getPrefix(), eventName, jsonString);
+
+		auto prefix = logger.getPrefix();
+		nlohmann::json jsonForLog{
+			{"mySelectionOrderMap", mySelectionOrderMap}};
+		std::string jsonStringForLog = jsonForLog.dump();
+		logger.writeEvent(prefix, eventName, jsonStringForLog);
+
+		for (size_t i = 0; i < images.size(); i++) {
+			logger.writeOpponentPokemonImage(
+				prefix, static_cast<int>(i), images[i]);
+		}
 	}
 
 	void dispatchMatchStarted(int durationMins) const
@@ -134,6 +169,18 @@ private:
 			"obsPokemonSvScreenBuilderMatchStarted";
 		sendEventToAllBrowserSources(eventName, jsonString.c_str());
 		logger.writeEvent(logger.getPrefix(), eventName, jsonString);
+	}
+
+	void dispatchMatchCompleted(std::string prefix,
+				    std::string resultString) const
+	{
+		nlohmann::json json{{"resultString", resultString}};
+		std::string jsonString(json.dump());
+
+		const char eventName[] =
+			"obsPokemonSvScreenBuilderMatchCompleted";
+		sendEventToAllBrowserSources(eventName, jsonString.c_str());
+		logger.writeEvent(prefix, eventName, jsonString);
 	}
 
 	bool
