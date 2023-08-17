@@ -102,8 +102,9 @@ private:
 			"obsPokemonSvScreenBuilderOpponentTeamShown";
 		sendEventToAllBrowserSources(eventName, jsonString.c_str());
 		nlohmann::json jsonForLog{{"pokemonNames", pokemonNames}};
+		std::string jsonStringForLog = jsonForLog.dump();
 		logger.writeEvent(logger.getPrefix(), eventName,
-				  jsonForLog.dump());
+				  jsonStringForLog);
 	}
 
 	void dispatchMySelectionChanged(
@@ -131,9 +132,11 @@ private:
 		std::string jsonString = json.dump();
 		sendEventToAllBrowserSources(eventName, jsonString.c_str());
 
-		nlohmann::json json{
+		nlohmann::json jsonForLog{
 			{"mySelectionOrderMap", mySelectionOrderMap}};
-		logger.writeEvent(logger.getPrefix(), eventName, jsonString);
+		std::string jsonStringForLog = jsonForLog.dump();
+		logger.writeEvent(logger.getPrefix(), eventName,
+				  jsonStringForLog);
 	}
 
 	void dispatchMatchStarted(int durationMins) const

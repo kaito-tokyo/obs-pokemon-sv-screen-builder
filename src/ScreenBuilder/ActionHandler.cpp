@@ -57,6 +57,10 @@ void ActionHandler::handleEnteringSelectPokemon(
 	std::vector<int> &mySelectionOrderMap) const
 {
 	if (canEnterToSelectPokemon) {
+		for (size_t i = 0; i < mySelectionOrderMap.size(); i++) {
+			mySelectionOrderMap[i] = 0;
+		}
+
 		std::string prefix = logger.getPrefix();
 
 		std::vector<cv::Mat> imagesBGRA =
@@ -72,17 +76,12 @@ void ActionHandler::handleEnteringSelectPokemon(
 			logger.writeOpponentPokemonImage(
 				prefix, static_cast<int>(i), resultsBGRA[i]);
 		}
-		dispatchOpponentTeamShown(resultsBGRA);
-
-		for (size_t i = 0; i < mySelectionOrderMap.size(); i++) {
-			mySelectionOrderMap[i] = 0;
-		}
 		std::vector<std::string> pokemonNames(resultsBGRA.size());
 		for (size_t i = 0; i < pokemonNames.size(); i++) {
 			pokemonNames[i] = pokemonRecognizer.recognizePokemon(
 				resultsBGRA[i]);
 		}
-		logger.writeOpponentTeamText(logger.getPrefix(), pokemonNames);
+		dispatchOpponentTeamShown(resultsBGRA, pokemonNames);
 	}
 }
 

@@ -79,21 +79,6 @@ public:
 		writeImage(oss.str(), image);
 	}
 
-	void writeOpponentTeamText(
-		const std::string &prefix,
-		const std::vector<std::string> &pokemonNames) const
-	{
-		if (basedir.empty()) {
-			return;
-		}
-		std::filesystem::path p = basedir;
-		p /= prefix + "-OpponentTeam.txt";
-		std::ofstream ofs(p);
-		for (const std::string &pokemonName : pokemonNames) {
-			ofs << pokemonName << std::endl;
-		}
-	}
-
 	void writeEvent(const std::string &prefix, const std::string &eventName,
 			const std::string &jsonString) const
 	{
