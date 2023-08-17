@@ -80,7 +80,9 @@ private:
 		logger.writeEvent(logger.getPrefix(), eventName, jsonString);
 	}
 
-	void dispatchOpponentTeamShown(const std::vector<cv::Mat> &images) const
+	void dispatchOpponentTeamShown(
+		const std::vector<cv::Mat> &images,
+		const std::vector<std::string> &pokemonNames) const
 	{
 		std::vector<std::string> imageUrls;
 		for (size_t i = 0; i < images.size(); i++) {
@@ -90,13 +92,18 @@ private:
 					    Base64::encode(pngImage));
 		}
 
-		nlohmann::json json{{"imageUrls", imageUrls}};
+		nlohmann::json json{
+			{"imageUrls", imageUrls},
+			{"pokemonNames", pokemonNames},
+		};
 		std::string jsonString = json.dump();
 
 		const char eventName[] =
 			"obsPokemonSvScreenBuilderOpponentTeamShown";
 		sendEventToAllBrowserSources(eventName, jsonString.c_str());
-		logger.writeEvent(logger.getPrefix(), eventName, jsonString);
+		nlohmann::json jsonForLog{{"pokemonNames", pokemonNames}};
+		logger.writeEvent(logger.getPrefix(), eventName,
+				  jsonForLog.dump());
 	}
 
 	void dispatchMySelectionChanged(
@@ -123,6 +130,9 @@ private:
 			"obsPokemonSvScreenBuilderMySelectionChanged";
 		std::string jsonString = json.dump();
 		sendEventToAllBrowserSources(eventName, jsonString.c_str());
+
+		nlohmann::json json{
+			{"mySelectionOrderMap", mySelectionOrderMap}};
 		logger.writeEvent(logger.getPrefix(), eventName, jsonString);
 	}
 

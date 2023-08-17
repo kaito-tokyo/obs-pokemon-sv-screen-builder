@@ -200,7 +200,7 @@ ScreenState StateMachine::computeEnteringResult(GameplayScene scene)
 	} else if (scene == GameplayScene::RANK_SHOWN) {
 		return ScreenState::ENTERING_RANK_SHOWN;
 	} else {
-		return ScreenState::RESULT;
+		return ScreenState::ENTERING_RESULT;
 	}
 }
 
