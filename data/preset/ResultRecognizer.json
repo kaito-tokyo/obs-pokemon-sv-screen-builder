@@ -1,0 +1,7 @@
+{
+    "nBins": 16,
+    "winMaxIndex": 1,
+    "winRatio": 0.3,
+    "loseMaxIndex": 11,
+    "loseRatio": 0.3
+}
