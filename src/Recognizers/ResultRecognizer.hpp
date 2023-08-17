@@ -23,15 +23,14 @@ public:
 		cv::Mat hist;
 		calcHistHue(imageHSV, hist);
 
-		double maxVal;
+		double maxVal, total = static_cast<double>(imageHSV.total());
 		cv::Point maxIdx;
 		cv::minMaxLoc(hist, nullptr, &maxVal, nullptr, &maxIdx);
-		obs_log(LOG_INFO, "ResultRecognizer: %d %f %d",
-			imageHSV.total(), maxVal, maxIdx.y);
-		if (maxVal > imageHSV.total() * winRatio &&
-		    maxIdx.y == winMaxIndex) {
+		obs_log(LOG_INFO, "ResultRecognizer: %d %f %d", total, maxVal,
+			maxIdx.y);
+		if (maxVal > total * winRatio && maxIdx.y == winMaxIndex) {
 			return "WIN";
-		} else if (maxVal > imageHSV.total() * loseRatio &&
+		} else if (maxVal > total * loseRatio &&
 			   maxIdx.y == loseMaxIndex) {
 			return "LOSE";
 		} else {
