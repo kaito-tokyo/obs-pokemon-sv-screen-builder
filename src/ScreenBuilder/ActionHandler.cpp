@@ -146,8 +146,13 @@ void ActionHandler::handleEnteringMatch(bool canEnterToMatch) const
 	}
 }
 
-void ActionHandler::handleResult(const cv::Mat &gameplayGray) const
+void ActionHandler::handleResult(const cv::Mat &gameplayHSV) const
 {
-	auto prefix = logger.getPrefix();
-	logger.writeScreenshot(prefix, "MatchResultShown", gameplayGray);
+	const auto prefix = logger.getPrefix();
+	const auto images = resultCropper.crop(gameplayHSV);
+	const auto resultString = resultRecognizer.recognizeResult(images[0]);
+
+	logger.writeScreenshot(prefix, "MatchResultShown", gameplayHSV);
+	logger.writeResultImage(prefix, images[0]);
+	dispatchMatchCompleted(prefix, resultString);
 }

@@ -67,6 +67,18 @@ public:
 		writeImage(oss.str(), image);
 	}
 
+	void writeResultImage(const std::string &prefix,
+			      const cv::Mat &image) const
+	{
+		if (basedir.empty()) {
+			return;
+		}
+		std::ostringstream oss;
+		oss << prefix << "-ResultImage.png";
+		const std::string filename = oss.str();
+		writeImage(oss.str(), image);
+	}
+
 	void writeScreenshot(const std::string &prefix, const std::string &name,
 			     const cv::Mat &image) const
 	{

@@ -179,6 +179,23 @@ PokemonRecognizer newPokemonRecognizer(const char *name)
 	};
 }
 
+ResultRecognizer newResultRecognizer(const char *name)
+{
+	fs::path path = getPresetPath(name);
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
+	std::ifstream ifs(path, std::ios_base::binary);
+	nlohmann::json json = nlohmann::json::from_cbor(ifs);
+	return {
+		json["nBins"].template get<int>(),
+		json["winMaxIndex"].template get<int>(),
+		json["winRatio"].template get<double>(),
+		json["loseMaxIndex"].template get<int>(),
+		json["loseRatio"].template get<double>(),
+	};
+}
+
 SelectionRecognizer newSelectionRecognizer(const char *name)
 {
 	fs::path path = getPresetPath(name);

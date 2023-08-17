@@ -12,6 +12,7 @@
 #include "Extractors/MyRankExtractor.hpp"
 #include "Extractors/OpponentRankExtractor.hpp"
 #include "Recognizers/PokemonRecognizer.hpp"
+#include "Recognizers/ResultRecognizer.hpp"
 #include "Recognizers/SelectionRecognizer.hpp"
 
 #include "ScreenBuilder/Logger.hpp"
@@ -25,6 +26,7 @@ public:
 		      const MyRankExtractor &_myRankExtractor,
 		      const OpponentRankExtractor &_opponentRankExtractor,
 		      const PokemonRecognizer &_pokemonRecognizer,
+		      const ResultRecognizer &_resultRecognizer,
 		      const SelectionRecognizer &_selectionRecognizer,
 		      const Logger &_logger)
 		: myPokemonCropper(_myPokemonCropper),
@@ -34,6 +36,7 @@ public:
 		  myRankExtractor(_myRankExtractor),
 		  opponentRankExtractor(_opponentRankExtractor),
 		  pokemonRecognizer(_pokemonRecognizer),
+		  resultRecognizer(_resultRecognizer),
 		  selectionRecognizer(_selectionRecognizer),
 		  logger(_logger)
 	{
@@ -61,6 +64,7 @@ private:
 	const MyRankExtractor &myRankExtractor;
 	const OpponentRankExtractor &opponentRankExtractor;
 	const PokemonRecognizer &pokemonRecognizer;
+	const ResultRecognizer &resultRecognizer;
 	const SelectionRecognizer &selectionRecognizer;
 	const Logger &logger;
 
@@ -165,6 +169,18 @@ private:
 			"obsPokemonSvScreenBuilderMatchStarted";
 		sendEventToAllBrowserSources(eventName, jsonString.c_str());
 		logger.writeEvent(logger.getPrefix(), eventName, jsonString);
+	}
+
+	void dispatchMatchCompleted(std::string prefix,
+				    std::string resultString) const
+	{
+		nlohmann::json json{{"resultString", resultString}};
+		std::string jsonString(json.dump());
+
+		const char eventName[] =
+			"obsPokemonSvScreenBuilderMatchCompleted";
+		sendEventToAllBrowserSources(eventName, jsonString.c_str());
+		logger.writeEvent(prefix, eventName, jsonString);
 	}
 
 	bool

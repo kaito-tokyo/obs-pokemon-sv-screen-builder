@@ -27,6 +27,7 @@ struct screen_context {
 	MyRankExtractor myRankExtractor;
 	OpponentRankExtractor opponentRankExtractor;
 	PokemonRecognizer pokemonRecognizer;
+	ResultRecognizer resultRecognizer;
 	SelectionRecognizer selectionRecognizer;
 	Logger logger;
 	ActionHandler actionHandler;
@@ -54,12 +55,15 @@ struct screen_context {
 			  "preset/OpponentRankExtractor.cbor")),
 		  pokemonRecognizer(factory::newPokemonRecognizer(
 			  "preset/PokemonRecognizer.cbor")),
+		  resultRecognizer(factory::newResultRecognizer(
+			  "preset/ResultRecognizer.json")),
 		  selectionRecognizer(factory::newSelectionRecognizer(
 			  "preset/SelectionRecognizer.cbor")),
 		  actionHandler(myPokemonCropper, opponentPokemonCropper,
 				resultCropper, selectionOrderCropper,
 				myRankExtractor, opponentRankExtractor,
-				pokemonRecognizer, selectionRecognizer, logger),
+				pokemonRecognizer, resultRecognizer,
+				selectionRecognizer, logger),
 		  lobbyRankShown(factory::newTemplateClassifier(
 			  "preset/SceneDetector_lobbyRankShown.cbor")),
 		  lobbyMySelect(factory::newHistClassifier(
