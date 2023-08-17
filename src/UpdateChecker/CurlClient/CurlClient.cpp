@@ -5,7 +5,7 @@
 
 #include <obs.h>
 
-#include <plugin-support.h>
+#include "plugin-support.h"
 
 const std::string userAgent = std::string(PLUGIN_NAME) + "/" + PLUGIN_VERSION;
 

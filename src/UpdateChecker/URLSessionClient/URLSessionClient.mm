@@ -1,12 +1,11 @@
-#include <string>
-#include <utility>
 #include <functional>
-#include <iostream>
+#include <string>
 
 #include <Foundation/Foundation.h>
+
 #include <obs.h>
+
 #include "plugin-support.h"
-#include <fstream>
 
 void dispatch(const std::function<void(std::string, int)> &callback,
 	      std::string responseBody, int errorCode)

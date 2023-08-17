@@ -1,16 +1,15 @@
 #pragma once
 
 #include <string>
-#include <iostream>
-#include <fstream>
 
 #include <nlohmann/json.hpp>
 
 #include <obs.h>
+
 #include "plugin-support.h"
 
 void fetchStringFromUrl(const char *urlString,
-			std::function<void(std::string, bool)> callback);
+			std::function<void(std::string, int)> callback);
 
 class GitHubClient {
 public:
