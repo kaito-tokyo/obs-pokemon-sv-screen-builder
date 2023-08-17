@@ -4,11 +4,12 @@
 
 #include "plugin-support.h"
 
-#include "obs-browser-api.h"
 #include "Base64/Base64.hpp"
 
-#include "ActionHandler.hpp"
 #include "TextRecognizer/TextRecognizer.h"
+
+#include "ActionHandler.hpp"
+#include "ObsBrowserUtil.hpp"
 
 void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray) const
 {

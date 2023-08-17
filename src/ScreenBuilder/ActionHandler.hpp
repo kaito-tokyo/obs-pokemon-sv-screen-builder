@@ -2,7 +2,6 @@
 
 #include <nlohmann/json.hpp>
 
-#include "obs-browser-api.h"
 #include "Base64/Base64.hpp"
 
 #include "Croppers/MyPokemonCropper.hpp"
@@ -15,7 +14,8 @@
 #include "Recognizers/ResultRecognizer.hpp"
 #include "Recognizers/SelectionRecognizer.hpp"
 
-#include "ScreenBuilder/Logger.hpp"
+#include "Logger.hpp"
+#include "ObsBrowserUtil.hpp"
 
 class ActionHandler {
 public:

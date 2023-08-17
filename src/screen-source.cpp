@@ -12,8 +12,6 @@
 #include <util/config-file.h>
 #include <util/platform.h>
 
-#include "obs-browser-api.h"
-
 #include "screen-source.hpp"
 #include "plugin-support.h"
 
