@@ -10,9 +10,7 @@
 #include <obs-module.h>
 #include <obs-frontend-api.h>
 #include <util/config-file.h>
-
-#include "obs-browser-api.h"
-#include "obs-platform-util.h"
+#include <util/platform.h>
 
 #include "screen-source.hpp"
 #include "plugin-support.h"
