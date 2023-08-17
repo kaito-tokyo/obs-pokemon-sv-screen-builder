@@ -12,7 +12,8 @@ using winrt::Windows::Web::Http::HttpClient;
 using winrt::Windows::Web::Http::HttpResponseMessage;
 using winrt::Windows::Web::Http::IHttpContent;
 
-const winrt::hstring userAgent = winrt::to_hstring(PLUGIN_NAME) + L"/" + winrt::to_hstring(PLUGIN_VERSION);
+const winrt::hstring userAgent = winrt::to_hstring(PLUGIN_NAME) + L"/" +
+				 winrt::to_hstring(PLUGIN_VERSION);
 
 void fetchStringFromUrl(const char *urlString,
 			std::function<void(std::string, int)> callback)
