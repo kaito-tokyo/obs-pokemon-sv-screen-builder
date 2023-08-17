@@ -1,4 +1,15 @@
-#include "pch.h"
+#include <string>
+
+#include <opencv2/opencv.hpp>
+
+#include <unknwn.h>
+#include <winrt/Windows.Foundation.h>
+#include <winrt/Windows.Foundation.Collections.h>
+#include <winrt/Windows.Media.Ocr.h>
+#include <winrt/Windows.Graphics.Imaging.h>
+#include <winrt/Windows.Storage.Streams.h>
+#include <winrt/Windows.Globalization.h>
+#include <MemoryBuffer.h>
 
 using winrt::Windows::Media::Ocr::OcrEngine;
 using winrt::Windows::Media::Ocr::OcrResult;
@@ -11,8 +22,14 @@ using winrt::Windows::Foundation::MemoryBuffer;
 using winrt::Windows::Foundation::IMemoryBufferReference;
 using Windows::Foundation::IMemoryBufferByteAccess;
 
-std::string recognizeTextImpl(const unsigned char *data, int width, int height)
+static std::string recognizeText(const cv::Mat &imageBGRA)
 {
+	cv::Mat padImage;
+	cv::copyMakeBorder(imageBGRA, padImage, 200, 200, 200, 200,
+			   cv::BORDER_CONSTANT, cv::Scalar(255));
+
+	int width = padImage.cols;
+	int height = padImage.rows;
 	const int dataSize = width * height;
 
 	MemoryBuffer memoryBuffer(dataSize);
@@ -22,7 +39,7 @@ std::string recognizeTextImpl(const unsigned char *data, int width, int height)
 	uint8_t *value;
 	uint32_t valueSize;
 	winrt::check_hresult(interop->GetBuffer(&value, &valueSize));
-	memcpy_s(value, valueSize, data, dataSize);
+	memcpy_s(value, valueSize, padImage.data, dataSize);
 
 	Buffer buffer = Buffer::CreateCopyFromMemoryBuffer(memoryBuffer);
 	buffer.Length(dataSize);

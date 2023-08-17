@@ -58,10 +58,11 @@ target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
 
 # TextRecognizer
 if(APPLE)
-  target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/TextRecognizer/VisionTextRecognizer/VisionTextRecognizer.mm
-                                               src/UpdateChecker/URLSessionClient/URLSessionClient.mm)
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE "-framework Vision" "-framework CoreVideo"
-                                                      "-framework VideoToolbox")
+  add_subdirectory(src/TextRecognizer/VisionTextRecognizer)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE VisionTextRecognizer)
+elseif(UNIX)
+  add_subdirectory(src/TextRecognizer/TesseractTextRecognizer)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE TesseractTextRecognizer)
 elseif(MSVC)
   add_subdirectory(src/TextRecognizer/WinRTTextRecognizer)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTTextRecognizer)
