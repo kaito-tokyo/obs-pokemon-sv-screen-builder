@@ -4,18 +4,23 @@
 #include <winrt/Windows.Web.Http.Headers.h>
 #include <winrt/windows.storage.streams.h>
 
+#include "plugin-support.h"
+
 using winrt::Windows::Foundation::Uri;
 using winrt::Windows::Storage::Streams::IBuffer;
 using winrt::Windows::Web::Http::HttpClient;
 using winrt::Windows::Web::Http::HttpResponseMessage;
 using winrt::Windows::Web::Http::IHttpContent;
 
+const winrt::hstring userAgent = winrt::to_hstring(PLUGIN_NAME) + L"/" +
+				 winrt::to_hstring(PLUGIN_VERSION);
+
 void fetchStringFromUrl(const char *urlString,
 			std::function<void(std::string, int)> callback)
 {
 	HttpClient httpClient;
 	auto headers(httpClient.DefaultRequestHeaders());
-	headers.UserAgent().TryParseAdd(L"obs-pokemon-sv-screen-builder/0.1.1");
+	headers.UserAgent().TryParseAdd(userAgent);
 	Uri requestUri(winrt::to_hstring(urlString));
 	HttpResponseMessage httpResponseMessage;
 	IBuffer httpResponseBuffer;
@@ -31,6 +36,6 @@ void fetchStringFromUrl(const char *urlString,
 		callback(str, 0);
 	} catch (winrt::hresult_error const &ex) {
 		std::string str(winrt::to_string(ex.message()));
-		callback(str, 0);
+		callback(str, 1);
 	}
 }
