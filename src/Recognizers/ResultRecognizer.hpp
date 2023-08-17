@@ -26,7 +26,7 @@ public:
 		double maxVal;
 		cv::Point maxIdx;
 		cv::minMaxLoc(hist, nullptr, &maxVal, nullptr, &maxIdx);
-		obs_log(LOG_INFO, "ResultRecognizer: %f %d %d", maxVal, maxIdx.x, maxIdx.y);
+		obs_log(LOG_INFO, "ResultRecognizer: %d %f %d", imageHSV.total(), maxVal, maxIdx.y);
 		if (maxVal > imageHSV.total() * winRatio &&
 		    maxIdx.y == winMaxIndex) {
 			return "WIN";
