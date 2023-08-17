@@ -206,6 +206,6 @@ ScreenState StateMachine::computeEnteringResult(GameplayScene scene)
 
 ScreenState StateMachine::computeResult(void)
 {
-	actionHandler.handleResult(gameplayGray);
+	actionHandler.handleResult(gameplayHSV);
 	return ScreenState::UNKNOWN;
 }

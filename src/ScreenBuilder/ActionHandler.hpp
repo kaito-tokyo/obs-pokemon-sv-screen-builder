@@ -54,7 +54,7 @@ public:
 				 std::vector<int> &mySelectionOrderMap,
 				 std::vector<cv::Mat> &myPokemonsBGRA) const;
 	void handleEnteringMatch(bool canEnterToMatch) const;
-	void handleResult(const cv::Mat &gameplayGray) const;
+	void handleResult(const cv::Mat &gameplayHSV) const;
 
 private:
 	const MyPokemonCropper &myPokemonCropper;

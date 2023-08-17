@@ -2,6 +2,10 @@
 
 #include <opencv2/opencv.hpp>
 
+#include <obs.h>
+
+#include "plugin-support.h"
+
 class ResultRecognizer {
 public:
 	ResultRecognizer(int _nBins, int _winMaxIndex, double _winRatio,
@@ -22,6 +26,7 @@ public:
 		double maxVal;
 		cv::Point maxIdx;
 		cv::minMaxLoc(hist, nullptr, &maxVal, nullptr, &maxIdx);
+		obs_log(LOG_INFO, "ResultRecognizer: %f %d %d", maxVal, maxIdx.x, maxIdx.y);
 		if (maxVal > imageHSV.total() * winRatio &&
 		    maxIdx.y == winMaxIndex) {
 			return "WIN";
@@ -46,7 +51,7 @@ private:
 		const int histSize[]{nBins};
 		const float hranges[] = {0, 180};
 		const float *ranges[]{hranges};
-		cv::calcHist(&imageHSV, 1, channels, cv::Mat(), hist, 1,
+		cv::calcHist(&imageHSV, 1, channels, {}, hist, 1,
 			     histSize, ranges);
 	}
 };
