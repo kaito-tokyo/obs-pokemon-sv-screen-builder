@@ -10,6 +10,8 @@
 #include "Croppers/SelectionOrderCropper.hpp"
 #include "Extractors/MyRankExtractor.hpp"
 #include "Extractors/OpponentRankExtractor.hpp"
+#include "Recognizers/MyPokemonNameRecognizer.hpp"
+#include "Recognizers/MyToolNameRecognizer.hpp"
 #include "Recognizers/PokemonRecognizer.hpp"
 #include "Recognizers/ResultRecognizer.hpp"
 #include "Recognizers/SelectionRecognizer.hpp"
@@ -25,6 +27,8 @@ public:
 		      const SelectionOrderCropper &_selectionOrderCropper,
 		      const MyRankExtractor &_myRankExtractor,
 		      const OpponentRankExtractor &_opponentRankExtractor,
+		      const MyPokemonNameRecognizer &_myPokemonNameRecognizer,
+		      const MyToolNameRecognizer &_myToolNameRecognizer,
 		      const PokemonRecognizer &_pokemonRecognizer,
 		      const ResultRecognizer &_resultRecognizer,
 		      const SelectionRecognizer &_selectionRecognizer,
@@ -35,6 +39,8 @@ public:
 		  selectionOrderCropper(_selectionOrderCropper),
 		  myRankExtractor(_myRankExtractor),
 		  opponentRankExtractor(_opponentRankExtractor),
+		  myPokemonNameRecognizer(_myPokemonNameRecognizer),
+		  myToolNameRecognizer(_myToolNameRecognizer),
 		  pokemonRecognizer(_pokemonRecognizer),
 		  resultRecognizer(_resultRecognizer),
 		  selectionRecognizer(_selectionRecognizer),
@@ -63,6 +69,8 @@ private:
 	const SelectionOrderCropper &selectionOrderCropper;
 	const MyRankExtractor &myRankExtractor;
 	const OpponentRankExtractor &opponentRankExtractor;
+	const MyPokemonNameRecognizer &myPokemonNameRecognizer;
+	const MyToolNameRecognizer &myToolNameRecognizer;
 	const PokemonRecognizer &pokemonRecognizer;
 	const ResultRecognizer &resultRecognizer;
 	const SelectionRecognizer &selectionRecognizer;
@@ -124,24 +132,43 @@ private:
 	}
 
 	void dispatchMySelectionChanged(
-		const std::vector<cv::Mat> &images,
+		const std::vector<cv::Mat> &myPokemonImagesBGRA,
 		const std::vector<int> &mySelectionOrderMap) const
 	{
-		std::vector<std::string> imageUrls(images.size());
-		for (size_t i = 0; i < images.size(); i++) {
-			if (images[i].empty()) {
+		std::vector<std::string> imageUrls(myPokemonImagesBGRA.size());
+		for (size_t i = 0; i < myPokemonImagesBGRA.size(); i++) {
+			if (myPokemonImagesBGRA.at(i).empty()) {
 				imageUrls[i] = "";
 			} else {
 				std::vector<uchar> pngImage;
-				cv::imencode(".png", images[i], pngImage);
+				cv::imencode(".png", myPokemonImagesBGRA.at(i),
+					     pngImage);
 				imageUrls[i] = "data:image/png;base64," +
 					       Base64::encode(pngImage);
 			}
 		}
 
+		std::vector<std::string> myPokemonNames(
+			myPokemonImagesBGRA.size()),
+			myToolNames(myPokemonImagesBGRA.size());
+		for (size_t i = 0; i < myPokemonImagesBGRA.size(); i++) {
+			if (myPokemonImagesBGRA.at(i).empty()) {
+				continue;
+			}
+
+			cv::Mat imageGray;
+			cv::cvtColor(myPokemonImagesBGRA.at(i), imageGray,
+				     cv::COLOR_BGRA2GRAY);
+			myPokemonNames.at(i) =
+				myPokemonNameRecognizer(imageGray);
+			myToolNames.at(i) = myToolNameRecognizer(imageGray);
+		}
+
 		nlohmann::json json{
 			{"imageUrls", imageUrls},
 			{"mySelectionOrderMap", mySelectionOrderMap},
+			{"myPokemonNames", myPokemonNames},
+			{"myToolNames", myToolNames},
 		};
 		const char eventName[] =
 			"obsPokemonSvScreenBuilderMySelectionChanged";
@@ -149,14 +176,13 @@ private:
 		sendEventToAllBrowserSources(eventName, jsonString.c_str());
 
 		auto prefix = logger.getPrefix();
-		nlohmann::json jsonForLog{
-			{"mySelectionOrderMap", mySelectionOrderMap}};
-		std::string jsonStringForLog = jsonForLog.dump();
+		json.erase("imageUrls");
+		std::string jsonStringForLog = json.dump();
 		logger.writeEvent(prefix, eventName, jsonStringForLog);
 
-		for (size_t i = 0; i < images.size(); i++) {
-			logger.writeOpponentPokemonImage(
-				prefix, static_cast<int>(i), images[i]);
+		for (size_t i = 0; i < myPokemonImagesBGRA.size(); i++) {
+			logger.writeMyPokemonImage(prefix, i,
+						   myPokemonImagesBGRA.at(i));
 		}
 	}
 

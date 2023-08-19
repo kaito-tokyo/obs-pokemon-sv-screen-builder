@@ -8,6 +8,8 @@
 #include "Croppers/SelectionOrderCropper.hpp"
 #include "Extractors/MyRankExtractor.hpp"
 #include "Extractors/OpponentRankExtractor.hpp"
+#include "Recognizers/MyPokemonNameRecognizer.hpp"
+#include "Recognizers/MyToolNameRecognizer.hpp"
 #include "Recognizers/PokemonRecognizer.hpp"
 #include "Recognizers/ResultRecognizer.hpp"
 #include "Recognizers/SelectionRecognizer.hpp"
@@ -27,6 +29,8 @@ ResultCropper newResultCropper(const char *name);
 SelectionOrderCropper newSelectionOrderCropper(const char *name);
 MyRankExtractor newMyRankExtractor(const char *name);
 OpponentRankExtractor newOpponentRankExtractor(const char *name);
+MyPokemonNameRecognizer newMyPokemonNameRecognizer(const char *name);
+MyToolNameRecognizer newMyToolNameRecognizer(const char *name);
 PokemonRecognizer newPokemonRecognizer(const char *name);
 ResultRecognizer newResultRecognizer(const char *name);
 SelectionRecognizer newSelectionRecognizer(const char *name);
