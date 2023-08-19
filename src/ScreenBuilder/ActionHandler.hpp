@@ -59,10 +59,11 @@ public:
 					 MatchState &matchState) const;
 	void handleSelectPokemon(const cv::Mat &gameplayBGRA,
 				 const cv::Mat &gameplayBGR,
-				 const cv::Mat &gameplayHsv,
+				 const cv::Mat &gameplayHSV,
 				 const cv::Mat &gameplayGray,
-				 std::vector<int> &mySelectionOrderMap,
-				 std::vector<cv::Mat> &myPokemonsBGRA,
+				 std::vector<int> &mySelectionMap,
+				 std::vector<cv::Mat> &myPokemonImagesBGRA,
+				 std::vector<cv::Mat> &myPokemonImagesGray,
 				 MatchState &matchState) const;
 	void handleEnteringMatch(bool canEnterToMatch) const;
 	void handleResult(const cv::Mat &gameplayHSV,
@@ -205,9 +206,9 @@ private:
 	detectSelectionOrderChange(const cv::Mat &gameplayBGR,
 				   const cv::Mat &gameplayGray,
 				   std::vector<int> &mySelectionOrderMap) const;
-	void drawMyPokemons(const cv::Mat &gameplayBGRA,
-			    const cv::Mat &gameplayHSV,
-			    std::vector<cv::Mat> &myPokemonsBGRA,
-			    const std::vector<int> &mySelectionOrderMap,
-			    MatchState &matchState) const;
+	void
+	recognizeMyPokemons(MatchState &matchState,
+			    const std::vector<cv::Mat> &myPokemonImagesBGRA,
+			    const std::vector<cv::Mat> &myPokemonImagesGray,
+			    size_t i = 0) const;
 };

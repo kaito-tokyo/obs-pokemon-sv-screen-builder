@@ -4,8 +4,9 @@
 
 #include <obs.h>
 
-std::string recognizeText(const cv::Mat &imageBGRA)
+void recognizeText(const cv::Mat &imageBinary,
+		   std::function<void(std::string)> callback)
 {
-	UNUSED_PARAMETER(imageBGRA);
-	return std::string("N/A");
+	UNUSED_PARAMETER(imageBinary);
+	callback("N/A");
 }

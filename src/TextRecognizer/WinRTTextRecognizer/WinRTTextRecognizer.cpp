@@ -1,3 +1,4 @@
+#include <functional>
 #include <string>
 
 #include <opencv2/opencv.hpp>
@@ -22,7 +23,8 @@ using winrt::Windows::Foundation::MemoryBuffer;
 using winrt::Windows::Foundation::IMemoryBufferReference;
 using Windows::Foundation::IMemoryBufferByteAccess;
 
-std::string recognizeText(const cv::Mat &imageBinary)
+void recognizeText(const cv::Mat &imageBinary,
+		   std::function<void(std::string)> callback)
 {
 	cv::Mat padImage;
 	cv::copyMakeBorder(imageBinary, padImage, 200, 200, 200, 200,
@@ -49,8 +51,9 @@ std::string recognizeText(const cv::Mat &imageBinary)
 	Language lang(L"ja");
 	OcrEngine ocr = OcrEngine::TryCreateFromLanguage(lang);
 	if (!ocr) {
-		return "FAILED";
+		callback("FAILED");
+		return;
 	}
 	OcrResult result = ocr.RecognizeAsync(bitmap).get();
-	return winrt::to_string(result.Text());
+	callback(winrt::to_string(result.Text()));
 }
