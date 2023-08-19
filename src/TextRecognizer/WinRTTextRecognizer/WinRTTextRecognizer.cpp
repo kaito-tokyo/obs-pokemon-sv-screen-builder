@@ -51,7 +51,8 @@ void recognizeText(const cv::Mat &imageBinary,
 	Language lang(L"ja");
 	OcrEngine ocr = OcrEngine::TryCreateFromLanguage(lang);
 	if (!ocr) {
-		return "FAILED";
+		callback("FAILED");
+		return;
 	}
 	OcrResult result = ocr.RecognizeAsync(bitmap).get();
 	callback(winrt::to_string(result.Text()));
