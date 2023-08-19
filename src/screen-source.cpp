@@ -291,7 +291,9 @@ static bool handleClickAggregateMatchState(obs_properties_t *props,
 		}
 		const auto &filename = file.path().filename().string<char>();
 		if (std::regex_match(filename, endsWithMatchState)) {
-			obs_log(LOG_INFO, "MatchStateAggregator MatchState detected: %s", filename.c_str());
+			obs_log(LOG_INFO,
+				"MatchStateAggregator MatchState detected: %s",
+				filename.c_str());
 			matchStatePaths.push_back(file.path().string<char>());
 		}
 	}
@@ -336,7 +338,8 @@ static bool handleClickAggregateMatchState(obs_properties_t *props,
 	};
 
 	fs::path outputPath = context->logger.basedir;
-	outputPath /= std::string("MatchSheet-") + context->logger.getPrefix() + ".txt";
+	outputPath /= std::string("MatchSheet-") + context->logger.getPrefix() +
+		      ".txt";
 	std::ofstream ofs(outputPath);
 	for (const auto &columnName : columnNames) {
 		ofs << columnName << "\t";
@@ -350,7 +353,9 @@ static bool handleClickAggregateMatchState(obs_properties_t *props,
 			if (json[columnName].is_null()) {
 				ofs << "\t";
 			} else {
-				ofs << json[columnName].template get<std::string>() << "\t";
+				ofs << json[columnName]
+						.template get<std::string>()
+				    << "\t";
 			}
 		}
 		ofs << std::endl;
