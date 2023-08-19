@@ -11,10 +11,10 @@
 #include "Extractors/MyRankExtractor.hpp"
 #include "Extractors/OpponentRankExtractor.hpp"
 #include "Recognizers/MyPokemonNameRecognizer.hpp"
+#include "Recognizers/MySelectionRecognizer.hpp"
 #include "Recognizers/MyToolNameRecognizer.hpp"
-#include "Recognizers/PokemonRecognizer.hpp"
+#include "Recognizers/OpponentPokemonImageRecognizer.hpp"
 #include "Recognizers/ResultRecognizer.hpp"
-#include "Recognizers/SelectionRecognizer.hpp"
 
 #include "Logger.hpp"
 #include "ObsBrowserUtil.hpp"
@@ -28,10 +28,11 @@ public:
 		      const MyRankExtractor &_myRankExtractor,
 		      const OpponentRankExtractor &_opponentRankExtractor,
 		      const MyPokemonNameRecognizer &_myPokemonNameRecognizer,
+		      const MySelectionRecognizer &_mySelectionRecognizer,
 		      const MyToolNameRecognizer &_myToolNameRecognizer,
-		      const PokemonRecognizer &_pokemonRecognizer,
+		      const OpponentPokemonImageRecognizer
+			      &_opponentPokemonImageRecognizer,
 		      const ResultRecognizer &_resultRecognizer,
-		      const SelectionRecognizer &_selectionRecognizer,
 		      const Logger &_logger)
 		: myPokemonCropper(_myPokemonCropper),
 		  opponentPokemonCropper(_opponentPokemonCropper),
@@ -40,10 +41,11 @@ public:
 		  myRankExtractor(_myRankExtractor),
 		  opponentRankExtractor(_opponentRankExtractor),
 		  myPokemonNameRecognizer(_myPokemonNameRecognizer),
+		  mySelectionRecognizer(_mySelectionRecognizer),
 		  myToolNameRecognizer(_myToolNameRecognizer),
-		  pokemonRecognizer(_pokemonRecognizer),
+		  opponentPokemonImageRecognizer(
+			  _opponentPokemonImageRecognizer),
 		  resultRecognizer(_resultRecognizer),
-		  selectionRecognizer(_selectionRecognizer),
 		  logger(_logger)
 	{
 	}
@@ -70,10 +72,10 @@ private:
 	const MyRankExtractor &myRankExtractor;
 	const OpponentRankExtractor &opponentRankExtractor;
 	const MyPokemonNameRecognizer &myPokemonNameRecognizer;
+	const MySelectionRecognizer &mySelectionRecognizer;
 	const MyToolNameRecognizer &myToolNameRecognizer;
-	const PokemonRecognizer &pokemonRecognizer;
+	const OpponentPokemonImageRecognizer &opponentPokemonImageRecognizer;
 	const ResultRecognizer &resultRecognizer;
-	const SelectionRecognizer &selectionRecognizer;
 	const Logger &logger;
 
 	void dispatchMyRankShown(const std::string &text) const

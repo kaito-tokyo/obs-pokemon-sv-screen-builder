@@ -9,10 +9,10 @@
 #include "Extractors/MyRankExtractor.hpp"
 #include "Extractors/OpponentRankExtractor.hpp"
 #include "Recognizers/MyPokemonNameRecognizer.hpp"
+#include "Recognizers/MySelectionRecognizer.hpp"
 #include "Recognizers/MyToolNameRecognizer.hpp"
-#include "Recognizers/PokemonRecognizer.hpp"
+#include "Recognizers/OpponentPokemonImageRecognizer.hpp"
 #include "Recognizers/ResultRecognizer.hpp"
-#include "Recognizers/SelectionRecognizer.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
 
@@ -30,10 +30,11 @@ SelectionOrderCropper newSelectionOrderCropper(const char *name);
 MyRankExtractor newMyRankExtractor(const char *name);
 OpponentRankExtractor newOpponentRankExtractor(const char *name);
 MyPokemonNameRecognizer newMyPokemonNameRecognizer(const char *name);
+MySelectionRecognizer newMySelectionRecognizer(const char *name);
 MyToolNameRecognizer newMyToolNameRecognizer(const char *name);
-PokemonRecognizer newPokemonRecognizer(const char *name);
+OpponentPokemonImageRecognizer
+newOpponentPokemonImageRecognizer(const char *name);
 ResultRecognizer newResultRecognizer(const char *name);
-SelectionRecognizer newSelectionRecognizer(const char *name);
 HistClassifier newHistClassifier(const char *name);
 TemplateClassifier newTemplateClassifier(const char *name);
 

@@ -163,22 +163,6 @@ OpponentRankExtractor newOpponentRankExtractor(const char *name)
 	};
 }
 
-PokemonRecognizer newPokemonRecognizer(const char *name)
-{
-	fs::path path = getPresetPath(name);
-	if (path.empty()) {
-		throw PresetFileNotFoundError(name);
-	}
-	std::ifstream ifs(path, std::ios_base::binary);
-	nlohmann::json json = nlohmann::json::from_cbor(ifs);
-	return {
-		json["height"].template get<int>(),
-		json["descriptorSize"].template get<int>(),
-		json["data"].template get<std::vector<std::vector<uchar>>>(),
-		json["pokemonNames"].template get<std::vector<std::string>>(),
-	};
-}
-
 MyPokemonNameRecognizer newMyPokemonNameRecognizer(const char *name)
 {
 	fs::path path = getPresetPath(name);
@@ -194,6 +178,24 @@ MyPokemonNameRecognizer newMyPokemonNameRecognizer(const char *name)
 	};
 }
 
+MySelectionRecognizer newMySelectionRecognizer(const char *name)
+{
+	fs::path path = getPresetPath(name);
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
+	std::ifstream ifs(path, std::ios_base::binary);
+	nlohmann::json json = nlohmann::json::from_cbor(ifs);
+	return {
+		json["blueThreshold"].template get<int>(),
+		json["binaryThreshold"].template get<int>(),
+		json["ratio"].template get<double>(),
+		json["indices"].template get<std::vector<int>>(),
+		json["cols"].template get<std::vector<int>>(),
+		json["data"].template get<std::vector<std::vector<uchar>>>(),
+	};
+}
+
 MyToolNameRecognizer newMyToolNameRecognizer(const char *name)
 {
 	fs::path path = getPresetPath(name);
@@ -206,6 +208,23 @@ MyToolNameRecognizer newMyToolNameRecognizer(const char *name)
 	return {
 		json["rect"].template get<cv::Rect>(),
 		json["thresh"].template get<double>(),
+	};
+}
+
+OpponentPokemonImageRecognizer
+newOpponentPokemonImageRecognizer(const char *name)
+{
+	fs::path path = getPresetPath(name);
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
+	std::ifstream ifs(path, std::ios_base::binary);
+	nlohmann::json json = nlohmann::json::from_cbor(ifs);
+	return {
+		json["height"].template get<int>(),
+		json["descriptorSize"].template get<int>(),
+		json["data"].template get<std::vector<std::vector<uchar>>>(),
+		json["pokemonNames"].template get<std::vector<std::string>>(),
 	};
 }
 
@@ -225,24 +244,6 @@ ResultRecognizer newResultRecognizer(const char *name)
 		json["winRatio"].template get<double>(),
 		json["loseMaxIndex"].template get<int>(),
 		json["loseRatio"].template get<double>(),
-	};
-}
-
-SelectionRecognizer newSelectionRecognizer(const char *name)
-{
-	fs::path path = getPresetPath(name);
-	if (path.empty()) {
-		throw PresetFileNotFoundError(name);
-	}
-	std::ifstream ifs(path, std::ios_base::binary);
-	nlohmann::json json = nlohmann::json::from_cbor(ifs);
-	return {
-		json["blueThreshold"].template get<int>(),
-		json["binaryThreshold"].template get<int>(),
-		json["ratio"].template get<double>(),
-		json["indices"].template get<std::vector<int>>(),
-		json["cols"].template get<std::vector<int>>(),
-		json["data"].template get<std::vector<std::vector<uchar>>>(),
 	};
 }
 
