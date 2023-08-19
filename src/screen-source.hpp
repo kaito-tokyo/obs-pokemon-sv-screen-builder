@@ -27,10 +27,10 @@ struct screen_context {
 	MyRankExtractor myRankExtractor;
 	OpponentRankExtractor opponentRankExtractor;
 	MyPokemonNameRecognizer myPokemonNameRecognizer;
+	MySelectionRecognizer mySelectionRecognizer;
 	MyToolNameRecognizer myToolNameRecognizer;
-	PokemonRecognizer pokemonRecognizer;
+	OpponentPokemonImageRecognizer opponentPokemonImageRecognizer;
 	ResultRecognizer resultRecognizer;
-	SelectionRecognizer selectionRecognizer;
 	Logger logger;
 	ActionHandler actionHandler;
 
@@ -57,20 +57,21 @@ struct screen_context {
 			  "preset/OpponentRankExtractor.cbor")),
 		  myPokemonNameRecognizer(factory::newMyPokemonNameRecognizer(
 			  "preset/MyPokemonNameRecognizer.json")),
+		  mySelectionRecognizer(factory::newMySelectionRecognizer(
+			  "preset/MySelectionRecognizer.cbor")),
 		  myToolNameRecognizer(factory::newMyToolNameRecognizer(
 			  "preset/MyToolNameRecognizer.json")),
-		  pokemonRecognizer(factory::newPokemonRecognizer(
-			  "preset/PokemonRecognizer.cbor")),
+		  opponentPokemonImageRecognizer(factory::newOpponentPokemonImageRecognizer(
+			  "preset/OpponentPokemonImageRecognizer.cbor")),
 		  resultRecognizer(factory::newResultRecognizer(
 			  "preset/ResultRecognizer.json")),
-		  selectionRecognizer(factory::newSelectionRecognizer(
-			  "preset/SelectionRecognizer.cbor")),
 		  actionHandler(myPokemonCropper, opponentPokemonCropper,
 				resultCropper, selectionOrderCropper,
 				myRankExtractor, opponentRankExtractor,
-				myPokemonNameRecognizer, myToolNameRecognizer,
-				pokemonRecognizer, resultRecognizer,
-				selectionRecognizer, logger),
+				myPokemonNameRecognizer, mySelectionRecognizer,
+				myToolNameRecognizer,
+				opponentPokemonImageRecognizer, resultRecognizer,
+				logger),
 		  lobbyRankShown(factory::newTemplateClassifier(
 			  "preset/SceneDetector_lobbyRankShown.cbor")),
 		  lobbyMySelect(factory::newHistClassifier(

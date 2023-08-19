@@ -1,12 +1,13 @@
 #pragma once
 
+#include <string>
 #include <vector>
 
 #include <opencv2/opencv.hpp>
 
-class SelectionRecognizer {
+class MySelectionRecognizer {
 public:
-	SelectionRecognizer(int _blueThreshold, int _binaryThreshould,
+	MySelectionRecognizer(int _blueThreshold, int _binaryThreshould,
 			    double _ratio, const std::vector<int> &_indices,
 			    const std::vector<int> &_cols,
 			    const std::vector<std::vector<uchar>> &_data)

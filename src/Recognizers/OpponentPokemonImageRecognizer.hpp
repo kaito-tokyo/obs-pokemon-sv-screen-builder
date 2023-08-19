@@ -1,13 +1,13 @@
 #pragma once
 
-#include <vector>
 #include <string>
+#include <vector>
 
 #include <opencv2/opencv.hpp>
 
-class PokemonRecognizer {
+class OpponentPokemonImageRecognizer {
 public:
-	PokemonRecognizer(int _height, int _descriptorSize,
+	OpponentPokemonImageRecognizer(int _height, int _descriptorSize,
 			  std::vector<std::vector<uchar>> _data,
 			  std::vector<std::string> _pokemonNames)
 		: height(_height),
@@ -19,7 +19,7 @@ public:
 	{
 	}
 
-	std::string recognizePokemon(const cv::Mat &imageBGRA) const
+	std::string operator()(const cv::Mat &imageBGRA) const
 	{
 		cv::Mat scaledBGRA, scaledBGR;
 		cv::resize(imageBGRA, scaledBGRA,

@@ -74,8 +74,7 @@ void ActionHandler::handleEnteringSelectPokemon(
 				imagesBGRA, masks);
 		std::vector<std::string> pokemonNames(resultsBGRA.size());
 		for (size_t i = 0; i < pokemonNames.size(); i++) {
-			pokemonNames[i] = pokemonRecognizer.recognizePokemon(
-				resultsBGRA[i]);
+			pokemonNames[i] = opponentPokemonImageRecognizer(resultsBGRA[i]);
 		}
 		dispatchOpponentTeamShown(resultsBGRA, pokemonNames);
 	}
@@ -92,7 +91,7 @@ bool ActionHandler::detectSelectionOrderChange(
 	std::vector<int> orders(imagesBGR.size());
 	bool change_detected = false;
 	for (size_t i = 0; i < orders.size(); i++) {
-		orders[i] = selectionRecognizer(imagesBGR[i], imagesGray[i]);
+		orders[i] = mySelectionRecognizer(imagesBGR[i], imagesGray[i]);
 		int currentPokemon = static_cast<int>(i + 1);
 		if (orders[i] > 0 &&
 		    mySelectionOrderMap[orders[i] - 1] != currentPokemon) {
@@ -151,7 +150,7 @@ void ActionHandler::handleResult(const cv::Mat &gameplayHSV) const
 {
 	const auto prefix = logger.getPrefix();
 	const auto images = resultCropper.crop(gameplayHSV);
-	const auto resultString = resultRecognizer.recognizeResult(images[0]);
+	const auto resultString = resultRecognizer(images[0]);
 
 	logger.writeScreenshot(prefix, "MatchResultShown", gameplayHSV);
 	logger.writeResultImage(prefix, images[0]);

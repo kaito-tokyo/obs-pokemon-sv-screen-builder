@@ -14,7 +14,7 @@ indices = []
 cols = []
 data = []
 
-for file in glob('./assets/SelectionRecognizer/*.png'):
+for file in glob('./assets/MySelectionRecognizer/*.png'):
     name = path.splitext(path.basename(file))[0]
     index = int(name[1])
     srcImg = cv2.imread(file)
@@ -25,7 +25,7 @@ for file in glob('./assets/SelectionRecognizer/*.png'):
     cols.append(destImg.shape[1])
     data.append(np.ravel(destImg).tolist())
 
-with open('data/preset/SelectionRecognizer.cbor', 'wb') as fp:
+with open('data/preset/MySelectionRecognizer.cbor', 'wb') as fp:
     dump({
         "blueThreshold": blueThreshold,
         "binaryThreshold": binaryThreshold,

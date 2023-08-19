@@ -7,7 +7,7 @@
 
 #include <obs.h>
 
-CGImageRef convertBGRAtoCgImage(const cv::Mat &imageBGRA)
+CGImageRef convertBinarytoCgImage(const cv::Mat &imageBGRA)
 {
 	CVPixelBufferRef pixelBuffer;
 	CVReturn retPixelBuffer = CVPixelBufferCreateWithBytes(
@@ -73,9 +73,13 @@ std::string VisionTextRecognizer::recognizeByVision(CGImageRef image)
 	return resultText;
 }
 
-std::string recognizeText(const cv::Mat &imageBGRA)
+std::string recognizeText(const cv::Mat &imageBinary)
 {
-	CGImageRef image = convertBGRAtoCgImage(imageBGRA);
+	cv::Mat padImageBinary;
+	cv::copyMakeBorder(imageBinary, padImageBinary, 200, 200, 200, 200,
+			   cv::BORDER_CONSTANT, cv::Scalar(255));
+
+	CGImageRef image = convertBinarytoCgImage(padImageBinary);
 	if (image == NULL)
 		return std::string();
 	VisionTextRecognizer recognizer;

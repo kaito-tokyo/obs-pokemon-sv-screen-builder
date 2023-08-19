@@ -18,7 +18,7 @@ public:
 	{
 	}
 
-	std::string recognizeResult(const cv::Mat &imageHSV) const
+	std::string operator()(const cv::Mat &imageHSV) const
 	{
 		cv::Mat hist;
 		calcHistHue(imageHSV, hist);

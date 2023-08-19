@@ -22,7 +22,7 @@ using winrt::Windows::Foundation::MemoryBuffer;
 using winrt::Windows::Foundation::IMemoryBufferReference;
 using Windows::Foundation::IMemoryBufferByteAccess;
 
-std::string recognizeText(const cv::Mat &imageBGRA)
+std::string recognizeText(const cv::Mat &imageBinary)
 {
 	cv::Mat padImage;
 	cv::copyMakeBorder(imageBGRA, padImage, 200, 200, 200, 200,
