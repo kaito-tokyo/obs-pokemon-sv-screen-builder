@@ -15,6 +15,7 @@
 #include "Recognizers/ResultRecognizer.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
+#include "ScreenBuilder/MatchStateAggregator.hpp"
 
 namespace factory {
 
@@ -37,5 +38,6 @@ newOpponentPokemonImageRecognizer(const char *name);
 ResultRecognizer newResultRecognizer(const char *name);
 HistClassifier newHistClassifier(const char *name);
 TemplateClassifier newTemplateClassifier(const char *name);
+MatchStateAggregator newMatchStateAggregator(const char *name);
 
 }

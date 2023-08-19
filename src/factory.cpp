@@ -280,4 +280,20 @@ TemplateClassifier newTemplateClassifier(const char *name)
 		json["data"].template get<std::vector<std::vector<uchar>>>(),
 	};
 }
+
+MatchStateAggregator newMatchStateAggregator(const char *name)
+{
+	auto path = getPresetPath(name);
+	std::ifstream ifs(path);
+	nlohmann::json json;
+	ifs >> json;
+
+	std::regex matchStateRegex(
+		json["matchStateRegex"].template get<std::string>());
+	return {
+		matchStateRegex,
+		json["columnNames"].template get<std::vector<std::string>>(),
+	};
+}
+
 }
