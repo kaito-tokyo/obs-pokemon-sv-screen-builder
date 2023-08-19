@@ -8,16 +8,22 @@
             display: grid;
             grid-template-columns: 529px 529px 529px;
         }
+        .pokemon-img {
+            width: 529px;
+            height: 107px;
+            object-fit: cover;
+            object-position: -27px 0;
+        }
     </style>
 </head>
 <body>
     <div class="container">
-        <img class="pokemon-img" id="pokemon-0">
-        <img class="pokemon-img" id="pokemon-1">
-        <img class="pokemon-img" id="pokemon-2">
-        <img class="pokemon-img" id="pokemon-3">
-        <img class="pokemon-img" id="pokemon-4">
-        <img class="pokemon-img" id="pokemon-5">
+        <img class="pokemon-img" id="pokemon-0" src="MyPokemonEmpty1.png">
+        <img class="pokemon-img" id="pokemon-1" src="MyPokemonEmpty2.png">
+        <img class="pokemon-img" id="pokemon-2" src="MyPokemonEmpty3.png">
+        <img class="pokemon-img" id="pokemon-3" src="MyPokemonEmpty4.png">
+        <img class="pokemon-img" id="pokemon-4" src="MyPokemonEmpty5.png">
+        <img class="pokemon-img" id="pokemon-5" src="MyPokemonEmpty6.png">
     </div>
     <script>
         const imgs = [
@@ -34,7 +40,7 @@
                 if (order > 0) {
                     imgs[i].src = imageUrls[order - 1];
                 } else {
-                    imgs[i].src = "";
+                    imgs[i].src = `MyPokemonEmpty${i}.png`;
                 }
             }
         });
