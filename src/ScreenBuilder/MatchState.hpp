@@ -6,6 +6,7 @@
 #include <nlohmann/json.hpp>
 
 struct MatchState {
+	std::string timestamp = "";
 	std::string myRank = "";
 	std::string opponentRank = "";
 	std::vector<std::string> myPokemonNames = std::vector<std::string>(6);
@@ -31,6 +32,7 @@ struct MatchState {
 		}
 
 		nlohmann::json json{
+			{"timestamp", timestamp},
 			{"myRank", myRank},
 			{"opponentRank", opponentRank},
 			{"myPokemon1", myPokemonNames.at(0)},
