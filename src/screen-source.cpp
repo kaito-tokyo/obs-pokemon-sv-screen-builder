@@ -2,6 +2,8 @@
 #include <sstream>
 #include <iomanip>
 #include <filesystem>
+#include <string>
+#include <regex>
 
 #include <opencv2/opencv.hpp>
 #include <nlohmann/json.hpp>
@@ -14,6 +16,8 @@
 
 #include "screen-source.hpp"
 #include "plugin-support.h"
+
+namespace fs = std::filesystem;
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 try {
@@ -267,6 +271,105 @@ static bool handleClickAddDefaultLayout(obs_properties_t *props,
 	return true;
 }
 
+static bool handleClickAggregateMatchState(obs_properties_t *props,
+					   obs_property_t *property, void *data)
+{
+	UNUSED_PARAMETER(props);
+	UNUSED_PARAMETER(property);
+
+	if (data == nullptr) {
+		return false;
+	}
+	screen_context *context = static_cast<screen_context *>(data);
+
+	std::regex endsWithMatchState(R"(.*-MatchState.json$)");
+	std::vector<fs::path> matchStatePaths;
+	for (const auto &file :
+	     fs::directory_iterator(context->logger.basedir)) {
+		if (!file.is_regular_file()) {
+			continue;
+		}
+		const auto &filename = file.path().filename().string<char>();
+		if (std::regex_match(filename, endsWithMatchState)) {
+			obs_log(LOG_INFO,
+				"MatchStateAggregator MatchState detected: %s",
+				filename.c_str());
+			matchStatePaths.push_back(file.path().string<char>());
+		}
+	}
+
+	std::sort(matchStatePaths.begin(), matchStatePaths.end());
+
+	const std::vector<std::string> columnNames{
+		"timestamp",
+		"myRank",
+		"opponentRank",
+		"myPokemon1",
+		"myPokemon2",
+		"myPokemon3",
+		"myPokemon4",
+		"myPokemon5",
+		"myPokemon6",
+		"myTool1",
+		"myTool2",
+		"myTool3",
+		"myTool4",
+		"myTool5",
+		"myTool6",
+		"mySelectionPokemon1",
+		"mySelectionPokemon2",
+		"mySelectionPokemon3",
+		"mySelectionPokemon4",
+		"mySelectionPokemon5",
+		"mySelectionPokemon6",
+		"mySelectionTool1",
+		"mySelectionTool2",
+		"mySelectionTool3",
+		"mySelectionTool4",
+		"mySelectionTool5",
+		"mySelectionTool6",
+		"opponentPokemon1",
+		"opponentPokemon2",
+		"opponentPokemon3",
+		"opponentPokemon4",
+		"opponentPokemon5",
+		"opponentPokemon6",
+		"resultString",
+	};
+
+	fs::path outputPath = context->logger.basedir;
+	outputPath /= std::string("MatchSheet-") + context->logger.getPrefix() +
+		      ".txt";
+	std::ofstream ofs(outputPath);
+	for (const auto &columnName : columnNames) {
+		ofs << columnName << "\t";
+	}
+	ofs << std::endl;
+	for (const auto &matchStatePath : matchStatePaths) {
+		std::ifstream ifs(matchStatePath);
+		nlohmann::json json;
+		ifs >> json;
+		for (const auto &columnName : columnNames) {
+			if (json[columnName].is_null()) {
+				ofs << "\t";
+			} else {
+				ofs << json[columnName]
+						.template get<std::string>()
+				    << "\t";
+			}
+		}
+		ofs << std::endl;
+	}
+
+	QMessageBox msgBox;
+	std::string msgText = obs_module_text("AggregateMatchStateCompleted");
+	msgText += "\n" + outputPath.string<char>();
+	msgBox.setText(msgText.c_str());
+	msgBox.exec();
+
+	return true;
+}
+
 extern "C" obs_properties_t *screen_properties(void *data)
 {
 	if (!data) {
@@ -289,6 +392,9 @@ extern "C" obs_properties_t *screen_properties(void *data)
 	obs_properties_add_path(props_log, "log_path",
 				obs_module_text("LogPath"), OBS_PATH_DIRECTORY,
 				NULL, NULL);
+	obs_properties_add_button(props_log, "aggregate_match_state_button",
+				  obs_module_text("AggregateMatchStateButton"),
+				  &handleClickAggregateMatchState);
 	obs_properties_add_group(props, "log_enabled",
 				 obs_module_text("LogEnabled"),
 				 OBS_GROUP_CHECKABLE, props_log);

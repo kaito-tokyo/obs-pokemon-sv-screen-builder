@@ -18,6 +18,7 @@ void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray,
 	std::string prefix = logger.getPrefix();
 
 	matchState = {};
+	matchState.timestamp = prefix;
 
 	cv::Rect myRankRect = myRankExtractor(gameplayGray);
 	if (myRankRect.empty()) {
