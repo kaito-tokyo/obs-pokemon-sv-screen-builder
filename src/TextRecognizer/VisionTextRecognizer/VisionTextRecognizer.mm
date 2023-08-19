@@ -75,6 +75,10 @@ std::string VisionTextRecognizer::recognizeByVision(CGImageRef image)
 
 std::string recognizeText(const cv::Mat &imageBinary)
 {
+	cv::Size destSize(imageBinary.cols * 2, imageBinary.rows * 2);
+	cv::Mat resizedBinary;
+	cv::resize(imageBinary, resizedBinary, destSize);
+
 	cv::Mat padImageBinary;
 	cv::copyMakeBorder(imageBinary, padImageBinary, 200, 200, 200, 200,
 			   cv::BORDER_CONSTANT, cv::Scalar(255));
