@@ -86,7 +86,7 @@ void ActionHandler::handleEnteringSelectPokemon(
 			pokemonNames[i] =
 				opponentPokemonImageRecognizer(resultsBGRA[i]);
 		}
-		matchState.opponentPokemonNames = pokemonNames;
+		matchState.opponentPokemonIds = pokemonNames;
 		dispatchOpponentTeamShown(resultsBGRA, pokemonNames);
 	}
 }
