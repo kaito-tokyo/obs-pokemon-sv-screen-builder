@@ -30,7 +30,8 @@ public:
 		      const MyPokemonNameRecognizer &_myPokemonNameRecognizer,
 		      const MySelectionRecognizer &_mySelectionRecognizer,
 		      const MyToolNameRecognizer &_myToolNameRecognizer,
-		      const OpponentPokemonImageRecognizer &_opponentPokemonImageRecognizer,
+		      const OpponentPokemonImageRecognizer
+			      &_opponentPokemonImageRecognizer,
 		      const ResultRecognizer &_resultRecognizer,
 		      const Logger &_logger)
 		: myPokemonCropper(_myPokemonCropper),
@@ -42,7 +43,8 @@ public:
 		  myPokemonNameRecognizer(_myPokemonNameRecognizer),
 		  mySelectionRecognizer(_mySelectionRecognizer),
 		  myToolNameRecognizer(_myToolNameRecognizer),
-		  opponentPokemonImageRecognizer(_opponentPokemonImageRecognizer),
+		  opponentPokemonImageRecognizer(
+			  _opponentPokemonImageRecognizer),
 		  resultRecognizer(_resultRecognizer),
 		  logger(_logger)
 	{

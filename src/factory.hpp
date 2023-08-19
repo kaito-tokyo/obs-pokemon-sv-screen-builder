@@ -32,7 +32,8 @@ OpponentRankExtractor newOpponentRankExtractor(const char *name);
 MyPokemonNameRecognizer newMyPokemonNameRecognizer(const char *name);
 MySelectionRecognizer newMySelectionRecognizer(const char *name);
 MyToolNameRecognizer newMyToolNameRecognizer(const char *name);
-OpponentPokemonImageRecognizer newOpponentPokemonImageRecognizer(const char *name);
+OpponentPokemonImageRecognizer
+newOpponentPokemonImageRecognizer(const char *name);
 ResultRecognizer newResultRecognizer(const char *name);
 HistClassifier newHistClassifier(const char *name);
 TemplateClassifier newTemplateClassifier(const char *name);

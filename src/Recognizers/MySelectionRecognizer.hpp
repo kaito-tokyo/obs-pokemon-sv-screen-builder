@@ -8,9 +8,9 @@
 class MySelectionRecognizer {
 public:
 	MySelectionRecognizer(int _blueThreshold, int _binaryThreshould,
-			    double _ratio, const std::vector<int> &_indices,
-			    const std::vector<int> &_cols,
-			    const std::vector<std::vector<uchar>> &_data)
+			      double _ratio, const std::vector<int> &_indices,
+			      const std::vector<int> &_cols,
+			      const std::vector<std::vector<uchar>> &_data)
 		: blueThreshold(_blueThreshold),
 		  binaryThreshold(_binaryThreshould),
 		  ratio(_ratio),

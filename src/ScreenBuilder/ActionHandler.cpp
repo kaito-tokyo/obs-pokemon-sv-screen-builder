@@ -74,7 +74,8 @@ void ActionHandler::handleEnteringSelectPokemon(
 				imagesBGRA, masks);
 		std::vector<std::string> pokemonNames(resultsBGRA.size());
 		for (size_t i = 0; i < pokemonNames.size(); i++) {
-			pokemonNames[i] = opponentPokemonImageRecognizer(resultsBGRA[i]);
+			pokemonNames[i] =
+				opponentPokemonImageRecognizer(resultsBGRA[i]);
 		}
 		dispatchOpponentTeamShown(resultsBGRA, pokemonNames);
 	}

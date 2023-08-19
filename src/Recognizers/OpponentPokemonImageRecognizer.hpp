@@ -8,8 +8,8 @@
 class OpponentPokemonImageRecognizer {
 public:
 	OpponentPokemonImageRecognizer(int _height, int _descriptorSize,
-			  std::vector<std::vector<uchar>> _data,
-			  std::vector<std::string> _pokemonNames)
+				       std::vector<std::vector<uchar>> _data,
+				       std::vector<std::string> _pokemonNames)
 		: height(_height),
 		  descriptorSize(_descriptorSize),
 		  data(_data),

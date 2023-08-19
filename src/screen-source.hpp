@@ -61,8 +61,9 @@ struct screen_context {
 			  "preset/MySelectionRecognizer.cbor")),
 		  myToolNameRecognizer(factory::newMyToolNameRecognizer(
 			  "preset/MyToolNameRecognizer.json")),
-		  opponentPokemonImageRecognizer(factory::newOpponentPokemonImageRecognizer(
-			  "preset/OpponentPokemonImageRecognizer.cbor")),
+		  opponentPokemonImageRecognizer(
+			  factory::newOpponentPokemonImageRecognizer(
+				  "preset/OpponentPokemonImageRecognizer.cbor")),
 		  resultRecognizer(factory::newResultRecognizer(
 			  "preset/ResultRecognizer.json")),
 		  actionHandler(myPokemonCropper, opponentPokemonCropper,
@@ -70,8 +71,8 @@ struct screen_context {
 				myRankExtractor, opponentRankExtractor,
 				myPokemonNameRecognizer, mySelectionRecognizer,
 				myToolNameRecognizer,
-				opponentPokemonImageRecognizer, resultRecognizer,
-				logger),
+				opponentPokemonImageRecognizer,
+				resultRecognizer, logger),
 		  lobbyRankShown(factory::newTemplateClassifier(
 			  "preset/SceneDetector_lobbyRankShown.cbor")),
 		  lobbyMySelect(factory::newHistClassifier(

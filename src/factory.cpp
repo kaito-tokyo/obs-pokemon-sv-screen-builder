@@ -211,7 +211,8 @@ MyToolNameRecognizer newMyToolNameRecognizer(const char *name)
 	};
 }
 
-OpponentPokemonImageRecognizer newOpponentPokemonImageRecognizer(const char *name)
+OpponentPokemonImageRecognizer
+newOpponentPokemonImageRecognizer(const char *name)
 {
 	fs::path path = getPresetPath(name);
 	if (path.empty()) {
