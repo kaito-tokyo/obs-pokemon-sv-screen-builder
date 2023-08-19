@@ -179,6 +179,36 @@ PokemonRecognizer newPokemonRecognizer(const char *name)
 	};
 }
 
+MyPokemonNameRecognizer newMyPokemonNameRecognizer(const char *name)
+{
+	fs::path path = getPresetPath(name);
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
+	std::ifstream ifs(path);
+	nlohmann::json json;
+	ifs >> json;
+	return {
+		json["rect"].template get<cv::Rect>(),
+		json["thresh"].template get<double>(),
+	};
+}
+
+MyToolNameRecognizer newMyToolNameRecognizer(const char *name)
+{
+	fs::path path = getPresetPath(name);
+	if (path.empty()) {
+		throw PresetFileNotFoundError(name);
+	}
+	std::ifstream ifs(path);
+	nlohmann::json json;
+	ifs >> json;
+	return {
+		json["rect"].template get<cv::Rect>(),
+		json["thresh"].template get<double>(),
+	};
+}
+
 ResultRecognizer newResultRecognizer(const char *name)
 {
 	fs::path path = getPresetPath(name);
