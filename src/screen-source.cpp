@@ -299,6 +299,7 @@ static bool handleClickAggregateMatchState(obs_properties_t *props,
 	std::sort(matchStatePaths.begin(), matchStatePaths.end());
 
 	const std::vector<std::string> columnNames{
+		"timestamp",
 		"myRank",
 		"opponentRank",
 		"myPokemon1",
@@ -356,7 +357,9 @@ static bool handleClickAggregateMatchState(obs_properties_t *props,
 	}
 
 	QMessageBox msgBox;
-	msgBox.setText(obs_module_text("MatchStateAggregationCompletedText"));
+	std::string msgText = obs_module_text("AggregateMatchStateCompleted");
+	msgText += "\n" + outputPath.string<char>();
+	msgBox.setText(msgText.c_str());
 	msgBox.exec();
 
 	return true;
