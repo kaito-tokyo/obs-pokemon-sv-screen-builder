@@ -6,6 +6,8 @@
 
 #include <opencv2/opencv.hpp>
 
+#include "MatchState.hpp"
+
 class Logger {
 public:
 	std::filesystem::path basedir;
@@ -98,9 +100,22 @@ public:
 			return;
 		}
 		std::filesystem::path p = basedir;
-		p /= prefix + "-" + eventName + ".txt";
+		p /= prefix + "-" + eventName + ".json";
 		std::ofstream ofs(p);
 		ofs << jsonString << std::endl;
+	}
+
+	void writeMatchState(const std::string &prefix,
+			     const MatchState &matchState) const
+	{
+		if (basedir.empty()) {
+			return;
+		}
+		std::filesystem::path p = basedir;
+		p /= prefix + "-MatchState.json";
+
+		std::ofstream ofs(p);
+		ofs << matchState.toJSONString() << std::endl;
 	}
 
 private:

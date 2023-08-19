@@ -50,19 +50,23 @@ public:
 	{
 	}
 
-	void handleEnteringRankShown(const cv::Mat &gameplayGray) const;
-	void handleEnteringSelectPokemon(
-		const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
-		bool canEnterToSelectPokemon,
-		std::vector<int> &mySelectionOrderMap) const;
+	void handleEnteringRankShown(const cv::Mat &gameplayGray,
+				     MatchState &matchState) const;
+	void handleEnteringSelectPokemon(const cv::Mat &gameplayBGRA,
+					 const cv::Mat &gameplayBGR,
+					 bool canEnterToSelectPokemon,
+					 std::vector<int> &mySelectionOrderMap,
+					 MatchState &matchState) const;
 	void handleSelectPokemon(const cv::Mat &gameplayBGRA,
 				 const cv::Mat &gameplayBGR,
 				 const cv::Mat &gameplayHsv,
 				 const cv::Mat &gameplayGray,
 				 std::vector<int> &mySelectionOrderMap,
-				 std::vector<cv::Mat> &myPokemonsBGRA) const;
+				 std::vector<cv::Mat> &myPokemonsBGRA,
+				 MatchState &matchState) const;
 	void handleEnteringMatch(bool canEnterToMatch) const;
-	void handleResult(const cv::Mat &gameplayHSV) const;
+	void handleResult(const cv::Mat &gameplayHSV,
+			  MatchState &matchState) const;
 
 private:
 	const MyPokemonCropper &myPokemonCropper;
@@ -135,7 +139,9 @@ private:
 
 	void dispatchMySelectionChanged(
 		const std::vector<cv::Mat> &myPokemonImagesBGRA,
-		const std::vector<int> &mySelectionOrderMap) const
+		const std::vector<int> &mySelectionOrderMap,
+		const std::vector<std::string> &myPokemonNames,
+		const std::vector<std::string> &myToolNames) const
 	{
 		std::vector<std::string> imageUrls(myPokemonImagesBGRA.size());
 		for (size_t i = 0; i < myPokemonImagesBGRA.size(); i++) {
@@ -148,22 +154,6 @@ private:
 				imageUrls[i] = "data:image/png;base64," +
 					       Base64::encode(pngImage);
 			}
-		}
-
-		std::vector<std::string> myPokemonNames(
-			myPokemonImagesBGRA.size()),
-			myToolNames(myPokemonImagesBGRA.size());
-		for (size_t i = 0; i < myPokemonImagesBGRA.size(); i++) {
-			if (myPokemonImagesBGRA.at(i).empty()) {
-				continue;
-			}
-
-			cv::Mat imageGray;
-			cv::cvtColor(myPokemonImagesBGRA.at(i), imageGray,
-				     cv::COLOR_BGRA2GRAY);
-			myPokemonNames.at(i) =
-				myPokemonNameRecognizer(imageGray);
-			myToolNames.at(i) = myToolNameRecognizer(imageGray);
 		}
 
 		nlohmann::json json{
@@ -218,5 +208,6 @@ private:
 	void drawMyPokemons(const cv::Mat &gameplayBGRA,
 			    const cv::Mat &gameplayHSV,
 			    std::vector<cv::Mat> &myPokemonsBGRA,
-			    const std::vector<int> &mySelectionOrderMap) const;
+			    const std::vector<int> &mySelectionOrderMap,
+			    MatchState &matchState) const;
 };

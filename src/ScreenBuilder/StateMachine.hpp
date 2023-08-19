@@ -2,6 +2,7 @@
 
 #include "ActionHandler.hpp"
 #include "GameplayScene.hpp"
+#include "MatchState.hpp"
 #include "SceneDetector.hpp"
 #include "ScreenState.hpp"
 
@@ -42,4 +43,5 @@ private:
 	uint64_t elapsedNsFromLastStateChange = 0;
 	std::vector<int> mySelectionOrderMap = std::vector<int>(6);
 	std::vector<cv::Mat> myPokemonsBGRA = std::vector<cv::Mat>(6);
+	MatchState matchState;
 };

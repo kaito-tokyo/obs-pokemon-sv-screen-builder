@@ -80,7 +80,7 @@ ScreenState StateMachine::computeUnknown(GameplayScene scene)
 
 ScreenState StateMachine::computeEnteringRankShown(void)
 {
-	actionHandler.handleEnteringRankShown(gameplayGray);
+	actionHandler.handleEnteringRankShown(gameplayGray, matchState);
 	return ScreenState::RANK_SHOWN;
 }
 
@@ -100,7 +100,8 @@ ScreenState StateMachine::computeEnteringSelectPokemon(void)
 				       1000000000;
 	actionHandler.handleEnteringSelectPokemon(gameplayBGRA, gameplayBGR,
 						  canEnterToSelectPokemon,
-						  mySelectionOrderMap);
+						  mySelectionOrderMap,
+						  matchState);
 	if (canEnterToSelectPokemon) {
 		return ScreenState::SELECT_POKEMON;
 	} else {
@@ -112,7 +113,8 @@ ScreenState StateMachine::computeSelectPokemon(GameplayScene scene)
 {
 	actionHandler.handleSelectPokemon(gameplayBGRA, gameplayBGR,
 					  gameplayHSV, gameplayGray,
-					  mySelectionOrderMap, myPokemonsBGRA);
+					  mySelectionOrderMap, myPokemonsBGRA,
+					  matchState);
 	if (scene != GameplayScene::SELECT_POKEMON) {
 		return ScreenState::LEAVING_SELECT_POKEMON;
 	} else {
@@ -206,6 +208,6 @@ ScreenState StateMachine::computeEnteringResult(GameplayScene scene)
 
 ScreenState StateMachine::computeResult(void)
 {
-	actionHandler.handleResult(gameplayHSV);
+	actionHandler.handleResult(gameplayHSV, matchState);
 	return ScreenState::UNKNOWN;
 }
