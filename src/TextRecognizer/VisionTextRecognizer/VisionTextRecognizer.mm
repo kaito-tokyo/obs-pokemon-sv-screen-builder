@@ -1,8 +1,10 @@
+#include <functional>
+#include <string>
+
 #import <Foundation/Foundation.h>
 #import <VideoToolbox/VideoToolbox.h>
 #import <Vision/Vision.h>
 
-#include <string>
 #include <opencv2/opencv.hpp>
 
 #include <obs.h>
@@ -67,13 +69,15 @@ std::string VisionTextRecognizer::recognizeByVision(CGImageRef image)
 				resultText += [nsString UTF8String];
 			}
 		}];
+	request.usesCPUOnly = YES;
 	request.recognitionLanguages = @[@"ja-JP"];
 	NSError *_Nullable error;
 	[requestHandler performRequests:@[request] error:&error];
 	return resultText;
 }
 
-std::string recognizeText(const cv::Mat &imageBinary)
+void recognizeText(const cv::Mat &imageBinary,
+		   std::function<void(std::string)> callback)
 {
 	cv::Size destSize(imageBinary.cols * 2, imageBinary.rows * 2);
 	cv::Mat resizedBinary;
@@ -84,10 +88,18 @@ std::string recognizeText(const cv::Mat &imageBinary)
 			   cv::BORDER_CONSTANT, cv::Scalar(255));
 
 	CGImageRef image = convertBinarytoCgImage(padImageBinary);
-	if (image == NULL)
-		return std::string();
-	VisionTextRecognizer recognizer;
-	std::string result = recognizer.recognizeByVision(image);
-	CFRelease(image);
-	return result;
+	if (image == NULL) {
+		callback("");
+		return;
+	}
+	__block VisionTextRecognizer recognizer;
+
+	dispatch_async(
+		dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
+		^{
+			std::string result =
+				recognizer.recognizeByVision(image);
+			CFRelease(image);
+			callback(result);
+		});
 }

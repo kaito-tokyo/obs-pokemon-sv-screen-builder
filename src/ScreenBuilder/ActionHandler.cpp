@@ -30,12 +30,12 @@ void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray,
 			      cv::THRESH_BINARY_INV);
 		logger.writeMyRankImage(prefix, rankBinary);
 
-		std::string rankText = recognizeText(rankBinary);
-		obs_log(LOG_INFO, "My rank text is %s.", rankText.c_str());
-
-		matchState.myRank = rankText;
-
-		dispatchMyRankShown(rankText);
+		recognizeText(rankBinary, [&](std::string rankText) {
+			obs_log(LOG_INFO, "My rank text is %s.",
+				rankText.c_str());
+			matchState.myRank = rankText;
+			dispatchMyRankShown(rankText);
+		});
 	}
 
 	cv::Mat opponentRankBinary;
@@ -52,13 +52,12 @@ void ActionHandler::handleEnteringRankShown(const cv::Mat &gameplayGray,
 			      cv::THRESH_BINARY_INV);
 		logger.writeOpponentRankImage(prefix, rankBinary);
 
-		std::string rankText = recognizeText(rankBinary);
-		obs_log(LOG_INFO, "The opponent rank text is %s.",
-			rankText.c_str());
-
-		matchState.opponentRank = rankText;
-
-		dispatchOpponentRankShown(rankText);
+		recognizeText(rankBinary, [&](std::string rankText) {
+			obs_log(LOG_INFO, "The opponent rank text is %s.",
+				rankText.c_str());
+			matchState.opponentRank = rankText;
+			dispatchOpponentRankShown(rankText);
+		});
 	}
 }
 
@@ -117,59 +116,66 @@ bool ActionHandler::detectSelectionOrderChange(
 	return change_detected;
 }
 
-void ActionHandler::drawMyPokemons(const cv::Mat &gameplayBGRA,
-				   const cv::Mat &gameplayHSV,
-				   std::vector<cv::Mat> &myPokemonsBGRA,
-				   const std::vector<int> &mySelectionOrderMap,
-				   MatchState &matchState) const
+void ActionHandler::recognizeMyPokemons(
+	MatchState &matchState, const std::vector<cv::Mat> &myPokemonImagesBGRA,
+	const std::vector<cv::Mat> &myPokemonImagesGray, size_t i) const
 {
-	const std::vector<cv::Mat> croppedBGRA =
-		myPokemonCropper.crop(gameplayBGRA);
-	const std::vector<bool> shouldUpdate =
-		myPokemonCropper.getShouldUpdate(gameplayHSV);
-
-	for (size_t i = 0; i < myPokemonsBGRA.size(); i++) {
-		if (shouldUpdate[i]) {
-			blog(LOG_INFO, "shouldUpdate: %lu", i);
-			myPokemonsBGRA[i] = croppedBGRA[i].clone();
-		}
+	if (i == myPokemonImagesGray.size()) {
+		dispatchMySelectionChanged(myPokemonImagesBGRA,
+					   matchState.mySelectionMap,
+					   matchState.myPokemonNames,
+					   matchState.myToolNames);
+		return;
 	}
 
-	std::vector<std::string> myPokemonNames(myPokemonsBGRA.size()),
-		myToolNames(myPokemonsBGRA.size());
-	for (size_t i = 0; i < myPokemonsBGRA.size(); i++) {
-		if (myPokemonsBGRA.at(i).empty()) {
-			continue;
-		}
-
-		cv::Mat imageGray;
-		cv::cvtColor(myPokemonsBGRA.at(i), imageGray,
-			     cv::COLOR_BGRA2GRAY);
-		myPokemonNames.at(i) = myPokemonNameRecognizer(imageGray);
-		myToolNames.at(i) = myToolNameRecognizer(imageGray);
+	if (myPokemonImagesGray.at(i).empty()) {
+		recognizeMyPokemons(matchState, myPokemonImagesBGRA,
+				    myPokemonImagesGray, i + 1);
+		return;
 	}
 
-	matchState.myPokemonNames = myPokemonNames;
-	matchState.myToolNames = myToolNames;
-	matchState.mySelectionMap = mySelectionOrderMap;
-
-	dispatchMySelectionChanged(myPokemonsBGRA, mySelectionOrderMap,
-				   myPokemonNames, myToolNames);
+	myPokemonNameRecognizer(
+		myPokemonImagesGray.at(i), [&, i](std::string myPokemonName) {
+			matchState.myPokemonNames.at(i) = myPokemonName;
+			myToolNameRecognizer(
+				myPokemonImagesGray.at(i),
+				[&, i](std::string myToolName) {
+					matchState.myToolNames.at(i) =
+						(myToolName);
+					recognizeMyPokemons(matchState,
+							    myPokemonImagesBGRA,
+							    myPokemonImagesGray,
+							    i + 1);
+				});
+		});
 }
 
-void ActionHandler::handleSelectPokemon(const cv::Mat &gameplayBGRA,
-					const cv::Mat &gameplayBGR,
-					const cv::Mat &gameplayHsv,
-					const cv::Mat &gameplayGray,
-					std::vector<int> &mySelectionOrderMap,
-					std::vector<cv::Mat> &myPokemonsBGRA,
-					MatchState &matchState) const
+void ActionHandler::handleSelectPokemon(
+	const cv::Mat &gameplayBGRA, const cv::Mat &gameplayBGR,
+	const cv::Mat &gameplayHSV, const cv::Mat &gameplayGray,
+	std::vector<int> &mySelectionMap,
+	std::vector<cv::Mat> &myPokemonImagesBGRA,
+	std::vector<cv::Mat> &myPokemonImagesGray, MatchState &matchState) const
 {
-	if (detectSelectionOrderChange(gameplayBGR, gameplayGray,
-				       mySelectionOrderMap)) {
-		drawMyPokemons(gameplayBGRA, gameplayHsv, myPokemonsBGRA,
-			       mySelectionOrderMap, matchState);
+	if (!detectSelectionOrderChange(gameplayBGR, gameplayGray,
+					mySelectionMap)) {
+		return;
 	}
+
+	const auto croppedBGRA = myPokemonCropper.crop(gameplayBGRA);
+	const auto croppedGray = myPokemonCropper.crop(gameplayGray);
+	const auto shouldUpdate = myPokemonCropper.getShouldUpdate(gameplayHSV);
+
+	for (size_t i = 0; i < myPokemonImagesBGRA.size(); i++) {
+		if (shouldUpdate.at(i)) {
+			myPokemonImagesBGRA.at(i) = croppedBGRA.at(i).clone();
+			myPokemonImagesGray.at(i) = croppedGray.at(i).clone();
+		}
+	}
+
+	matchState.mySelectionMap = mySelectionMap;
+	recognizeMyPokemons(matchState, myPokemonImagesBGRA,
+			    myPokemonImagesGray);
 }
 
 void ActionHandler::handleEnteringMatch(bool canEnterToMatch) const

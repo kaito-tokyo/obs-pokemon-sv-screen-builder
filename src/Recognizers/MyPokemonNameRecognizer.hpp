@@ -1,5 +1,6 @@
 #pragma once
 
+#include <functional>
 #include <string>
 
 #include <opencv2/opencv.hpp>
@@ -13,13 +14,14 @@ public:
 	{
 	}
 
-	std::string operator()(const cv::Mat &myPokemonImageGray) const
+	void operator()(const cv::Mat &myPokemonImageGray,
+			std::function<void(std::string)> callback) const
 	{
 		const auto nameImageGray = myPokemonImageGray(rect);
 		cv::Mat nameImageBinary, paddedNameImageBianry;
 		cv::threshold(nameImageGray, nameImageBinary, thresh, 255,
 			      cv::THRESH_BINARY_INV);
-		return recognizeText(nameImageBinary);
+		recognizeText(nameImageBinary, callback);
 	}
 
 private:

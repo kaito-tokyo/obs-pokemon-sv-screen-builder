@@ -100,8 +100,7 @@ ScreenState StateMachine::computeEnteringSelectPokemon(void)
 				       1000000000;
 	actionHandler.handleEnteringSelectPokemon(gameplayBGRA, gameplayBGR,
 						  canEnterToSelectPokemon,
-						  mySelectionOrderMap,
-						  matchState);
+						  mySelectionMap, matchState);
 	if (canEnterToSelectPokemon) {
 		return ScreenState::SELECT_POKEMON;
 	} else {
@@ -113,8 +112,8 @@ ScreenState StateMachine::computeSelectPokemon(GameplayScene scene)
 {
 	actionHandler.handleSelectPokemon(gameplayBGRA, gameplayBGR,
 					  gameplayHSV, gameplayGray,
-					  mySelectionOrderMap, myPokemonsBGRA,
-					  matchState);
+					  mySelectionMap, myPokemonImagesBGRA,
+					  myPokemonImagesGray, matchState);
 	if (scene != GameplayScene::SELECT_POKEMON) {
 		return ScreenState::LEAVING_SELECT_POKEMON;
 	} else {

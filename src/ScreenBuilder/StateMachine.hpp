@@ -41,7 +41,8 @@ private:
 	cv::Mat gameplayGray;
 	uint64_t lastStateChangeNs = 0;
 	uint64_t elapsedNsFromLastStateChange = 0;
-	std::vector<int> mySelectionOrderMap = std::vector<int>(6);
-	std::vector<cv::Mat> myPokemonsBGRA = std::vector<cv::Mat>(6);
+	std::vector<int> mySelectionMap = std::vector<int>(6);
+	std::vector<cv::Mat> myPokemonImagesBGRA = std::vector<cv::Mat>(6);
+	std::vector<cv::Mat> myPokemonImagesGray = std::vector<cv::Mat>(6);
 	MatchState matchState;
 };
