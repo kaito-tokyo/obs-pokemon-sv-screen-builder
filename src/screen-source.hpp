@@ -8,6 +8,7 @@
 #include "factory.hpp"
 #include "ScreenBuilder/HistClassifier.hpp"
 #include "ScreenBuilder/Logger.hpp"
+#include "ScreenBuilder/MatchStateAggregator.hpp"
 #include "ScreenBuilder/SceneDetector.hpp"
 #include "ScreenBuilder/StateMachine.hpp"
 #include "ScreenBuilder/TemplateClassifier.hpp"
@@ -41,6 +42,8 @@ struct screen_context {
 	SceneDetector sceneDetector;
 
 	StateMachine stateMachine;
+
+	MatchStateAggregator matchStateAggregator;
 
 	screen_context()
 		: myPokemonCropper(factory::newMyPokemonCropper(
@@ -83,7 +86,9 @@ struct screen_context {
 			  "preset/SceneDetector_blackTransition.json")),
 		  sceneDetector(lobbyRankShown, lobbyMySelect,
 				lobbyOpponentSelect, blackTransition),
-		  stateMachine(actionHandler, sceneDetector)
+		  stateMachine(actionHandler, sceneDetector),
+		  matchStateAggregator(factory::newMatchStateAggregator(
+			  "preset/MatchStateAggregator.json"))
 	{
 	}
 };

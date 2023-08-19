@@ -281,85 +281,10 @@ static bool handleClickAggregateMatchState(obs_properties_t *props,
 		return false;
 	}
 	screen_context *context = static_cast<screen_context *>(data);
-
-	std::regex endsWithMatchState(R"(.*-MatchState.json$)");
-	std::vector<fs::path> matchStatePaths;
-	for (const auto &file :
-	     fs::directory_iterator(context->logger.basedir)) {
-		if (!file.is_regular_file()) {
-			continue;
-		}
-		const auto &filename = file.path().filename().string<char>();
-		if (std::regex_match(filename, endsWithMatchState)) {
-			obs_log(LOG_INFO,
-				"MatchStateAggregator MatchState detected: %s",
-				filename.c_str());
-			matchStatePaths.push_back(file.path().string<char>());
-		}
-	}
-
-	std::sort(matchStatePaths.begin(), matchStatePaths.end());
-
-	const std::vector<std::string> columnNames{
-		"timestamp",
-		"myRank",
-		"opponentRank",
-		"myPokemonName1",
-		"myPokemonName2",
-		"myPokemonName3",
-		"myPokemonName4",
-		"myPokemonName5",
-		"myPokemonName6",
-		"myToolName1",
-		"myToolName2",
-		"myToolName3",
-		"myToolName4",
-		"myToolName5",
-		"myToolName6",
-		"mySelectionPokemonName1",
-		"mySelectionPokemonName2",
-		"mySelectionPokemonName3",
-		"mySelectionPokemonName4",
-		"mySelectionPokemonName5",
-		"mySelectionPokemonName6",
-		"mySelectionToolName1",
-		"mySelectionToolName2",
-		"mySelectionToolName3",
-		"mySelectionToolName4",
-		"mySelectionToolName5",
-		"mySelectionToolName6",
-		"opponentPokemonId1",
-		"opponentPokemonId2",
-		"opponentPokemonId3",
-		"opponentPokemonId4",
-		"opponentPokemonId5",
-		"opponentPokemonId6",
-		"resultString",
-	};
-
-	fs::path outputPath = context->logger.basedir;
-	outputPath /= std::string("MatchSheet-") + context->logger.getPrefix() +
-		      ".txt";
-	std::ofstream ofs(outputPath);
-	for (const auto &columnName : columnNames) {
-		ofs << columnName << "\t";
-	}
-	ofs << std::endl;
-	for (const auto &matchStatePath : matchStatePaths) {
-		std::ifstream ifs(matchStatePath);
-		nlohmann::json json;
-		ifs >> json;
-		for (const auto &columnName : columnNames) {
-			if (json[columnName].is_null()) {
-				ofs << "\t";
-			} else {
-				ofs << json[columnName]
-						.template get<std::string>()
-				    << "\t";
-			}
-		}
-		ofs << std::endl;
-	}
+	const auto &logger = context->logger;
+	const auto prefix = logger.getPrefix();
+	const auto outputPath =
+		context->matchStateAggregator(prefix, logger.basedir);
 
 	QMessageBox msgBox;
 	std::string msgText = obs_module_text("AggregateMatchStateCompleted");
