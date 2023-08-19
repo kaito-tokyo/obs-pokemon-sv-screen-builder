@@ -23,8 +23,8 @@ using winrt::Windows::Foundation::MemoryBuffer;
 using winrt::Windows::Foundation::IMemoryBufferReference;
 using Windows::Foundation::IMemoryBufferByteAccess;
 
-std::string recognizeText(const cv::Mat &imageBinary,
-			  std::function<void(std::string)> callback)
+void recognizeText(const cv::Mat &imageBinary,
+		   std::function<void(std::string)> callback)
 {
 	cv::Mat padImage;
 	cv::copyMakeBorder(imageBinary, padImage, 200, 200, 200, 200,
