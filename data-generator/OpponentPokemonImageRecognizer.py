@@ -12,6 +12,7 @@ pokemonNames = []
 data = []
 
 for file in glob('./assets/OpponentPokemonImageRecognizer/*/*.png'):
+    print(file)
     name = path.splitext(path.basename(file))[0]
     srcBGRA = cv2.imread(file, cv2.IMREAD_UNCHANGED)
     scaledBGRA = cv2.resize(srcBGRA, (srcBGRA.shape[1] * height // srcBGRA.shape[0], height))
@@ -23,7 +24,7 @@ for file in glob('./assets/OpponentPokemonImageRecognizer/*/*.png'):
     _, pokemonName = name.split(' ')
     pokemonNames.append(pokemonName)
 
-with open('data/config/OpponentPokemonImageRecognizer.cbor', 'wb') as fp:
+with open('data/preset/OpponentPokemonImageRecognizer.cbor', 'wb') as fp:
     dump({
         "height": height,
         "descriptorSize": descriptorSize,
