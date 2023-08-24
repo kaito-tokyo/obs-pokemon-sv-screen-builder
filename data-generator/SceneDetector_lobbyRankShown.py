@@ -19,7 +19,7 @@ for file in glob('./assets/screenshots/SceneDetector/*.png'):
     cols.append(destImg.shape[1])
     data.append(np.ravel(destImg).tolist())
 
-with open('data/config/SceneDetector_lobbyRankShown.cbor', 'wb') as fp:
+with open('data/preset/SceneDetector_lobbyRankShown.cbor', 'wb') as fp:
     dump({
         "rect": rect,
         "threshold": threshold,
