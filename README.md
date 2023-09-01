@@ -1,5 +1,8 @@
 # OBSポケモンSVスクリーンビルダー
 
+## サポートDiscord
+https://discord.gg/V5EETuadZF
+
 ## 概要
 
 「OBSポケモンSVスクリーンビルダー」はポケモンSVの配信をイイ感じにするためのOBSのプラグインです。以下のような特徴があります：
