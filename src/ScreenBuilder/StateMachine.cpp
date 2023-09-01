@@ -12,13 +12,6 @@
 
 void StateMachine::operator()(const cv::Mat &_gameplayBGRA)
 {
-	nthTick++;
-	if (nthTick < 5) {
-		return;
-	} else {
-		nthTick = 0;
-	}
-
 	gameplayBGRA = _gameplayBGRA;
 	cv::Mat gameplayBinary;
 	cv::cvtColor(gameplayBGRA, gameplayBGR, cv::COLOR_BGRA2BGR);
