@@ -45,4 +45,5 @@ private:
 	std::vector<cv::Mat> myPokemonImagesBGRA = std::vector<cv::Mat>(6);
 	std::vector<cv::Mat> myPokemonImagesGray = std::vector<cv::Mat>(6);
 	MatchState matchState;
+	int nthTick = 0;
 };
