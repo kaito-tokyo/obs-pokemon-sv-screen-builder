@@ -1,6 +1,6 @@
 include(FetchContent)
 
-set(OpenCV_Version 4.8.1-3)
+set(OpenCV_Version 4.8.1-6)
 
 if(${CMAKE_BUILD_TYPE} STREQUAL Release OR ${CMAKE_BUILD_TYPE} STREQUAL RelWithDebInfo)
   set(OpenCV_BUILD_TYPE Release)
@@ -13,27 +13,27 @@ set(OpenCV_BASEURL
 
 if(APPLE)
   if(OpenCV_BUILD_TYPE STREQUAL Release)
-    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-macos-Release.tar.gz")
-    set(OpenCV_HASH MD5=283e70722b32aae912250f04fceb2fd1)
+    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-macos-${OpenCV_Version}-Release.tar.gz")
+    set(OpenCV_HASH SHA256=4dbabdc3bce8d698f798f3d48556c03f2ab3a2eb8d181f80d83349437e0331dd)
   else()
-    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-macos-Debug.tar.gz")
-    set(OpenCV_HASH MD5=0fe5e26e2135e40e72d91822c833d6f3)
+    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-macos-${OpenCV_Version}-Debug.tar.gz")
+    set(OpenCV_HASH SHA256=513747f41615a00e52744788af25fadcf5742e119441d9007c05826e35707417)
   endif()
 elseif(MSVC)
   if(OpenCV_BUILD_TYPE STREQUAL Release)
-    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-windows-Release.zip")
-    set(OpenCV_HASH MD5=0d9293c46da215df12a7c01dec5de7c1)
+    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-windows-${OpenCV_Version}-Release.zip")
+    set(OpenCV_HASH SHA256=b6da6b02616f1e8921e939467d32924426354b98b12a38d27e54b6c69d6da3f1)
   else()
-    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-windows-Debug.zip")
-    set(OpenCV_HASH MD5=0f7ba51d49f448fe611d91553b8f706c)
+    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-windows-${OpenCV_Version}-Debug.zip")
+    set(OpenCV_HASH SHA256=b003f479a67660f454206399b21d46041ccb00b944c9c400ea0cf7b4e35431e6)
   endif()
 else()
   if(OpenCV_BUILD_TYPE STREQUAL Release)
-    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-linux-Release.tar.gz")
-    set(OpenCV_HASH MD5=460fc72a81d793ae2c03c97731fe3206)
+    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-linux-${OpenCV_Version}-Release.tar.gz")
+    set(OpenCV_HASH SHA256=89281a1aad4f15c45459d6feacb2e69c2341154db46e3a756cd969ca77fffbbf)
   else()
-    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-linux-Debug.tar.gz")
-    set(OpenCV_HASH MD5=3ae4d598e08d2f94de2c2c574c730258)
+    set(OpenCV_URL "${OpenCV_BASEURL}/opencv-linux-${OpenCV_Version}-Debug.tar.gz")
+    set(OpenCV_HASH SHA256=4a7375f478ba520903246409e36fab1487407f833600c8a1ce4eaddc0bc6e876)
   endif()
 endif()
 
@@ -47,10 +47,10 @@ add_library(OpenCV INTERFACE)
 if(MSVC)
   target_link_libraries(
     OpenCV
-    INTERFACE ${opencv_SOURCE_DIR}/x64/vc17/staticlib/opencv_features2d480.lib
-              ${opencv_SOURCE_DIR}/x64/vc17/staticlib/opencv_imgcodecs480.lib
-              ${opencv_SOURCE_DIR}/x64/vc17/staticlib/opencv_imgproc480.lib
-              ${opencv_SOURCE_DIR}/x64/vc17/staticlib/opencv_core480.lib
+    INTERFACE ${opencv_SOURCE_DIR}/x64/vc17/staticlib/opencv_features2d481.lib
+              ${opencv_SOURCE_DIR}/x64/vc17/staticlib/opencv_imgcodecs481.lib
+              ${opencv_SOURCE_DIR}/x64/vc17/staticlib/opencv_imgproc481.lib
+              ${opencv_SOURCE_DIR}/x64/vc17/staticlib/opencv_core481.lib
               ${opencv_SOURCE_DIR}/x64/vc17/staticlib/libpng.lib
               ${opencv_SOURCE_DIR}/x64/vc17/staticlib/zlib.lib)
   target_include_directories(OpenCV SYSTEM INTERFACE ${opencv_SOURCE_DIR}/include)

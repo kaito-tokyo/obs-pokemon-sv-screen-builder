@@ -1,12 +1,18 @@
 #pragma once
 
+#include <string>
+
 #include <opencv2/opencv.hpp>
+
+#include "plugin-support.h"
+#include <obs.h>
 
 struct HistClassifier {
 public:
-	HistClassifier(cv::Rect _rect, int _channel, int _nBins, int _maxIndex,
-		       double _ratio)
-		: rect(_rect),
+	HistClassifier(std::string _name, cv::Rect _rect, int _channel,
+		       int _nBins, int _maxIndex, double _ratio)
+		: name(_name),
+		  rect(_rect),
 		  channel(_channel),
 		  nBins(_nBins),
 		  maxIndex(_maxIndex),
@@ -35,6 +41,7 @@ public:
 	}
 
 private:
+	const std::string name;
 	const cv::Rect rect;
 	const int channel;
 	const int nBins;
