@@ -258,6 +258,7 @@ HistClassifier newHistClassifier(const char *name)
 	ifs >> json;
 
 	return {
+		name,
 		json["rect"].template get<cv::Rect>(),
 		json["channel"].template get<int>(),
 		json["nBins"].template get<int>(),
