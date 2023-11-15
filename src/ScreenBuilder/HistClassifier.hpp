@@ -9,8 +9,8 @@
 
 struct HistClassifier {
 public:
-	HistClassifier(std::string _name, cv::Rect _rect, int _channel, int _nBins, int _maxIndex,
-		       double _ratio)
+	HistClassifier(std::string _name, cv::Rect _rect, int _channel,
+		       int _nBins, int _maxIndex, double _ratio)
 		: name(_name),
 		  rect(_rect),
 		  channel(_channel),
@@ -41,7 +41,7 @@ public:
 	}
 
 private:
-    const std::string name;
+	const std::string name;
 	const cv::Rect rect;
 	const int channel;
 	const int nBins;
