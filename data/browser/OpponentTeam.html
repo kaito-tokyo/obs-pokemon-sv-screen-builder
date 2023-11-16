@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <title>Opponent Team</title>
     <style>
+        body {
+            font-family: system-ui;
+            font-size: 15px;
+        }
+
         .container {
             display: grid;
             grid-template-columns: 100px;
@@ -11,15 +16,49 @@
         .pokemon-cell {
             position: relative;
         }
+
         .pokemon-name {
             position: absolute;
             top: 10px;
+            width: 100%;
         }
-        .pokemon-status {
+        .pokemon-name > span:nth-child(1) {
             position: absolute;
-            left: 0px;
+            color: white;
+            z-index: 3;
+        }
+        .pokemon-name > span:nth-child(2) {
+            -webkit-text-stroke: 3px rgb(0, 0, 0);
+            position: absolute;
+            z-index: 2;
+        }
+        .pokemon-name > span:nth-child(3) {
+            -webkit-text-stroke: 6px rgb(255, 255, 255);
+            position: absolute;
+            z-index: 1;
+        }
+
+        .pokemon-stat {
+            position: absolute;
+            left: 0;
             top: 60px;
         }
+        .pokemon-stat > span:nth-child(1) {
+            position: absolute;
+            color: white;
+            z-index: 3;
+        }
+        .pokemon-stat > span:nth-child(2) {
+            -webkit-text-stroke: 3px rgb(0, 99, 181);
+            position: absolute;
+            z-index: 2;
+        }
+        .pokemon-stat > span:nth-child(3) {
+            -webkit-text-stroke: 6px rgb(255, 255, 255);
+            position: absolute;
+            z-index: 1;
+        }
+
         .pokemon-img {
             margin: -10px;
         }
@@ -27,55 +66,59 @@
 </head>
 <body>
     <div class="container">
-        <div class="pokemon-cell" id="pokemon-0">
-            <span class="pokemon-name"></span>
-            <img class="pokemon-img" src="20231116T031213-OpponentPokemon-0.png">
-            <span class="pokemon-status"></span>
+        <div class="pokemon-cell">
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
         </div>
         <div class="pokemon-cell">
-            <span class="pokemon-name" id="pokemon-1"></span>
-            <img class="pokemon-img" src="20231116T031213-OpponentPokemon-1.png">
-            <span class="pokemon-status"></span>
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
         </div>
         <div class="pokemon-cell">
-            <span class="pokemon-name" id="pokemon-0"></span>
-            <img class="pokemon-img" src="20231116T031213-OpponentPokemon-2.png">
-            <span class="pokemon-status"></span>
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
         </div>
         <div class="pokemon-cell">
-            <span class="pokemon-name" id="pokemon-1"></span>
-            <img class="pokemon-img" src="20231116T031213-OpponentPokemon-3.png">
-            <span class="pokemon-status"></span>
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
         </div>
         <div class="pokemon-cell">
-            <span class="pokemon-name" id="pokemon-0"></span>
-            <img class="pokemon-img" src="20231116T031213-OpponentPokemon-4.png">
-            <span class="pokemon-status"></span>
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
         </div>
         <div class="pokemon-cell">
-            <span class="pokemon-name" id="pokemon-1"></span>
-            <img class="pokemon-img" src="20231116T031213-OpponentPokemon-5.png">
-            <span class="pokemon-status"></span>
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
         </div>
     </div>
     <script>
         const cells = Array.from(document.querySelectorAll(".pokemon-cell"));
         const imgs = cells.map(e => e.querySelector(".pokemon-img"));
         const names = cells.map(e => e.querySelector(".pokemon-name"));
-        const statuses = cells.map(e => e.querySelector(".pokemon-status"));
+        const stats = cells.map(e => e.querySelector(".pokemon-stat"));
         window.addEventListener("obsPokemonSvScreenBuilderOpponentTeamShown", async ({ detail: { imageUrls, pokemonNames } }) => {
             for (let i = 0; i < 6; i++) {
                 imgs[i].src = imageUrls[i];
             }
             for (let i = 0; i < 6; i++) {
                 const pokemonName = pokemonNames[i];
-                const pokemooRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
-                if (!pokemooRes.ok) {
+                const pokemonRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+                if (!pokemonRes.ok) {
                     continue;
                 }
-                const pokemonJson = await pokemooRes.json();
-                console.log(pokemonJson)
-                statuses[i].textContent = "S" + pokemonJson.stats.find(e => e.stat.name == "speed").base_stat;
+                const pokemonJson = await pokemonRes.json();
+                console.log(pokemonJson);
+                const statText = "S" + pokemonJson.stats.find(e => e.stat.name == "speed").base_stat;
+                for (const e of stats[i].children) {
+                    console.log(e);
+                    e.textContent = statText;
+                }
 
                 const pokemonSpecieName = pokemonJson.species.name;
                 const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonSpecieName}`);
@@ -83,8 +126,11 @@
                     continue;
                 }
                 const speciesJson = await speciesRes.json();
-                console.log(speciesJson)
-                names[i].textContent = speciesJson.names.find(e => e.language.name == "ja").name;
+                const nameText = speciesJson.names.find(e => e.language.name == "ja").name;
+                for (const e of names[i].children) {
+                    console.log(e);
+                    e.textContent = nameText;
+                }
             }
         });
     </script>
