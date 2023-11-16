@@ -4,10 +4,41 @@
     <meta charset="UTF-8">
     <title>My Selection</title>
     <style>
+        body {
+            font-family: system-ui;
+            font-size: 40px;
+        }
+
         .container {
             display: grid;
             grid-template-columns: 529px 529px 529px;
         }
+
+        .pokemon-cell {
+            position: relative;
+        }
+
+        .pokemon-stat {
+            position: absolute;
+            left: 310px;
+            top: 55px;
+        }
+        .pokemon-stat > span:nth-child(1) {
+            position: absolute;
+            color: white;
+            z-index: 3;
+        }
+        .pokemon-stat > span:nth-child(2) {
+            -webkit-text-stroke: 9px rgb(0, 99, 181);
+            position: absolute;
+            z-index: 2;
+        }
+        .pokemon-stat > span:nth-child(3) {
+            -webkit-text-stroke: 12px rgb(255, 255, 255);
+            position: absolute;
+            z-index: 1;
+        }
+
         .pokemon-img {
             width: 529px;
             height: 107px;
@@ -18,29 +49,46 @@
 </head>
 <body>
     <div class="container">
-        <img class="pokemon-img" id="pokemon-0" src="MyPokemonEmpty1.png">
-        <img class="pokemon-img" id="pokemon-1" src="MyPokemonEmpty2.png">
-        <img class="pokemon-img" id="pokemon-2" src="MyPokemonEmpty3.png">
-        <img class="pokemon-img" id="pokemon-3" src="MyPokemonEmpty4.png">
-        <img class="pokemon-img" id="pokemon-4" src="MyPokemonEmpty5.png">
-        <img class="pokemon-img" id="pokemon-5" src="MyPokemonEmpty6.png">
+        <div class="pokemon-cell">
+            <img class="pokemon-img" src="MyPokemonEmpty1.png">
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+        </div>
+        <div class="pokemon-cell">
+            <img class="pokemon-img" src="MyPokemonEmpty2.png">
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+        </div>
+        <div class="pokemon-cell">
+            <img class="pokemon-img" src="MyPokemonEmpty3.png">
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+        </div>
+        <div class="pokemon-cell">
+            <img class="pokemon-img" src="MyPokemonEmpty4.png">
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+        </div>
+        <div class="pokemon-cell">
+            <img class="pokemon-img" src="MyPokemonEmpty5.png">
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+        </div>
+        <div class="pokemon-cell">
+            <img class="pokemon-img" src="MyPokemonEmpty6.png">
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+        </div>
     </div>
     <script>
-        const imgs = [
-            document.querySelector("#pokemon-0"),
-            document.querySelector("#pokemon-1"),
-            document.querySelector("#pokemon-2"),
-            document.querySelector("#pokemon-3"),
-            document.querySelector("#pokemon-4"),
-            document.querySelector("#pokemon-5"),
-        ]
-        window.addEventListener("obsPokemonSvScreenBuilderMySelectionChanged", ({ detail: { imageUrls, mySelectionOrderMap } }) => {
+        const cells = Array.from(document.querySelectorAll(".pokemon-cell"));
+        const stats = cells.map(e => e.querySelector(".pokemon-stat"))
+        const imgs = cells.map(e => e.querySelector(".pokemon-img"))
+        window.addEventListener("obsPokemonSvScreenBuilderMySelectionChanged", ({ detail: { imageUrls, mySelectionOrderMap, customData } }) => {
+            const customDataJson = JSON.parse(customData);
             for (let i = 0; i < 6; i++) {
                 const order = mySelectionOrderMap[i];
                 if (order > 0) {
                     imgs[i].src = imageUrls[order - 1];
                 } else {
                     imgs[i].src = `MyPokemonEmpty${i}.png`;
+                }
+                for (const e of stats[i].children) {
+                    e.textContent = customDataJson.myPokemonSpeeds[order - 1];
                 }
             }
         });

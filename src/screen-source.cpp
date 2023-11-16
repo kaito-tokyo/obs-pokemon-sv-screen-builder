@@ -172,7 +172,7 @@ static std::string getFrontendRecordPath(config_t *config)
 
 const std::string defaultCustomData = R"({
 	"matchDurationMins": 20,
-	"myPokemonSpeeds": [1, 2, 3, 4, 5, 6]
+	"myPokemonSpeeds": ["S100", "S205", "S178", "S73", "S149", "S187"]
 })";
 
 extern "C" void screen_defaults(obs_data_t *settings)
