@@ -6,7 +6,7 @@
     <style>
         body {
             font-family: system-ui;
-            font-size: 15px;
+            font-size: 13px;
         }
 
         .container {
@@ -41,19 +41,34 @@
         .pokemon-stat {
             position: absolute;
             left: 0;
-            top: 60px;
+            top: 50px;
         }
-        .pokemon-stat > span:nth-child(1) {
+        .pokemon-stat > div {
+            position: relative;
+            display: inline-block;
+            width: 3ex;
+        }
+        .pokemon-stat > div > span:nth-child(1) {
             position: absolute;
             color: white;
             z-index: 3;
         }
-        .pokemon-stat > span:nth-child(2) {
-            -webkit-text-stroke: 3px rgb(0, 99, 181);
+        .pokemon-stat > .speed-semi > span:nth-child(2) {
+            -webkit-text-stroke: 3px #20884f;
             position: absolute;
             z-index: 2;
         }
-        .pokemon-stat > span:nth-child(3) {
+        .pokemon-stat > .speed-max > span:nth-child(2) {
+            -webkit-text-stroke: 3px #f44;
+            position: absolute;
+            z-index: 2;
+        }
+        .pokemon-stat > .speed-semi-scarf > span:nth-child(2) {
+            -webkit-text-stroke: 3px #1a70ce;
+            position: absolute;
+            z-index: 2;
+        }
+        .pokemon-stat > div > span:nth-child(3) {
             -webkit-text-stroke: 6px rgb(255, 255, 255);
             position: absolute;
             z-index: 1;
@@ -68,32 +83,56 @@
     <div class="container">
         <div class="pokemon-cell">
             <div class="pokemon-name"><span></span><span></span><span></span></div>
-            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat">
+                <div class="speed-semi"><span></span><span></span><span></span></div>
+                <div class="speed-max"><span></span><span></span><span></span></div>
+                <div class="speed-semi-scarf"><span></span><span></span><span></span></div>
+            </div>
             <img class="pokemon-img">
         </div>
         <div class="pokemon-cell">
             <div class="pokemon-name"><span></span><span></span><span></span></div>
-            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat">
+                <div class="speed-semi"><span></span><span></span><span></span></div>
+                <div class="speed-max"><span></span><span></span><span></span></div>
+                <div class="speed-semi-scarf"><span></span><span></span><span></span></div>
+            </div>
             <img class="pokemon-img">
         </div>
         <div class="pokemon-cell">
             <div class="pokemon-name"><span></span><span></span><span></span></div>
-            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat">
+                <div class="speed-semi"><span></span><span></span><span></span></div>
+                <div class="speed-max"><span></span><span></span><span></span></div>
+                <div class="speed-semi-scarf"><span></span><span></span><span></span></div>
+            </div>
             <img class="pokemon-img">
         </div>
         <div class="pokemon-cell">
             <div class="pokemon-name"><span></span><span></span><span></span></div>
-            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat">
+                <div class="speed-semi"><span></span><span></span><span></span></div>
+                <div class="speed-max"><span></span><span></span><span></span></div>
+                <div class="speed-semi-scarf"><span></span><span></span><span></span></div>
+            </div>
             <img class="pokemon-img">
         </div>
         <div class="pokemon-cell">
             <div class="pokemon-name"><span></span><span></span><span></span></div>
-            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat">
+                <div class="speed-semi"><span></span><span></span><span></span></div>
+                <div class="speed-max"><span></span><span></span><span></span></div>
+                <div class="speed-semi-scarf"><span></span><span></span><span></span></div>
+            </div>
             <img class="pokemon-img">
         </div>
         <div class="pokemon-cell">
             <div class="pokemon-name"><span></span><span></span><span></span></div>
-            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat">
+                <div class="speed-semi"><span></span><span></span><span></span></div>
+                <div class="speed-max"><span></span><span></span><span></span></div>
+                <div class="speed-semi-scarf"><span></span><span></span><span></span></div>
+            </div>
             <img class="pokemon-img">
         </div>
     </div>
@@ -114,10 +153,15 @@
                 }
                 const pokemonJson = await pokemonRes.json();
                 console.log(pokemonJson);
-                const statText = "S" + pokemonJson.stats.find(e => e.stat.name == "speed").base_stat;
-                for (const e of stats[i].children) {
-                    console.log(e);
-                    e.textContent = statText;
+                const baseSpeed = pokemonJson.stats.find(e => e.stat.name == "speed").base_stat;
+                for (const e of stats[i].children[0].children) {
+                    e.textContent = Math.floor(baseSpeed + 52);
+                }
+                for (const e of stats[i].children[1].children) {
+                    e.textContent = Math.floor((baseSpeed + 52) * 1.1);
+                }
+                for (const e of stats[i].children[2].children) {
+                    e.textContent = Math.floor((baseSpeed + 52) * 1.5);
                 }
 
                 const pokemonSpecieName = pokemonJson.species.name;
