@@ -33,8 +33,7 @@ public:
 		      const OpponentPokemonImageRecognizer
 			      &_opponentPokemonImageRecognizer,
 		      const ResultRecognizer &_resultRecognizer,
-		      const Logger &_logger,
-			  const std::string &_customData)
+		      const Logger &_logger, const std::string &_customData)
 		: myPokemonCropper(_myPokemonCropper),
 		  opponentPokemonCropper(_opponentPokemonCropper),
 		  resultCropper(_resultCropper),

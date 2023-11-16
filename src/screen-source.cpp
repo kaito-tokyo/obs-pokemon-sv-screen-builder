@@ -184,7 +184,8 @@ extern "C" void screen_defaults(obs_data_t *settings)
 	const std::string logPath =
 		recordPath + "/obs-pokemon-sv-screen-builder-log";
 	obs_data_set_default_string(settings, "log_path", logPath.c_str());
-	obs_data_set_default_string(settings, "custom_data", defaultCustomData.c_str());
+	obs_data_set_default_string(settings, "custom_data",
+				    defaultCustomData.c_str());
 }
 
 static bool add_all_sources_to_list(void *param, obs_source_t *source)
@@ -330,7 +331,9 @@ extern "C" obs_properties_t *screen_properties(void *data)
 				 obs_module_text("LogEnabled"),
 				 OBS_GROUP_CHECKABLE, props_log);
 
-	obs_properties_add_text(props, "custom_data", obs_module_text("CustomDataDescription"), OBS_TEXT_MULTILINE);
+	obs_properties_add_text(props, "custom_data",
+				obs_module_text("CustomDataDescription"),
+				OBS_TEXT_MULTILINE);
 
 	return props;
 }
