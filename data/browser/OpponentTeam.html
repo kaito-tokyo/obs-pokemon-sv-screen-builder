@@ -4,10 +4,61 @@
     <meta charset="UTF-8">
     <title>Opponent Team</title>
     <style>
+        body {
+            font-family: system-ui;
+            font-size: 15px;
+        }
+
         .container {
             display: grid;
             grid-template-columns: 100px;
         }
+        .pokemon-cell {
+            position: relative;
+        }
+
+        .pokemon-name {
+            position: absolute;
+            top: 10px;
+            width: 100%;
+        }
+        .pokemon-name > span:nth-child(1) {
+            position: absolute;
+            color: white;
+            z-index: 3;
+        }
+        .pokemon-name > span:nth-child(2) {
+            -webkit-text-stroke: 3px rgb(0, 0, 0);
+            position: absolute;
+            z-index: 2;
+        }
+        .pokemon-name > span:nth-child(3) {
+            -webkit-text-stroke: 6px rgb(255, 255, 255);
+            position: absolute;
+            z-index: 1;
+        }
+
+        .pokemon-stat {
+            position: absolute;
+            left: 0;
+            top: 60px;
+        }
+        .pokemon-stat > span:nth-child(1) {
+            position: absolute;
+            color: white;
+            z-index: 3;
+        }
+        .pokemon-stat > span:nth-child(2) {
+            -webkit-text-stroke: 3px rgb(0, 99, 181);
+            position: absolute;
+            z-index: 2;
+        }
+        .pokemon-stat > span:nth-child(3) {
+            -webkit-text-stroke: 6px rgb(255, 255, 255);
+            position: absolute;
+            z-index: 1;
+        }
+
         .pokemon-img {
             margin: -10px;
         }
@@ -15,25 +66,71 @@
 </head>
 <body>
     <div class="container">
-        <img class="pokemon-img" id="pokemon-0">
-        <img class="pokemon-img" id="pokemon-1">
-        <img class="pokemon-img" id="pokemon-2">
-        <img class="pokemon-img" id="pokemon-3">
-        <img class="pokemon-img" id="pokemon-4">
-        <img class="pokemon-img" id="pokemon-5">
+        <div class="pokemon-cell">
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
+        </div>
+        <div class="pokemon-cell">
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
+        </div>
+        <div class="pokemon-cell">
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
+        </div>
+        <div class="pokemon-cell">
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
+        </div>
+        <div class="pokemon-cell">
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
+        </div>
+        <div class="pokemon-cell">
+            <div class="pokemon-name"><span></span><span></span><span></span></div>
+            <div class="pokemon-stat"><span></span><span></span><span></span></div>
+            <img class="pokemon-img">
+        </div>
     </div>
     <script>
-        const imgs = [
-            document.querySelector("#pokemon-0"),
-            document.querySelector("#pokemon-1"),
-            document.querySelector("#pokemon-2"),
-            document.querySelector("#pokemon-3"),
-            document.querySelector("#pokemon-4"),
-            document.querySelector("#pokemon-5"),
-        ]
-        window.addEventListener("obsPokemonSvScreenBuilderOpponentTeamShown", ({ detail: { imageUrls } }) => {
+        const cells = Array.from(document.querySelectorAll(".pokemon-cell"));
+        const imgs = cells.map(e => e.querySelector(".pokemon-img"));
+        const names = cells.map(e => e.querySelector(".pokemon-name"));
+        const stats = cells.map(e => e.querySelector(".pokemon-stat"));
+        window.addEventListener("obsPokemonSvScreenBuilderOpponentTeamShown", async ({ detail: { imageUrls, pokemonNames } }) => {
             for (let i = 0; i < 6; i++) {
                 imgs[i].src = imageUrls[i];
+            }
+            for (let i = 0; i < 6; i++) {
+                const pokemonName = pokemonNames[i];
+                const pokemonRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+                if (!pokemonRes.ok) {
+                    continue;
+                }
+                const pokemonJson = await pokemonRes.json();
+                console.log(pokemonJson);
+                const statText = "S" + pokemonJson.stats.find(e => e.stat.name == "speed").base_stat;
+                for (const e of stats[i].children) {
+                    console.log(e);
+                    e.textContent = statText;
+                }
+
+                const pokemonSpecieName = pokemonJson.species.name;
+                const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonSpecieName}`);
+                if (!speciesRes.ok) {
+                    continue;
+                }
+                const speciesJson = await speciesRes.json();
+                const nameText = speciesJson.names.find(e => e.language.name == "ja").name;
+                for (const e of names[i].children) {
+                    console.log(e);
+                    e.textContent = nameText;
+                }
             }
         });
     </script>
