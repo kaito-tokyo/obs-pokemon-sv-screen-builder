@@ -68,17 +68,23 @@
                 imgs[i].src = imageUrls[i];
             }
             for (let i = 0; i < 6; i++) {
-                const response = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonNames[i]}`);
-                if (response.ok) {
-                    const json = await response.json();
-                    names[i].textContent = json.names.find(e => e.language.name == "ja").name;
+                const pokemonName = pokemonNames[i];
+                const pokemooRes = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonName}`);
+                if (!pokemooRes.ok) {
+                    continue;
                 }
+                const pokemonJson = await pokemooRes.json();
+                console.log(pokemonJson)
+                statuses[i].textContent = "S" + pokemonJson.stats.find(e => e.stat.name == "speed").base_stat;
 
-                const response2 = await fetch(`https://pokeapi.co/api/v2/pokemon/${pokemonNames[i]}`);
-                if (response2.ok) {
-                    const json = await response2.json();
-                    statuses[i].textContent = "S" + json.stats.find(e => e.stat.name == "speed").base_stat;
+                const pokemonSpecieName = pokemonJson.species.name;
+                const speciesRes = await fetch(`https://pokeapi.co/api/v2/pokemon-species/${pokemonSpecieName}`);
+                if (!speciesRes.ok) {
+                    continue;
                 }
+                const speciesJson = await speciesRes.json();
+                console.log(speciesJson)
+                names[i].textContent = speciesJson.names.find(e => e.language.name == "ja").name;
             }
         });
     </script>
