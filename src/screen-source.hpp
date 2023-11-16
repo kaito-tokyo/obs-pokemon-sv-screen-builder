@@ -16,6 +16,7 @@
 struct screen_context {
 	obs_source_t *source = nullptr;
 	obs_source_t *gameplaySource = nullptr;
+	std::string customData;
 
 	gs_texrender_t *texrender = nullptr;
 	gs_stagesurf_t *stagesurface = nullptr;
@@ -75,7 +76,7 @@ struct screen_context {
 				myPokemonNameRecognizer, mySelectionRecognizer,
 				myToolNameRecognizer,
 				opponentPokemonImageRecognizer,
-				resultRecognizer, logger),
+				resultRecognizer, logger, customData),
 		  lobbyRankShown(factory::newTemplateClassifier(
 			  "preset/SceneDetector_lobbyRankShown.cbor")),
 		  lobbyMySelect(factory::newHistClassifier(

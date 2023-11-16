@@ -33,7 +33,8 @@ public:
 		      const OpponentPokemonImageRecognizer
 			      &_opponentPokemonImageRecognizer,
 		      const ResultRecognizer &_resultRecognizer,
-		      const Logger &_logger)
+		      const Logger &_logger,
+			  const std::string &_customData)
 		: myPokemonCropper(_myPokemonCropper),
 		  opponentPokemonCropper(_opponentPokemonCropper),
 		  resultCropper(_resultCropper),
@@ -46,7 +47,8 @@ public:
 		  opponentPokemonImageRecognizer(
 			  _opponentPokemonImageRecognizer),
 		  resultRecognizer(_resultRecognizer),
-		  logger(_logger)
+		  logger(_logger),
+		  customData(_customData)
 	{
 	}
 
@@ -82,10 +84,14 @@ private:
 	const OpponentPokemonImageRecognizer &opponentPokemonImageRecognizer;
 	const ResultRecognizer &resultRecognizer;
 	const Logger &logger;
+	const std::string &customData;
 
 	void dispatchMyRankShown(const std::string &text) const
 	{
-		nlohmann::json json{{"text", text}};
+		nlohmann::json json{
+			{"text", text},
+			{"customData", customData},
+		};
 		std::string jsonString(json.dump());
 
 		const char eventName[] = "obsPokemonSvScreenBuilderMyRankShown";
@@ -96,7 +102,10 @@ private:
 
 	void dispatchOpponentRankShown(const std::string &text) const
 	{
-		nlohmann::json json{{"text", text}};
+		nlohmann::json json{
+			{"text", text},
+			{"customData", customData},
+		};
 		std::string jsonString(json.dump());
 
 		const char eventName[] =
@@ -127,13 +136,17 @@ private:
 		nlohmann::json json{
 			{"imageUrls", imageUrls},
 			{"pokemonNames", pokemonNames},
+			{"customData", customData},
 		};
 		std::string jsonString = json.dump();
 
 		const char eventName[] =
 			"obsPokemonSvScreenBuilderOpponentTeamShown";
 		sendEventToAllBrowserSources(eventName, jsonString.c_str());
-		nlohmann::json jsonForLog{{"pokemonNames", pokemonNames}};
+		nlohmann::json jsonForLog{
+			{"pokemonNames", pokemonNames},
+			{"customData", customData},
+		};
 		std::string jsonStringForLog = jsonForLog.dump();
 		logger.writeEvent(prefix, eventName, jsonStringForLog);
 	}
@@ -162,6 +175,7 @@ private:
 			{"mySelectionOrderMap", mySelectionOrderMap},
 			{"myPokemonNames", myPokemonNames},
 			{"myToolNames", myToolNames},
+			{"customData", customData},
 		};
 		const char eventName[] =
 			"obsPokemonSvScreenBuilderMySelectionChanged";
@@ -181,7 +195,10 @@ private:
 
 	void dispatchMatchStarted(int durationMins) const
 	{
-		nlohmann::json json{{"durationMins", durationMins}};
+		nlohmann::json json{
+			{"durationMins", durationMins},
+			{"customData", customData},
+		};
 		std::string jsonString(json.dump());
 
 		const char eventName[] =
@@ -193,7 +210,10 @@ private:
 	void dispatchMatchCompleted(std::string prefix,
 				    std::string resultString) const
 	{
-		nlohmann::json json{{"resultString", resultString}};
+		nlohmann::json json{
+			{"resultString", resultString},
+			{"customData", customData},
+		};
 		std::string jsonString(json.dump());
 
 		const char eventName[] =
