@@ -21,7 +21,7 @@ for file in glob('./assets/OpponentPokemonImageRecognizer/*/*.png'):
 
     descriptors = algorithm.detectAndCompute(targetBGR, mask)[1]
     data.append(np.ravel(descriptors).tolist())
-    _, pokemonName = name.split(' ')
+    pokemonName, _ = name.split(' ')
     pokemonNames.append(pokemonName)
 
 with open('data/preset/OpponentPokemonImageRecognizer.cbor', 'wb') as fp:
