@@ -9,6 +9,8 @@
 
 #include <obs.h>
 
+#include "plugin-support.h"
+
 CGImageRef convertBinarytoCgImage(const cv::Mat &imageBGRA)
 {
 	CVPixelBufferRef pixelBuffer;
@@ -69,7 +71,7 @@ std::string VisionTextRecognizer::recognizeByVision(CGImageRef image)
 				resultText += [nsString UTF8String];
 			}
 		}];
-	request.usesCPUOnly = YES;
+	request.usesCPUOnly = true;
 	request.recognitionLanguages = @[@"ja-JP"];
 	NSError *_Nullable error;
 	[requestHandler performRequests:@[request] error:&error];
@@ -79,19 +81,23 @@ std::string VisionTextRecognizer::recognizeByVision(CGImageRef image)
 void recognizeText(const cv::Mat &imageBinary,
 		   std::function<void(std::string)> callback)
 {
-	cv::Size destSize(imageBinary.cols * 2, imageBinary.rows * 2);
+	cv::Size destSize(imageBinary.cols * 4, imageBinary.rows * 4);
 	cv::Mat resizedBinary;
 	cv::resize(imageBinary, resizedBinary, destSize);
 
-	cv::Mat padImageBinary;
-	cv::copyMakeBorder(imageBinary, padImageBinary, 200, 200, 200, 200,
+	cv::Mat paddedImageBinary;
+	cv::copyMakeBorder(resizedBinary, paddedImageBinary,
+			   resizedBinary.rows / 4, resizedBinary.rows / 4,
+			   resizedBinary.cols / 4, resizedBinary.cols / 4,
 			   cv::BORDER_CONSTANT, cv::Scalar(255));
 
-	CGImageRef image = convertBinarytoCgImage(padImageBinary);
+	CGImageRef image = convertBinarytoCgImage(paddedImageBinary);
 	if (image == NULL) {
+		obs_log(LOG_INFO, "Couldn't convert cv::Mat to CGImage!");
 		callback("");
 		return;
 	}
+
 	__block VisionTextRecognizer recognizer;
 
 	dispatch_async(
