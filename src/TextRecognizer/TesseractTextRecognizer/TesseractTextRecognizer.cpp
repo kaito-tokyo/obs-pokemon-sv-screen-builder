@@ -4,7 +4,7 @@
 
 #include <obs.h>
 
-void recognizeText(const cv::Mat &imageBinary,
+void recognizeText(const cv::Mat imageBinary,
 		   std::function<void(std::string)> callback)
 {
 	UNUSED_PARAMETER(imageBinary);
