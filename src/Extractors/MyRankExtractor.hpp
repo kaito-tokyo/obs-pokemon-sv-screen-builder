@@ -6,42 +6,49 @@
 
 class MyRankExtractor {
 public:
-	MyRankExtractor(cv::Rect _rect, int _threshold,
-			const std::vector<int> _cols,
+	MyRankExtractor(const std::vector<cv::Rect> &_rects, int _threshold,
+			const std::vector<int> &_cols,
 			const std::vector<std::vector<uchar>> &_data,
-			double _ratio)
-		: rect(_rect),
+			double _ratio,
+			const std::vector<std::string> &_matchTypes)
+		: rects(_rects),
 		  threshold(_threshold),
 		  cols(_cols),
 		  data(_data),
 		  templates(generateMatVector(cols, data, CV_8U)),
-		  ratio(_ratio)
+		  ratio(_ratio),
+		  matchTypes(_matchTypes)
 	{
 	}
 
 	cv::Rect operator()(const cv::Mat &gameplayGray) const
 	{
 		assert(gameplayGray.cols == 1920 && gameplayGray.rows == 1080);
-		cv::Mat lineGray = gameplayGray(rect), lineBinary;
-		cv::threshold(lineGray, lineBinary, threshold, 255,
-			      cv::THRESH_BINARY);
-		cv::Mat icon = templates[0];
-		const int rankStart = matchIcon(lineBinary, icon);
-		if (rankStart < 0) {
-			return {};
-		} else {
-			return {rect.x + rankStart, rect.y,
-				lineBinary.cols - rankStart, rect.height};
+
+		for (size_t i = 0; i < templates.size(); i++) {
+			cv::Mat lineGray = gameplayGray(rects[i]), lineBinary;
+			cv::threshold(lineGray, lineBinary, threshold, 255,
+				      cv::THRESH_BINARY);
+			const int rankStart =
+				matchIcon(lineBinary, templates[i]);
+			if (rankStart >= 0) {
+				return {rects[i].x + rankStart, rects[i].y,
+					lineBinary.cols - rankStart,
+					rects[i].height};
+			}
 		}
+
+		return {};
 	}
 
 private:
-	const cv::Rect rect;
+	const std::vector<cv::Rect> rects;
 	const int threshold;
 	const std::vector<int> cols;
 	const std::vector<std::vector<uchar>> data;
 	const std::vector<cv::Mat> templates;
 	double ratio;
+	const std::vector<std::string> matchTypes;
 
 	static std::vector<cv::Mat>
 	generateMatVector(const std::vector<int> &cols,
