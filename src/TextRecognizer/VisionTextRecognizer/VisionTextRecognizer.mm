@@ -11,18 +11,30 @@
 
 #include "plugin-support.h"
 
-CGImageRef convertBinarytoCgImage(const cv::Mat &imageBGRA)
+cv::Mat preprocessCvMat(const cv::Mat &src)
+{
+	cv::Mat resized;
+	cv::resize(src, resized, cv::Size(src.cols * 4, src.rows * 4));
+
+	cv::Mat padded;
+	cv::copyMakeBorder(resized, padded, resized.rows / 4, resized.rows / 4,
+			   resized.cols / 4, resized.cols / 4,
+			   cv::BORDER_CONSTANT, cv::Scalar(255));
+
+	return padded;
+}
+
+CGImageRef convertCvMatToCGImage(const cv::Mat &cvMat, OSType pixelFormatType)
 {
 	CVPixelBufferRef pixelBuffer;
 	CVReturn retPixelBuffer = CVPixelBufferCreateWithBytes(
-		kCFAllocatorDefault, imageBGRA.cols, imageBGRA.rows,
-		kCVPixelFormatType_OneComponent8, imageBGRA.data,
-		imageBGRA.cols, NULL, NULL, NULL, &pixelBuffer);
+		NULL, cvMat.cols, cvMat.rows, pixelFormatType, cvMat.data,
+		cvMat.cols, NULL, NULL, NULL, &pixelBuffer);
 	if (retPixelBuffer != kCVReturnSuccess) {
-		blog(LOG_ERROR, "CVPixelBuffer creation failed! %d",
-		     retPixelBuffer);
+		obs_log(LOG_ERROR, "CVPixelBuffer creation failed! %d",
+			retPixelBuffer);
 		if (pixelBuffer != NULL) {
-			CFRelease(pixelBuffer);
+			CVPixelBufferRelease(pixelBuffer);
 		}
 		return NULL;
 	}
@@ -31,81 +43,67 @@ CGImageRef convertBinarytoCgImage(const cv::Mat &imageBGRA)
 	OSStatus retImage =
 		VTCreateCGImageFromCVPixelBuffer(pixelBuffer, NULL, &image);
 	if (retImage != noErr) {
-		blog(LOG_ERROR, "CGImage creation failed!");
+		obs_log(LOG_ERROR, "CGImage creation failed!");
 		if (image != NULL) {
-			CFRelease(image);
+			CGImageRelease(image);
 		}
 		return NULL;
 	}
-	CFRelease(pixelBuffer);
+	CVPixelBufferRelease(pixelBuffer);
 
 	return image;
 }
 
-class VisionTextRecognizer {
-public:
-	std::string recognizeByVision(CGImageRef image);
-
-private:
-	std::string resultText;
-};
-
-std::string VisionTextRecognizer::recognizeByVision(CGImageRef image)
+std::string recognizeByVision(CGImageRef image, NSString *langCode)
 {
+	__block std::string resultText;
+
 	VNImageRequestHandler *requestHandler = [[VNImageRequestHandler alloc]
 		initWithCGImage:image
 			options:@{}];
+
+	VNRequestCompletionHandler completionHandler = ^(VNRequest *req,
+							 NSError *err) {
+		if (err) {
+			NSLog(@"%@", err);
+			return;
+		}
+		for (VNRecognizedTextObservation *observation in req.results) {
+			NSArray<VNRecognizedText *> *candidates =
+				[observation topCandidates:1];
+			VNRecognizedText *recognizedText =
+				[candidates firstObject];
+			NSString *nsString = recognizedText.string;
+			resultText += [nsString UTF8String];
+		}
+	};
+
 	VNRecognizeTextRequest *request = [[VNRecognizeTextRequest alloc]
-		initWithCompletionHandler:^(VNRequest *req, NSError *err) {
-			if (err) {
-				NSLog(@"%@", err);
-				return;
-			}
-			for (VNRecognizedTextObservation *observation in req
-				     .results) {
-				NSArray<VNRecognizedText *> *candidates =
-					[observation topCandidates:1];
-				VNRecognizedText *recognizedText =
-					[candidates firstObject];
-				NSString *nsString = recognizedText.string;
-				resultText += [nsString UTF8String];
-			}
-		}];
-	request.usesCPUOnly = true;
-	request.recognitionLanguages = @[@"ja-JP"];
+		initWithCompletionHandler:completionHandler];
+	request.minimumTextHeight = 0.8;
+	request.recognitionLevel = VNRequestTextRecognitionLevelAccurate;
+	request.recognitionLanguages = @[langCode];
+
 	NSError *_Nullable error;
 	[requestHandler performRequests:@[request] error:&error];
+
 	return resultText;
 }
 
-void recognizeText(const cv::Mat &imageBinary,
+void recognizeText(const cv::Mat imageBinary,
 		   std::function<void(std::string)> callback)
 {
-	cv::Size destSize(imageBinary.cols * 4, imageBinary.rows * 4);
-	cv::Mat resizedBinary;
-	cv::resize(imageBinary, resizedBinary, destSize);
+	dispatch_queue_t queue =
+		dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
-	cv::Mat paddedImageBinary;
-	cv::copyMakeBorder(resizedBinary, paddedImageBinary,
-			   resizedBinary.rows / 4, resizedBinary.rows / 4,
-			   resizedBinary.cols / 4, resizedBinary.cols / 4,
-			   cv::BORDER_CONSTANT, cv::Scalar(255));
+	dispatch_block_t block = ^{
+		cv::Mat padded = preprocessCvMat(imageBinary);
+		CGImageRef image = convertCvMatToCGImage(
+			padded, kCVPixelFormatType_OneComponent8);
+		std::string result = recognizeByVision(image, @"ja-JP");
+		CGImageRelease(image);
+		callback(result);
+	};
 
-	CGImageRef image = convertBinarytoCgImage(paddedImageBinary);
-	if (image == NULL) {
-		obs_log(LOG_INFO, "Couldn't convert cv::Mat to CGImage!");
-		callback("");
-		return;
-	}
-
-	__block VisionTextRecognizer recognizer;
-
-	dispatch_async(
-		dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0),
-		^{
-			std::string result =
-				recognizer.recognizeByVision(image);
-			CFRelease(image);
-			callback(result);
-		});
+	dispatch_async(queue, block);
 }
