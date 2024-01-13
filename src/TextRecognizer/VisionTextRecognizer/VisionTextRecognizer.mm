@@ -93,7 +93,8 @@ std::string recognizeByVision(CGImageRef image, NSString *langCode)
 void recognizeText(const cv::Mat imageBinary,
 		   std::function<void(std::string)> callback)
 {
-	dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
+	dispatch_queue_t queue =
+		dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
 
 	dispatch_block_t block = ^{
 		cv::Mat padded = preprocessCvMat(imageBinary);
