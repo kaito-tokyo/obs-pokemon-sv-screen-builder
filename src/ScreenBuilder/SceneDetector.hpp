@@ -9,12 +9,13 @@
 class SceneDetector {
 public:
 	SceneDetector(const TemplateClassifier &_lobbyRankShown,
-		      const HistClassifier &_lobbyMySelect_,
+		      const HistClassifier &_lobbyMySelect,
+		      const HistClassifier &_lobbyMySelectV,
 		      const HistClassifier &_lobbyOpponentSelect,
 		      const HistClassifier &_blackTransition)
 		: lobbyRankShown(_lobbyRankShown),
-
-		  lobbyMySelect(_lobbyMySelect_),
+		  lobbyMySelect(_lobbyMySelect),
+		  lobbyMySelectV(_lobbyMySelectV),
 		  lobbyOpponentSelect(_lobbyOpponentSelect),
 		  blackTransition(_blackTransition)
 	{
@@ -37,6 +38,7 @@ public:
 	bool isSelectPokemonScreen(const cv::Mat &gameplayHSV) const
 	{
 		return lobbyMySelect(gameplayHSV) &&
+			   lobbyMySelectV(gameplayHSV) &&
 		       lobbyOpponentSelect(gameplayHSV);
 	}
 
@@ -53,6 +55,7 @@ public:
 private:
 	const TemplateClassifier &lobbyRankShown;
 	const HistClassifier &lobbyMySelect;
+	const HistClassifier &lobbyMySelectV;
 	const HistClassifier &lobbyOpponentSelect;
 	const HistClassifier &blackTransition;
 };

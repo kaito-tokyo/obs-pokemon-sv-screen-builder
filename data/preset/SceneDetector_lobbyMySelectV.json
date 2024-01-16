@@ -1,7 +1,7 @@
 {
     "rect": [149, 139, 662, 703],
-    "channel": 0,
+    "channel": 2,
     "nBins": 15,
-    "maxIndex": 8,
-    "ratio": 0.5
+    "maxIndex": 5,
+    "ratio": 0.4
 }
