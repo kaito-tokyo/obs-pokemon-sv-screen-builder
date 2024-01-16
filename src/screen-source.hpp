@@ -38,6 +38,7 @@ struct screen_context {
 
 	TemplateClassifier lobbyRankShown;
 	HistClassifier lobbyMySelect;
+	HistClassifier lobbyMySelectV;
 	HistClassifier lobbyOpponentSelect;
 	HistClassifier blackTransition;
 	SceneDetector sceneDetector;
@@ -81,11 +82,13 @@ struct screen_context {
 			  "preset/SceneDetector_lobbyRankShown.cbor")),
 		  lobbyMySelect(factory::newHistClassifier(
 			  "preset/SceneDetector_lobbyMySelect.json")),
+		  lobbyMySelectV(factory::newHistClassifier(
+			  "preset/SceneDetector_lobbyMySelectV.json")),
 		  lobbyOpponentSelect(factory::newHistClassifier(
 			  "preset/SceneDetector_lobbyOpponentSelect.json")),
 		  blackTransition(factory::newHistClassifier(
 			  "preset/SceneDetector_blackTransition.json")),
-		  sceneDetector(lobbyRankShown, lobbyMySelect,
+		  sceneDetector(lobbyRankShown, lobbyMySelect, lobbyMySelectV,
 				lobbyOpponentSelect, blackTransition),
 		  stateMachine(actionHandler, sceneDetector),
 		  matchStateAggregator(factory::newMatchStateAggregator(
