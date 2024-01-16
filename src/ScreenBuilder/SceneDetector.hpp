@@ -38,7 +38,7 @@ public:
 	bool isSelectPokemonScreen(const cv::Mat &gameplayHSV) const
 	{
 		return lobbyMySelect(gameplayHSV) &&
-			   lobbyMySelectV(gameplayHSV) &&
+		       lobbyMySelectV(gameplayHSV) &&
 		       lobbyOpponentSelect(gameplayHSV);
 	}
 

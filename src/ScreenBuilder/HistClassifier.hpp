@@ -36,7 +36,6 @@ public:
 		double maxVal;
 		cv::Point maxIdx;
 		cv::minMaxLoc(hist, nullptr, &maxVal, nullptr, &maxIdx);
-		obs_log(LOG_INFO, "%s %lf %lf %d", name.c_str(), static_cast<double>(areaHSV.total()), maxVal, maxIdx.y);
 		return maxVal > static_cast<double>(areaHSV.total()) * ratio &&
 		       maxIdx.y == maxIndex;
 	}
