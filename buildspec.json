@@ -31,8 +31,6 @@
             }
         }
     },
-    "tools": {
-    },
     "platformConfig": {
         "macos": {
             "bundleId": "com.github.umireon.obs-pokemon-sv-screen-builder"
@@ -44,8 +42,6 @@
     "website": "https://github.com/umireon/obs-pokemon-sv-screen-builder",
     "email": "umireon@gmail.com",
     "uuids": {
-        "macosPackage": "26cea3f6-c435-4510-87e0-246036d58c7f",
-        "macosInstaller": "7feab9b2-8b06-43cb-96e4-a41e98531c58",
         "windowsApp": "14a78367-d27d-4185-a838-489af9cd43fd"
     }
 }

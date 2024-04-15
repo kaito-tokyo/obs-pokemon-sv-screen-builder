@@ -167,7 +167,7 @@ ${_usage_host:-}"
     "$(jq -r '. | {name, version} | join(" ")' ${buildspec_file})"
 
   if [[ ${host_os} == macos ]] {
-    autoload -Uz read_codesign read_codesign_installer read_codesign_pass
+    autoload -Uz check_packages read_codesign read_codesign_installer read_codesign_pass
 
     local output_name="${product_name}-${product_version}-${host_os}-universal"
 
@@ -180,23 +180,13 @@ ${_usage_host:-}"
     if (( _loglevel > 1  || ${+CI} )) _tarflags="v${_tarflags}"
 
     if (( package )) {
-      if [[ ! -f ${project_root}/build_macos/Distribution.generated.xml ]] {
-        log_error 'Distribution file not found. Run the build script or the CMake build and install procedures first.'
+      if [[ ! -f ${project_root}/release/${config}/${product_name}.pkg ]] {
+        log_error 'Installer Package not found. Run the build script or the CMake build and install procedures first.'
         return 2
       }
 
       log_group "Packaging ${product_name}..."
       pushd ${project_root}
-      pkgbuild \
-        --component "${project_root}/release/${config}/${product_name}.plugin" \
-        --install-location "/Library/Application Support/obs-studio/plugins" \
-        --scripts "${project_root}/cmake/macos/resources/scripts" \
-        "${project_root}/release/${config}/${product_name}-flat.pkg"
-      productbuild \
-        --distribution "${project_root}/build_macos/Distribution.generated.xml" \
-        --package-path "${project_root}/release/${config}" \
-        "${project_root}/release/${config}/${product_name}.pkg"
-      rm "${project_root}/release/${config}/${product_name}-flat.pkg"
 
       if (( codesign )) {
         read_codesign_installer
