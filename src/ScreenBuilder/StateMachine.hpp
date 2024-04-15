@@ -12,7 +12,8 @@ public:
 	SceneDetector sceneDetector;
 
 	StateMachine(ActionHandler _actionHandler, SceneDetector _sceneDetector)
-		: actionHandler(_actionHandler), sceneDetector(_sceneDetector)
+		: actionHandler(_actionHandler),
+		  sceneDetector(_sceneDetector)
 	{
 	}
 

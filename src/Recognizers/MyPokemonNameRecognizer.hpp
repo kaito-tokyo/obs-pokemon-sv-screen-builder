@@ -10,7 +10,8 @@
 class MyPokemonNameRecognizer {
 public:
 	MyPokemonNameRecognizer(cv::Rect _rect, double _thresh)
-		: rect(_rect), thresh(_thresh)
+		: rect(_rect),
+		  thresh(_thresh)
 	{
 	}
 
