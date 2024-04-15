@@ -37,6 +37,7 @@
         }
     },
     "name": "obs-pokemon-sv-screen-builder",
+    "displayName": "OBS Pokémon SV Screen Builder",
     "version": "0.6.9",
     "author": "Kaito Udagawa",
     "website": "https://github.com/umireon/obs-pokemon-sv-screen-builder",
