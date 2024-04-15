@@ -12,6 +12,7 @@
 !.clang-format
 !.cmake-format.json
 !.gitignore
+!.prettierrc
 !buildspec.json
 !CMakeLists.txt
 !CMakePresets.json
