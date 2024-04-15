@@ -14,7 +14,8 @@ class MatchStateAggregator {
 public:
 	MatchStateAggregator(const std::regex &_matchStateRegex,
 			     const std::vector<std::string> &_columnNames)
-		: matchStateRegex(_matchStateRegex), columnNames(_columnNames)
+		: matchStateRegex(_matchStateRegex),
+		  columnNames(_columnNames)
 	{
 	}
 

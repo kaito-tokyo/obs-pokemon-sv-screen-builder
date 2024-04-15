@@ -8,7 +8,10 @@ class OpponentPokemonCropper {
 public:
 	OpponentPokemonCropper(std::vector<cv::Rect> _rects, cv::Point _seed,
 			       cv::Scalar _loDiff, cv::Scalar _upDiff)
-		: rects(_rects), seed(_seed), loDiff(_loDiff), upDiff(_upDiff)
+		: rects(_rects),
+		  seed(_seed),
+		  loDiff(_loDiff),
+		  upDiff(_upDiff)
 	{
 	}
 

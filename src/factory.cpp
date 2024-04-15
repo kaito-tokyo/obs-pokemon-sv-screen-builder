@@ -34,7 +34,7 @@ template<> struct adl_serializer<cv::Scalar> {
 		opt = {list[0], list[1], list[2], list[3]};
 	}
 };
-}
+} // namespace nlohmann
 
 static fs::path getPresetPath(const char *name)
 {
@@ -298,4 +298,4 @@ MatchStateAggregator newMatchStateAggregator(const char *name)
 	};
 }
 
-}
+} // namespace factory

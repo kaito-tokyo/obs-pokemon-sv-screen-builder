@@ -41,4 +41,4 @@ static std::string encode(const std::vector<unsigned char> input)
 
 	return std::string(encoded.begin(), encoded.end());
 }
-}
+} // namespace Base64
