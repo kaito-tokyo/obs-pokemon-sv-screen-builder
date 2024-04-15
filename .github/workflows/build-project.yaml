@@ -1,9 +1,13 @@
 name: Build Project
 on:
   workflow_call:
+    outputs:
+      pluginName:
+        description: 'Project name detected by parsing build spec file'
+        value: ${{ jobs.check-event.outputs.pluginName }}
 jobs:
   check-event:
-    name: Check GitHub Event Data 📡
+    name: Check GitHub Event Data 🔎
     runs-on: ubuntu-22.04
     defaults:
       run:
@@ -14,8 +18,9 @@ jobs:
       notarize: ${{ steps.setup.outputs.notarize }}
       config: ${{ steps.setup.outputs.config }}
       commitHash: ${{ steps.setup.outputs.commitHash }}
+      pluginName: ${{ steps.setup.outputs.pluginName }}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           fetch-depth: 0
       - name: Check Event Data ☑️
@@ -29,7 +34,8 @@ jobs:
           case "${GITHUB_EVENT_NAME}" in
             pull_request)
               config_data=('codesign:false' 'notarize:false' 'package:false' 'config:RelWithDebInfo')
-              if [[ ${{ contains(github.event.pull_request.labels.*.name, 'Seeking Testers') }} = true ]]; then
+              if gh pr view ${{ github.event.number }} --json labels \
+                | jq -e -r '.labels[] | select(.name == "Seeking Testers")' > /dev/null; then
                 config_data[0]='codesign:true'
                 config_data[2]='package:true'
               fi
@@ -56,15 +62,24 @@ jobs:
           done
           echo "commitHash=${GITHUB_SHA:0:9}" >> $GITHUB_OUTPUT
 
+          plugin_name="$(grep 'name' buildspec.json | sed -E -e 's/^.+"name":[^"]+"(.+)",?$/\1/g')"
+          plugin_display_name="$(grep 'displayName' buildspec.json | sed -E -e 's/^.+"displayName":[^"]+"(.+)",?$/\1/g' || echo "")"
+
+          if [[ "${plugin_display_name}" ]]; then
+            echo "pluginName=${plugin_display_name}" >> $GITHUB_OUTPUT
+          else
+            echo "pluginName=${plugin_name}" >> $GITHUB_OUTPUT
+          fi
+
   macos-build:
     name: Build for macOS 🍏
-    runs-on: macos-13
+    runs-on: macos-14
     needs: check-event
     defaults:
       run:
         shell: zsh --no-rcs --errexit --pipefail {0}
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
@@ -75,10 +90,14 @@ jobs:
           : Set Up Environment 🔧
           if (( ${+RUNNER_DEBUG} )) setopt XTRACE
 
-          print '::group::Clean Homebrew Environment'
-          typeset -a to_remove=()
+          print '::group::Enable Xcode 15.2'
+          sudo xcode-select --switch /Applications/Xcode_15.2.app/Contents/Developer
+          print '::endgroup::'
 
-          if (( #to_remove > 0 )) brew uninstall --ignore-dependencies ${to_remove}
+          print '::group::Clean Homebrew Environment'
+          local -a to_remove=()
+
+          if (( #to_remove )) brew uninstall --ignore-dependencies ${to_remove}
           print '::endgroup::'
 
           local product_name
@@ -89,7 +108,7 @@ jobs:
           print "pluginName=${product_name}" >> $GITHUB_OUTPUT
           print "pluginVersion=${product_version}" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: ccache-cache
         with:
           path: ${{ github.workspace }}/.ccache
@@ -99,7 +118,7 @@ jobs:
 
       - name: Set Up Codesigning 🔑
         uses: ./.github/actions/setup-macos-codesigning
-        if: ${{ fromJSON(needs.check-event.outputs.codesign) }}
+        if: fromJSON(needs.check-event.outputs.codesign)
         id: codesign
         with:
           codesignIdentity: ${{ secrets.MACOS_SIGNING_APPLICATION_IDENTITY }}
@@ -127,20 +146,20 @@ jobs:
           package: ${{ fromJSON(needs.check-event.outputs.package) }}
           codesign: ${{ fromJSON(needs.check-event.outputs.codesign) && fromJSON(steps.codesign.outputs.haveCodesignIdent) }}
           codesignIdent: ${{ steps.codesign.outputs.codesignIdent }}
-          codesignTeam: ${{ steps.codesign.outputs.codesignTeam }}
           installerIdent: ${{ steps.codesign.outputs.installerIdent }}
+          codesignTeam: ${{ steps.codesign.outputs.codesignTeam }}
           notarize: ${{ fromJSON(needs.check-event.outputs.notarize) && fromJSON(steps.codesign.outputs.haveNotarizationUser) }}
           codesignUser: ${{ secrets.MACOS_NOTARIZATION_USERNAME }}
           codesignPass: ${{ secrets.MACOS_NOTARIZATION_PASSWORD }}
 
       - name: Upload Artifacts 📡
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-macos-universal-${{ needs.check-event.outputs.commitHash }}
           path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-macos-universal.*
 
       - name: Upload Debug Symbol Artifacts 🪲
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ needs.check-event.outputs.config == 'Release' }}
         with:
           name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-macos-universal-${{ needs.check-event.outputs.commitHash }}-dSYMs
@@ -154,7 +173,7 @@ jobs:
       run:
         shell: bash
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
@@ -171,7 +190,7 @@ jobs:
           echo "pluginName=${product_name}" >> $GITHUB_OUTPUT
           echo "pluginVersion=${product_version}" >> $GITHUB_OUTPUT
 
-      - uses: actions/cache@v3
+      - uses: actions/cache@v4
         id: ccache-cache
         with:
           path: ${{ github.workspace }}/.ccache
@@ -196,19 +215,19 @@ jobs:
           config: ${{ needs.check-event.outputs.config }}
 
       - name: Upload Source Tarball 🗜️
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-sources-${{ needs.check-event.outputs.commitHash }}
           path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-source.*
 
       - name: Upload Artifacts 📡
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-ubuntu-22.04-x86_64-${{ needs.check-event.outputs.commitHash }}
           path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-x86_64*.*
 
       - name: Upload debug symbol artifacts 🪲
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         if: ${{ fromJSON(needs.check-event.outputs.package) }}
         with:
           name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-ubuntu-22.04-x86_64-${{ needs.check-event.outputs.commitHash }}-dbgsym
@@ -222,7 +241,7 @@ jobs:
       run:
         shell: pwsh
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
         with:
           submodules: recursive
           fetch-depth: 0
@@ -242,28 +261,6 @@ jobs:
           "pluginName=${ProductName}" >> $env:GITHUB_OUTPUT
           "pluginVersion=${ProductVersion}" >> $env:GITHUB_OUTPUT
 
-      - uses: actions/cache@v3
-        id: ccache-cache
-        with:
-          path: ${{ github.workspace }}/.ccache
-          key: ${{ runner.os }}-ccache-x86_64-${{ needs.check-event.outputs.config }}
-          restore-keys: |
-            ${{ runner.os }}-ccache-x86_64-
-
-      - name: Install ccache
-        run: |
-          Invoke-WebRequest https://github.com/ccache/ccache/releases/download/v4.7.4/ccache-4.7.4-windows-x86_64.zip -OutFile ${{ github.workspace }}/ccache-4.7.4-windows-x86_64.zip
-          Expand-Archive -Path ccache-4.7.4-windows-x86_64.zip -DestinationPath ${{ github.workspace }}
-          "${{ github.workspace }}/ccache-4.7.4-windows-x86_64" >> $Env:GITHUB_PATH
-
-      - name: Setup ccache
-        run: |
-          ccache --version
-          ccache --set-config=cache_dir="${{ github.workspace }}/.ccache"
-          ccache --set-config=max_size="4096M"
-          ccache --set-config=compression=true
-          ccache -z
-
       - name: Build Plugin 🧱
         uses: ./.github/actions/build-plugin
         with:
@@ -278,7 +275,7 @@ jobs:
           package: ${{ fromJSON(needs.check-event.outputs.package) }}
 
       - name: Upload Artifacts 📡
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: ${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-windows-x64-${{ needs.check-event.outputs.commitHash }}
           path: ${{ github.workspace }}/release/${{ steps.setup.outputs.pluginName }}-${{ steps.setup.outputs.pluginVersion }}-windows-x64*.*
