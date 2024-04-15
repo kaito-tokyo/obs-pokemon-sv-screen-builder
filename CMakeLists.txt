@@ -34,6 +34,43 @@ if(ENABLE_QT)
                AUTORCC ON)
 endif()
 
-target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.c)
+target_sources(
+  ${CMAKE_PROJECT_NAME}
+  PRIVATE src/plugin-main.c
+          src/screen-source.cpp
+          src/factory.cpp
+          src/ScreenBuilder/ActionHandler.cpp
+          src/ScreenBuilder/StateMachine.cpp
+          src/UpdateChecker/UpdateDialog.cpp
+          src/UpdateChecker/UpdateChecker.cpp)
 
+include(cmake/FetchOpenCV.cmake)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
+
+# TextRecognizer
+if(APPLE)
+  add_subdirectory(src/TextRecognizer/VisionTextRecognizer)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE VisionTextRecognizer)
+elseif(UNIX)
+  add_subdirectory(src/TextRecognizer/TesseractTextRecognizer)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE TesseractTextRecognizer)
+elseif(MSVC)
+  add_subdirectory(src/TextRecognizer/WinRTTextRecognizer)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTTextRecognizer)
+endif()
+
+# UpdateChecker
+if(APPLE)
+  add_subdirectory(src/UpdateChecker/URLSessionClient)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE URLSessionClient)
+elseif(UNIX)
+  add_subdirectory(src/UpdateChecker/CurlClient)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE CurlClient)
+elseif(MSVC)
+  add_subdirectory(src/UpdateChecker/WinRTHttpClient)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTHttpClient)
+endif()
+
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nameof/include)
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
