@@ -10,7 +10,8 @@
 class MyToolNameRecognizer {
 public:
 	MyToolNameRecognizer(cv::Rect _rect, double _thresh)
-		: rect(_rect), thresh(_thresh)
+		: rect(_rect),
+		  thresh(_thresh)
 	{
 	}
 

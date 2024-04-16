@@ -15,7 +15,8 @@ static QString dialogContent =
 UpdateDialog::UpdateDialog(std::string latestVersion,
 			   std::string latestChangelog, config_t *config,
 			   QWidget *parent = nullptr)
-	: QDialog(parent), layout(new QVBoxLayout)
+	: QDialog(parent),
+	  layout(new QVBoxLayout)
 {
 	setWindowTitle("ポケモンSVスクリーンビルダー - 更新が利用可能！");
 	setLayout(layout);

@@ -40,4 +40,4 @@ HistClassifier newHistClassifier(const char *name);
 TemplateClassifier newTemplateClassifier(const char *name);
 MatchStateAggregator newMatchStateAggregator(const char *name);
 
-}
+} // namespace factory

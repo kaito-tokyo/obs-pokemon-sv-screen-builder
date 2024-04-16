@@ -11,15 +11,6 @@ include(compilerconfig)
 include(defaults)
 include(helpers)
 
-if(MSVC)
-  find_program(CCACHE_EXE ccache)
-  if(CCACHE_EXE)
-    file(COPY_FILE ${CCACHE_EXE} ${CMAKE_BINARY_DIR}/cl.exe)
-    set(CMAKE_VS_GLOBALS CLToolExe=cl.exe CLToolPath=${CMAKE_BINARY_DIR} TrackFileAccess=false UseMultiToolTask=true
-                         DebugInformationFormat=OldStyle)
-  endif()
-endif()
-
 add_library(${CMAKE_PROJECT_NAME} MODULE)
 
 find_package(libobs REQUIRED)
@@ -31,8 +22,8 @@ if(ENABLE_FRONTEND_API)
 endif()
 
 if(ENABLE_QT)
-  find_qt(COMPONENTS Widgets Core)
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt::Core Qt::Widgets)
+  find_package(Qt6 COMPONENTS Widgets Core)
+  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE Qt6::Core Qt6::Widgets)
   target_compile_options(
     ${CMAKE_PROJECT_NAME} PRIVATE $<$<C_COMPILER_ID:Clang,AppleClang>:-Wno-quoted-include-in-framework-header
                                   -Wno-comma>)
@@ -82,5 +73,4 @@ endif()
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nameof/include)
-
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
