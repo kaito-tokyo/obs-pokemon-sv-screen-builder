@@ -32,6 +32,19 @@ public:
 			cv::Mat image = imagesBGR[i], mask;
 			cv::floodFill(image, mask, seed, 0, nullptr, loDiff,
 				      upDiff, cv::FLOODFILL_MASK_ONLY);
+
+			const int borderWidth = 3;
+			mask(cv::Rect(0, 0, mask.cols, borderWidth))
+				.setTo(cv::Scalar(0));
+			mask(cv::Rect(0, mask.rows - borderWidth, mask.cols,
+				      borderWidth))
+				.setTo(cv::Scalar(0));
+			mask(cv::Rect(0, 0, borderWidth, mask.rows))
+				.setTo(cv::Scalar(0));
+			mask(cv::Rect(mask.cols - borderWidth, 0, borderWidth,
+				      mask.rows))
+				.setTo(cv::Scalar(0));
+
 			masks[i] = mask({1, 1, mask.cols - 2, mask.rows - 2});
 		}
 		return masks;
