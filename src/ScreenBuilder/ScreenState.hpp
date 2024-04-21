@@ -1,7 +1,5 @@
 #pragma once
 
-#include <string>
-
 enum class ScreenState {
 	UNKNOWN,
 	ENTERING_RANK_SHOWN,
@@ -17,7 +15,7 @@ enum class ScreenState {
 	RESULT,
 };
 
-std::string screenStateToString(ScreenState state)
+static const char *screenStateToString(ScreenState state)
 {
 	switch (state) {
 	case ScreenState::UNKNOWN:
