@@ -40,4 +40,4 @@ if(NOT USE_SYSTEM_CURL AND (OS_MACOS OR OS_WINDOWS))
   FetchContent_MakeAvailable(curl)
 endif()
 
-find_package(CURL REQUIRED HINTS "${curl_SOURCE_DIR}/lib/cmake" /usr)
+find_package(CURL REQUIRED)
