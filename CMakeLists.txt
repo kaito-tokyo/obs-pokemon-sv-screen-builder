@@ -45,7 +45,8 @@ target_sources(
           src/UpdateChecker/UpdateChecker.cpp)
 
 include(cmake/FetchOpenCV.cmake)
-target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${OpenCV_LIBRARIES})
+target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
 
 # TextRecognizer
 if(APPLE)
