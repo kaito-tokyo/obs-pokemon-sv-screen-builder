@@ -42,7 +42,8 @@ target_sources(
           src/ScreenBuilder/ActionHandler.cpp
           src/ScreenBuilder/StateMachine.cpp
           src/UpdateChecker/UpdateDialog.cpp
-          src/UpdateChecker/UpdateChecker.cpp)
+          src/UpdateChecker/UpdateChecker.cpp
+          src/UpdateChecker/CurlClient.cpp)
 
 include(cmake/FetchOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE OpenCV)
@@ -59,17 +60,7 @@ elseif(MSVC)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTTextRecognizer)
 endif()
 
-# UpdateChecker
-if(APPLE)
-  add_subdirectory(src/UpdateChecker/URLSessionClient)
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE URLSessionClient)
-elseif(UNIX)
-  add_subdirectory(src/UpdateChecker/CurlClient)
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE CurlClient)
-elseif(MSVC)
-  add_subdirectory(src/UpdateChecker/WinRTHttpClient)
-  target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTHttpClient)
-endif()
+include(cmake/FetchLibCurl.cmake)
 
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nameof/include)
