@@ -38,6 +38,7 @@ if(NOT USE_SYSTEM_CURL AND (OS_MACOS OR OS_WINDOWS))
     URL ${Curl_URL}
     URL_HASH ${Curl_HASH})
   FetchContent_MakeAvailable(curl)
+  find_package(CURL REQUIRED HINTS "${curl_SOURCE_DIR}/lib/cmake")
+else()
+  find_package(CURL REQUIRED)
 endif()
-
-find_package(CURL REQUIRED)
