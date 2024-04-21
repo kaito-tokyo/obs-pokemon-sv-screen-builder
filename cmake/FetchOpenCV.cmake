@@ -8,8 +8,7 @@ else()
   set(OpenCV_BUILD_TYPE Debug)
 endif()
 
-set(OpenCV_BASEURL
-    "https://github.com/kaito-tokyo/kaito-tokyo-obs-dep-opencv/releases/download/${OpenCV_Version}")
+set(OpenCV_BASEURL "https://github.com/kaito-tokyo/kaito-tokyo-obs-dep-opencv/releases/download/${OpenCV_Version}")
 
 if(APPLE)
   if(OpenCV_BUILD_TYPE STREQUAL Debug)
