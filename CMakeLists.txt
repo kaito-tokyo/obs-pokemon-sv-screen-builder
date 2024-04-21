@@ -49,6 +49,9 @@ include(cmake/FetchOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${OpenCV_LIBS})
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${OpenCV_INCLUDE_DIRS})
 
+include(cmake/FetchCurl.cmake)
+target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE CURL::libcurl)
+
 # TextRecognizer
 if(APPLE)
   add_subdirectory(src/TextRecognizer/VisionTextRecognizer)
@@ -61,8 +64,5 @@ elseif(MSVC)
   target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE WinRTTextRecognizer)
 endif()
 
-include(cmake/FetchLibCurl.cmake)
-
 target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nlohmann-json/include)
-target_include_directories(${CMAKE_PROJECT_NAME} PRIVATE ${CMAKE_SOURCE_DIR}/vendor/nameof/include)
 set_target_properties_plugin(${CMAKE_PROJECT_NAME} PROPERTIES OUTPUT_NAME ${_name})
