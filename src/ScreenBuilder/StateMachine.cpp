@@ -1,5 +1,4 @@
 #include <opencv2/opencv.hpp>
-#include <nameof.hpp>
 
 #include <obs.h>
 #include <util/platform.h>
@@ -25,8 +24,8 @@ void StateMachine::operator()(const cv::Mat &_gameplayBGRA)
 	ScreenState nextState = compute(currentScene);
 	prevScene = currentScene;
 	if (nextState != state) {
-		std::string stateString(NAMEOF_ENUM(state));
-		std::string nextStateString(NAMEOF_ENUM(nextState));
+		std::string stateString(screenStateToString(state));
+		std::string nextStateString(screenStateToString(nextState));
 		obs_log(LOG_INFO, "State: %s to %s", stateString.c_str(),
 			nextStateString.c_str());
 		state = nextState;
