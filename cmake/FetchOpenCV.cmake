@@ -48,4 +48,5 @@ if(NOT USE_SYSTEM_OPENCV)
   FetchContent_MakeAvailable(opencv)
 endif()
 
+set(OpenCV_STATIC ON)
 find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs features2d HINTS "${opencv_SOURCE_DIR}")
