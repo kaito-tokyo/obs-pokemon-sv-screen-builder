@@ -6,5 +6,5 @@ set_target_properties(
              CXX_EXTENSIONS OFF
              VS_GLOBAL_CppWinRTOptimized true
              VS_GLOBAL_CppWinRTRootNamespaceAutoMerge true)
-target_link_libraries(WinRTTextRecognizer PRIVATE OBS::libobs plugin-support OpenCV)
-target_include_directories(WinRTTextRecognizer PRIVATE "${CMAKE_SOURCE_DIR}/src")
+target_link_libraries(WinRTTextRecognizer PRIVATE OBS::libobs plugin-support ${OpenCV_LIBRARIES})
+target_include_directories(WinRTTextRecognizer PRIVATE "${CMAKE_SOURCE_DIR}/src" ${OpenCV_INCLUDE_DIRS})
