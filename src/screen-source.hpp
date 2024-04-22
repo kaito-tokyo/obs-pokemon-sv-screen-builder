@@ -22,6 +22,8 @@ struct screen_context {
 	gs_stagesurf_t *stagesurface = nullptr;
 	cv::Mat gameplayBGRA;
 
+	std::string latestVersion;
+
 	MyPokemonCropper myPokemonCropper;
 	OpponentPokemonCropper opponentPokemonCropper;
 	ResultCropper resultCropper;

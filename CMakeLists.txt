@@ -34,16 +34,8 @@ if(ENABLE_QT)
                AUTORCC ON)
 endif()
 
-target_sources(
-  ${CMAKE_PROJECT_NAME}
-  PRIVATE src/plugin-main.c
-          src/screen-source.cpp
-          src/factory.cpp
-          src/ScreenBuilder/ActionHandler.cpp
-          src/ScreenBuilder/StateMachine.cpp
-          src/UpdateChecker/UpdateDialog.cpp
-          src/UpdateChecker/UpdateChecker.cpp
-          src/UpdateChecker/CurlClient.cpp)
+target_sources(${CMAKE_PROJECT_NAME} PRIVATE src/plugin-main.c src/screen-source.cpp src/factory.cpp
+                                             src/ScreenBuilder/ActionHandler.cpp src/ScreenBuilder/StateMachine.cpp)
 
 include(cmake/FetchOpenCV.cmake)
 target_link_libraries(${CMAKE_PROJECT_NAME} PRIVATE ${OpenCV_LIBS})

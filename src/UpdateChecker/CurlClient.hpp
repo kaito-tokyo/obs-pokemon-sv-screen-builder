@@ -1,4 +1,5 @@
-#include <functional>
+#pragma once
+
 #include <string>
 
 #include <curl/curl.h>
@@ -7,38 +8,41 @@
 
 #include "plugin-support.h"
 
-const std::string userAgent = std::string(PLUGIN_NAME) + "/" + PLUGIN_VERSION;
+namespace UpdateChecker {
+static const std::string userAgent =
+	std::string(PLUGIN_NAME) + "/" + PLUGIN_VERSION;
 
-static std::size_t writeFunc(void *ptr, std::size_t size, size_t nmemb,
-			     std::string *data)
+static std::size_t fetchStringFromUrlWriteFunc(void *ptr, std::size_t size,
+					       size_t nmemb, std::string *data)
 {
 	data->append(static_cast<char *>(ptr), size * nmemb);
 	return size * nmemb;
 }
 
-void fetchStringFromUrl(const char *urlString,
-			std::function<void(std::string, int)> callback)
+static std::string fetchStringFromUrl(const char *urlString)
 {
 	CURL *curl = curl_easy_init();
 	if (!curl) {
 		obs_log(LOG_INFO, "Failed to initialize curl");
-		callback("", CURL_LAST);
-		return;
+		return "";
 	}
 
 	std::string responseBody;
 	curl_easy_setopt(curl, CURLOPT_URL, urlString);
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunc);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION,
+			 fetchStringFromUrlWriteFunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseBody);
+	curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
 
 	CURLcode code = curl_easy_perform(curl);
 	curl_easy_cleanup(curl);
 
 	if (code == CURLE_OK) {
-		callback(responseBody, 0);
+		return responseBody;
 	} else {
 		obs_log(LOG_INFO, "Failed to get latest release info");
-		callback("", code);
+		return "";
 	}
 }
+} // namespace UpdateChecker
