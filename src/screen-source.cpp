@@ -15,9 +15,13 @@
 #include <util/platform.h>
 
 #include "screen-source.hpp"
+
 #include "plugin-support.h"
+#include "UpdateChecker/GitHubClient.hpp"
 
 namespace fs = std::filesystem;
+
+const char LATEST_RELEASE_URL[] = "https://api.github.com/repos/kaito-tokyo/obs-pokemon-sv-screen-builder/releases/latest";
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 try {
@@ -334,6 +338,8 @@ extern "C" obs_properties_t *screen_properties(void *data)
 	obs_properties_add_text(props, "custom_data",
 				obs_module_text("CustomDataDescription"),
 				OBS_TEXT_MULTILINE);
+
+	std::string latestVersion = UpdateChecker::getLatestReleaseVersion(LATEST_RELEASE_URL);
 
 	return props;
 }
