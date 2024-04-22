@@ -21,7 +21,8 @@
 
 namespace fs = std::filesystem;
 
-const char LATEST_RELEASE_URL[] = "https://api.github.com/repos/kaito-tokyo/obs-pokemon-sv-screen-builder/releases/latest";
+const char LATEST_RELEASE_API_URL[] = "https://api.github.com/repos/kaito-tokyo/obs-pokemon-sv-screen-builder/releases/latest";
+const char LATEST_RELEASE_URL[] = "https://github.com/kaito-tokyo/obs-pokemon-sv-screen-builder/releases/latest";
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 try {
@@ -312,6 +313,8 @@ extern "C" obs_properties_t *screen_properties(void *data)
 		return nullptr;
 	}
 
+	screen_context *context = static_cast<screen_context *>(data);
+
 	obs_properties_t *props = obs_properties_create();
 
 	obs_properties_add_button(
@@ -339,7 +342,33 @@ extern "C" obs_properties_t *screen_properties(void *data)
 				obs_module_text("CustomDataDescription"),
 				OBS_TEXT_MULTILINE);
 
-	std::string latestVersion = UpdateChecker::getLatestReleaseVersion(LATEST_RELEASE_URL);
+	if (context->latestVersion.empty()) {
+		context->latestVersion = UpdateChecker::getLatestReleaseVersion(LATEST_RELEASE_API_URL);
+	}
+
+	std::string versionInfoText;
+
+	if (context->latestVersion == PLUGIN_VERSION) {
+		versionInfoText = obs_module_text("VersionInfoTextLatest");
+	} else {
+		versionInfoText = obs_module_text("VersionInfoTextUpdateAvailable");
+	}
+
+	std::regex versionPattern(R"(0\.0\.0)");
+	std::string replacedVersionInfoText = std::regex_replace(versionInfoText, versionPattern, PLUGIN_VERSION);
+
+	obs_properties_add_text(props, "version_info",
+				replacedVersionInfoText.c_str(),
+				OBS_TEXT_INFO);
+
+	obs_property_t *props_donwload = obs_properties_add_button(props, "go_to_download_page",
+				  obs_module_text("GoToDownloadPage"),
+				  nullptr);
+
+
+	char latestReleaseURL[sizeof(LATEST_RELEASE_URL)];
+	std::memcpy(latestReleaseURL, LATEST_RELEASE_URL, sizeof(latestReleaseURL));
+	obs_property_button_set_url(props_donwload, latestReleaseURL);
 
 	return props;
 }
