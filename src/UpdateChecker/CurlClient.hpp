@@ -1,3 +1,5 @@
+#pragma once
+
 #include <functional>
 #include <string>
 
@@ -9,14 +11,14 @@
 
 const std::string userAgent = std::string(PLUGIN_NAME) + "/" + PLUGIN_VERSION;
 
-static std::size_t writeFunc(void *ptr, std::size_t size, size_t nmemb,
+static std::size_t fetchStringFromUrlWriteFunc(void *ptr, std::size_t size, size_t nmemb,
 			     std::string *data)
 {
 	data->append(static_cast<char *>(ptr), size * nmemb);
 	return size * nmemb;
 }
 
-void fetchStringFromUrl(const char *urlString,
+static void fetchStringFromUrl(const char *urlString,
 			std::function<void(std::string, int)> callback)
 {
 	CURL *curl = curl_easy_init();
@@ -29,7 +31,7 @@ void fetchStringFromUrl(const char *urlString,
 	std::string responseBody;
 	curl_easy_setopt(curl, CURLOPT_URL, urlString);
 	curl_easy_setopt(curl, CURLOPT_USERAGENT, userAgent.c_str());
-	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, writeFunc);
+	curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, fetchStringFromUrlWriteFunc);
 	curl_easy_setopt(curl, CURLOPT_WRITEDATA, &responseBody);
 
 	CURLcode code = curl_easy_perform(curl);

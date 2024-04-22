@@ -8,8 +8,7 @@
 
 #include "plugin-support.h"
 
-void fetchStringFromUrl(const char *urlString,
-			std::function<void(std::string, int)> callback);
+#include "CurlClient.hpp"
 
 class GitHubClient {
 public:
