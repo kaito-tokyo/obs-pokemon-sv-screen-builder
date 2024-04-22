@@ -22,7 +22,7 @@
 namespace fs = std::filesystem;
 
 const char LATEST_RELEASE_API_URL[] = "https://api.github.com/repos/kaito-tokyo/obs-pokemon-sv-screen-builder/releases/latest";
-const char LATEST_RELEASE_URL[] = "https://github.com/kaito-tokyo/obs-pokemon-sv-screen-builder/releases/latest";
+const char LATEST_RELEASE_LINK[] = R"(<a href="https://github.com/kaito-tokyo/obs-pokemon-sv-screen-builder/releases/latest">https://github.com/kaito-tokyo/obs-pokemon-sv-screen-builder/releases/latest<>)";
 
 static void screen_main_render_callback(void *data, uint32_t cx, uint32_t cy)
 try {
@@ -361,14 +361,9 @@ extern "C" obs_properties_t *screen_properties(void *data)
 				replacedVersionInfoText.c_str(),
 				OBS_TEXT_INFO);
 
-	obs_property_t *props_donwload = obs_properties_add_button(props, "go_to_download_page",
-				  obs_module_text("GoToDownloadPage"),
-				  nullptr);
-
-
-	char latestReleaseURL[sizeof(LATEST_RELEASE_URL)];
-	std::memcpy(latestReleaseURL, LATEST_RELEASE_URL, sizeof(latestReleaseURL));
-	obs_property_button_set_url(props_donwload, latestReleaseURL);
+	obs_properties_add_text(props, "go_to_download_page",
+				LATEST_RELEASE_LINK,
+				OBS_TEXT_INFO);
 
 	return props;
 }
