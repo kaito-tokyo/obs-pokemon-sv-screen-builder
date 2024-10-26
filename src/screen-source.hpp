@@ -49,6 +49,8 @@ struct screen_context {
 
 	MatchStateAggregator matchStateAggregator;
 
+	int nthTick = 0;
+
 	screen_context()
 		: myPokemonCropper(factory::newMyPokemonCropper(
 			  "preset/MyPokemonCropper.json")),

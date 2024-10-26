@@ -40,6 +40,13 @@ try {
 		return;
 	}
 
+	context->nthTick++;
+	if (context->nthTick > 5) {
+		context->nthTick = 0;
+	} else {
+		return;
+	}
+
 	const uint32_t gameplay_width =
 		obs_source_get_width(context->gameplaySource);
 	const uint32_t gameplay_height =

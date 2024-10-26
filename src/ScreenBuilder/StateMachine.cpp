@@ -96,7 +96,7 @@ ScreenState StateMachine::computeRankShown(GameplayScene scene)
 ScreenState StateMachine::computeEnteringSelectPokemon(void)
 {
 	bool canEnterToSelectPokemon = elapsedNsFromLastStateChange >
-				       1000000000;
+				       2000000000;
 	actionHandler.handleEnteringSelectPokemon(gameplayBGRA, gameplayBGR,
 						  canEnterToSelectPokemon,
 						  mySelectionMap, matchState);
